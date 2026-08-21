@@ -1,0 +1,896 @@
+import Link from "next/link"
+import {
+  Boxes, ArrowRight, GitBranch, BrainCircuit, Server, DollarSign,
+  Sparkles, ShieldCheck, Check, X, Zap, ChevronRight,
+  Code2, Terminal, Globe
+} from "lucide-react"
+import {
+  SiReact, SiVuedotjs, SiSvelte, SiNextdotjs, SiNodedotjs,
+  SiGo, SiRust, SiPython, SiLaravel, SiPostgresql, SiDocker, SiKubernetes,
+  SiMysql, SiMongodb, SiRedis, SiPhp, SiRuby, SiGithub, SiGitlab, SiNginx,
+  SiSqlite, SiAngular, SiSolid, SiMariadb, SiVercel
+} from "react-icons/si"
+import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+export default function LandingPage() {
+  return (
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      {/* ================= NAVBAR PUBLIK ================= */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Boxes className="h-4 w-4" />
+            </div>
+            <span>OmniStack</span>
+          </Link>
+
+          <nav className="hidden md:flex gap-6 text-sm font-medium text-muted-foreground">
+            <Link href="#features" className="hover:text-foreground transition-colors">Fitur</Link>
+            <Link href="#compare" className="hover:text-foreground transition-colors">Perbandingan</Link>
+            <Link href="#pricing" className="hover:text-foreground transition-colors">Harga</Link>
+            <Link href="#faq" className="hover:text-foreground transition-colors">FAQ</Link>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+              Masuk
+            </Link>
+            <Link href="/login" className={cn(buttonVariants({ size: "sm" }))}>
+              Mulai Gratis
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1">
+        {/* ================= HERO SECTION ================= */}
+        <section className="w-full pt-24 pb-24 md:pt-36 md:pb-36 relative overflow-hidden">
+          {/* Background Effects */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[800px] bg-primary/8 rounded-full blur-[160px] pointer-events-none" />
+          <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+          <div className="container mx-auto px-4 md:px-6 relative z-10 flex flex-col items-center text-center space-y-10">
+            {/* Announcement Badge */}
+            <Link href="#" className="group inline-flex items-center gap-2 backdrop-blur-sm bg-background/80 border border-primary/20 hover:border-primary/40 rounded-full px-5 py-2 text-sm transition-all duration-300 hover:scale-105">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="font-medium">v1.0 Rilis: AI Architect & Cloud IDE Bawaan</span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            {/* Main Heading */}
+            <div className="space-y-8 max-w-5xl">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-[1.1]">
+                The Developer Operating System.
+                <br />
+                <span className="inline-block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-500 to-purple-600">
+                  Any Stack. Any Cloud.
+                </span>
+              </h1>
+
+              <p className="mx-auto max-w-[700px] text-muted-foreground text-lg md:text-xl leading-relaxed">
+                Lupakan konfigurasi server yang rumit dan tagihan cloud yang membengkak. OmniStack menyatukan IDE, CI/CD, AI Prompt Engineer, dan Orkestrasi Container dalam satu platform.
+                <span className="block mt-2 font-medium text-foreground">Tuliskan idenya, biarkan AI yang merangkai infrastrukturnya.</span>
+              </p>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
+              <Link href="/login" className={cn(
+                buttonVariants({ size: "lg" }),
+                "gap-2 text-base px-8 h-12 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all hover:-translate-y-0.5"
+              )}>
+                Deploy Aplikasi Pertama
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="#features" className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "text-base px-8 h-12 border-2 hover:bg-muted/50 transition-all"
+              )}>
+                Lihat Cara Kerjanya
+              </Link>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap justify-center gap-6 pt-8 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-green-500" />
+                <span>SOC2 Compliant</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Server className="h-4 w-4 text-blue-500" />
+                <span>99.99% Uptime SLA</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <GitBranch className="h-4 w-4 text-purple-500" />
+                <span>GitOps Native</span>
+              </div>
+            </div>
+
+            {/* Tech Stack Section with Real Icons */}
+            <div className="pt-16 w-full max-w-5xl mx-auto">
+              <p className="text-sm text-muted-foreground mb-8 uppercase tracking-wider font-semibold">
+                Mendukung Penuh Ekosistem Favorit Anda
+              </p>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
+                {[
+                  { name: "React", icon: SiReact, color: "text-[#61DAFB]", bg: "bg-[#61DAFB]/10" },
+                  { name: "Vue", icon: SiVuedotjs, color: "text-[#4FC08D]", bg: "bg-[#4FC08D]/10" },
+                  { name: "Svelte", icon: SiSvelte, color: "text-[#FF3E00]", bg: "bg-[#FF3E00]/10" },
+                  { name: "Next.js", icon: SiNextdotjs, color: "text-foreground", bg: "bg-foreground/10" },
+                  { name: "Node.js", icon: SiNodedotjs, color: "text-[#5FA04E]", bg: "bg-[#5FA04E]/10" },
+                  { name: "Go", icon: SiGo, color: "text-[#00ADD8]", bg: "bg-[#00ADD8]/10" },
+                  { name: "Rust", icon: SiRust, color: "text-[#CE422B]", bg: "bg-[#CE422B]/10" },
+                  { name: "Python", icon: SiPython, color: "text-[#3776AB]", bg: "bg-[#3776AB]/10" },
+                  { name: "Laravel", icon: SiLaravel, color: "text-[#FF2D20]", bg: "bg-[#FF2D20]/10" },
+                  { name: "Postgres", icon: SiPostgresql, color: "text-[#4169E1]", bg: "bg-[#4169E1]/10" },
+                  { name: "Docker", icon: SiDocker, color: "text-[#2496ED]", bg: "bg-[#2496ED]/10" },
+                  { name: "Kubernetes", icon: SiKubernetes, color: "text-[#326CE5]", bg: "bg-[#326CE5]/10" },
+                ].map((tech) => (
+                  <div
+                    key={tech.name}
+                    className={cn(
+                      "flex flex-col items-center justify-center aspect-square rounded-xl border border-border/50 hover:border-primary/50 transition-all duration-300 hover:scale-110 hover:shadow-lg gap-2 p-4",
+                      tech.bg
+                    )}
+                  >
+                    <tech.icon className={cn("w-8 h-8", tech.color)} />
+                    <span className={cn("font-semibold text-xs md:text-sm", tech.color)}>
+                      {tech.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= INTERACTIVE FEATURES (TABS) ================= */}
+        <section id="features" className="w-full py-20 md:py-32 bg-muted/30 border-y">
+          <div className="container mx-auto px-4 md:px-6">
+            {/* Section Header */}
+            <div className="text-center mb-12 space-y-4 max-w-3xl mx-auto">
+              <Badge variant="secondary" className="gap-1">
+                <Sparkles className="h-3 w-3" />
+                Mengapa Developer Memilih Kami
+              </Badge>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Lebih dari Sekadar Hosting.
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                OmniStack adalah <strong>Developer Operating System</strong> yang mengubah cara Anda membangun, men-deploy, dan mengelola aplikasi.
+              </p>
+            </div>
+
+            {/* Simple Tabs */}
+            <Tabs defaultValue="ai" className="w-full max-w-5xl mx-auto">
+              <TabsList className="w-full justify-start border-b bg-transparent h-auto p-0 rounded-none">
+                <TabsTrigger
+                  value="ai"
+                  className="flex items-center gap-2 px-6 py-4 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <BrainCircuit className="h-4 w-4" />
+                  <span>AI Architect</span>
+                  <Badge className="ml-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-[10px] px-1.5 py-0">
+                    BARU
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="stack"
+                  className="flex items-center gap-2 px-6 py-4 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Boxes className="h-4 w-4" />
+                  <span>Freedom Stack</span>
+                  <Badge className="ml-2 bg-blue-500 text-white text-[10px] px-1.5 py-0">
+                    POPULER
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="gitops"
+                  className="flex items-center gap-2 px-6 py-4 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <GitBranch className="h-4 w-4" />
+                  <span>GitOps Native</span>
+                  <Badge className="ml-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[10px] px-1.5 py-0">
+                    PRO
+                  </Badge>
+                </TabsTrigger>
+              </TabsList>
+
+              {/* AI ARCHITECT TAB */}
+              <TabsContent value="ai" className="mt-6">
+                <div className="border rounded-2xl bg-background shadow-sm overflow-hidden">
+                  <div className="p-6 md:p-10">
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                        <BrainCircuit className="h-4 w-4 text-primary" />
+                      </div>
+                      <Badge variant="secondary" className="gap-1">
+                        <Sparkles className="h-3 w-3" /> AI Architect
+                      </Badge>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">Ketik Ide. AI yang Mengerjakan.</h3>
+                    <p className="text-muted-foreground max-w-2xl mb-8">
+                      Cukup jelaskan ide Anda dalam bahasa natural. AI kami akan merangkai seluruh infrastruktur — dari Dockerfile hingga CI/CD — dalam hitungan detik.
+                    </p>
+
+                    <div className="grid lg:grid-cols-5 gap-4">
+                      <div className="lg:col-span-2 space-y-4">
+                        <div className="rounded-xl border bg-background p-4 shadow-sm">
+                          <div className="flex items-center gap-2 mb-3 text-xs text-muted-foreground">
+                            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                            <span className="font-medium">Prompt Pengguna</span>
+                          </div>
+                          <div className="bg-muted/50 rounded-lg p-3 text-sm border-l-2 border-primary">
+                            <span className="text-muted-foreground">Buatkan </span>
+                            <span className="font-mono text-primary font-semibold">SaaS Inventory</span>
+                            <span className="text-muted-foreground"> dengan </span>
+                            <span className="font-mono text-blue-500">Next.js</span>
+                            <span className="text-muted-foreground">, </span>
+                            <span className="font-mono text-green-500">Hono API</span>
+                            <span className="text-muted-foreground">, dan </span>
+                            <span className="font-mono text-purple-500">Postgres</span>
+                            <span className="text-muted-foreground">. Sertakan auth JWT, upload ke S3, dan deploy otomatis.</span>
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl bg-zinc-950 text-zinc-100 shadow-2xl border border-zinc-800 overflow-hidden">
+                          <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900 border-b border-zinc-800">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-zinc-500">
+                              <Terminal className="h-3 w-3" />
+                              <span className="font-mono">omnistack-ai-engine</span>
+                            </div>
+                          </div>
+                          <div className="p-4 font-mono text-xs space-y-2 min-h-[240px]">
+                            <div className="flex items-start gap-2">
+                              <span className="text-blue-400">→</span>
+                              <span className="text-zinc-300">Menganalisis prompt...</span>
+                              <Check className="h-3 w-3 text-green-500 ml-auto" />
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="text-blue-400">→</span>
+                              <span className="text-zinc-300">Memilih stack optimal...</span>
+                              <Check className="h-3 w-3 text-green-500 ml-auto" />
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="text-blue-400">→</span>
+                              <span className="text-zinc-300">Membuat Dockerfile & docker-compose</span>
+                              <Check className="h-3 w-3 text-green-500 ml-auto" />
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="text-blue-400">→</span>
+                              <span className="text-zinc-300">Generating Prisma schema (Postgres)</span>
+                              <Check className="h-3 w-3 text-green-500 ml-auto" />
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="text-blue-400">→</span>
+                              <span className="text-zinc-300">Membuat auth middleware (JWT)</span>
+                              <Check className="h-3 w-3 text-green-500 ml-auto" />
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="text-blue-400">→</span>
+                              <span className="text-zinc-300">Setup S3 bucket policy (MinIO)</span>
+                              <Check className="h-3 w-3 text-green-500 ml-auto" />
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <span className="text-blue-400">→</span>
+                              <span className="text-zinc-300">Konfigurasi CI/CD (.github/workflows)</span>
+                              <Check className="h-3 w-3 text-green-500 ml-auto" />
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center gap-2">
+                              <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
+                              <span className="text-green-400 font-semibold">✓ Siap deploy dalam 4.2 detik</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="rounded-lg border bg-background p-3 text-center">
+                            <div className="text-2xl font-bold text-primary">24</div>
+                            <div className="text-xs text-muted-foreground">Files Generated</div>
+                          </div>
+                          <div className="rounded-lg border bg-background p-3 text-center">
+                            <div className="text-2xl font-bold text-green-500">4.2s</div>
+                            <div className="text-xs text-muted-foreground">Build Time</div>
+                          </div>
+                          <div className="rounded-lg border bg-background p-3 text-center">
+                            <div className="text-2xl font-bold text-blue-500">3</div>
+                            <div className="text-xs text-muted-foreground">Services</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="lg:col-span-3 rounded-xl border bg-background shadow-sm overflow-hidden flex flex-col">
+                        <div className="flex items-center border-b bg-muted/30 px-2 overflow-x-auto">
+                          {[
+                            { name: "docker-compose.yml", active: true, icon: SiDocker, color: "text-blue-500" },
+                            { name: "schema.prisma", active: false, icon: Boxes, color: "text-purple-500" },
+                            { name: "api.ts", active: false, icon: Code2, color: "text-green-500" },
+                            { name: ".env.example", active: false, icon: Terminal, color: "text-yellow-500" },
+                          ].map((file) => (
+                            <div
+                              key={file.name}
+                              className={cn(
+                                "flex items-center gap-2 px-4 py-2.5 text-xs font-mono border-r border-border/50 cursor-pointer whitespace-nowrap transition-colors",
+                                file.active
+                                  ? "bg-background text-foreground border-b-2 border-b-primary"
+                                  : "text-muted-foreground hover:bg-muted/50"
+                              )}
+                            >
+                              <file.icon className={cn("h-3.5 w-3.5", file.color)} />
+                              <span>{file.name}</span>
+                              {file.active && <div className="h-1.5 w-1.5 rounded-full bg-green-500 ml-1" />}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex-1 bg-zinc-950 p-5 font-mono text-xs overflow-auto min-h-[400px]">
+                          <pre className="text-zinc-300 leading-relaxed">
+<span className="text-zinc-500"># docker-compose.yml</span>
+<span className="text-purple-400">version</span>: <span className="text-green-400">'3.9'</span>
+<span className="text-purple-400">services</span>:
+  <span className="text-blue-400">frontend</span>:
+    <span className="text-purple-400">build</span>: <span className="text-green-400">./frontend</span>
+    <span className="text-purple-400">ports</span>:
+      - <span className="text-green-400">"3000:3000"</span>
+    <span className="text-purple-400">environment</span>:
+      - <span className="text-orange-400">NEXT_PUBLIC_API_URL</span>=<span className="text-green-400">http://api:8080</span>
+    <span className="text-purple-400">depends_on</span>:
+      - <span className="text-blue-400">api</span>
+
+  <span className="text-blue-400">api</span>:
+    <span className="text-purple-400">build</span>: <span className="text-green-400">./api</span>
+    <span className="text-purple-400">ports</span>:
+      - <span className="text-green-400">"8080:8080"</span>
+    <span className="text-purple-400">environment</span>:
+      - <span className="text-orange-400">DATABASE_URL</span>=<span className="text-green-400">postgresql://user:pass@db:5432/inventory</span>
+      - <span className="text-orange-400">JWT_SECRET</span>=<span className="text-green-400">${"{omnistack-secret}"}</span>
+    <span className="text-purple-400">depends_on</span>:
+      - <span className="text-blue-400">db</span>
+      - <span className="text-blue-400">s3</span>
+
+  <span className="text-blue-400">db</span>:
+    <span className="text-purple-400">image</span>: <span className="text-green-400">postgres:16-alpine</span>
+    <span className="text-purple-400">volumes</span>:
+      - <span className="text-green-400">pgdata:/var/lib/postgresql/data</span>
+
+  <span className="text-blue-400">s3</span>:
+    <span className="text-purple-400">image</span>: <span className="text-green-400">minio/minio</span>
+    <span className="text-purple-400">command</span>: <span className="text-green-400">server /data --console-address ":9001"</span>
+
+<span className="text-purple-400">volumes</span>:
+  <span className="text-blue-400">pgdata</span>:
+                          </pre>
+                        </div>
+                        <div className="flex items-center justify-between px-4 py-2 border-t bg-muted/30 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1.5">
+                              <div className="h-2 w-2 rounded-full bg-green-500" />
+                              Ready
+                            </span>
+                            <span>UTF-8</span>
+                            <span>YAML</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <GitBranch className="h-3 w-3" />
+                            <span>main</span>
+                            <span className="text-primary font-medium">• Auto-generated</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4 mt-8 pt-8 border-t">
+                      <div className="flex gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                          <Zap className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-1">Generate Instan</h4>
+                          <p className="text-sm text-muted-foreground">Struktur folder, Dockerfile, dan config dalam hitungan detik.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
+                          <ShieldCheck className="h-5 w-5 text-blue-500" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-1">Best Practices</h4>
+                          <p className="text-sm text-muted-foreground">Selalu mengikuti standar keamanan & production-ready.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-500/10">
+                          <GitBranch className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-1">CI/CD Siap Pakai</h4>
+                          <p className="text-sm text-muted-foreground">GitHub Actions otomatis di-generate untuk auto-deploy.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* FREEDOM STACK TAB */}
+              <TabsContent value="stack" className="mt-6">
+                <div className="border rounded-2xl bg-background shadow-sm overflow-hidden">
+                  <div className="p-6 md:p-10">
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10">
+                        <Boxes className="h-4 w-4 text-blue-500" />
+                      </div>
+                      <Badge variant="secondary" className="gap-1">
+                        <Boxes className="h-3 w-3" /> Freedom Stack
+                      </Badge>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">Kebebasan Mutlak. Tanpa Kompromi.</h3>
+                    <p className="text-muted-foreground max-w-2xl mb-8">
+                      Pilih bahasa pemrograman, framework, dan database apa pun. OmniStack menggunakan <strong>Nixpacks</strong> & <strong>Buildpacks</strong> untuk mendeteksi dan menyesuaikan environment secara otomatis.
+                    </p>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="rounded-xl border bg-background p-6">
+                        <h4 className="font-bold mb-4 flex items-center gap-2">
+                          <div className="h-6 w-6 rounded bg-blue-500/10 flex items-center justify-center">
+                            <Code2 className="h-3.5 w-3.5 text-blue-500" />
+                          </div>
+                          Frontend Frameworks
+                        </h4>
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { name: "React", icon: SiReact, color: "#61DAFB" },
+                            { name: "Vue", icon: SiVuedotjs, color: "#4FC08D" },
+                            { name: "Svelte", icon: SiSvelte, color: "#FF3E00" },
+                            { name: "Next.js", icon: SiNextdotjs, color: "currentColor" },
+                            { name: "Angular", icon: SiAngular, color: "#DD0031" },
+                            { name: "Solid", icon: SiSolid, color: "#2C4F7C" },
+                          ].map((tech) => (
+                            <div key={tech.name} className="flex flex-col items-center gap-2 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                              <tech.icon className="w-6 h-6" style={{ color: tech.color }} />
+                              <span className="text-xs font-medium">{tech.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border bg-background p-6">
+                        <h4 className="font-bold mb-4 flex items-center gap-2">
+                          <div className="h-6 w-6 rounded bg-green-500/10 flex items-center justify-center">
+                            <Terminal className="h-3.5 w-3.5 text-green-500" />
+                          </div>
+                          Backend Languages
+                        </h4>
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { name: "Node.js", icon: SiNodedotjs, color: "#5FA04E" },
+                            { name: "Python", icon: SiPython, color: "#3776AB" },
+                            { name: "Go", icon: SiGo, color: "#00ADD8" },
+                            { name: "Rust", icon: SiRust, color: "#CE422B" },
+                            { name: "PHP", icon: SiPhp, color: "#777BB4" },
+                            { name: "Ruby", icon: SiRuby, color: "#CC342D" },
+                          ].map((tech) => (
+                            <div key={tech.name} className="flex flex-col items-center gap-2 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                              <tech.icon className="w-6 h-6" style={{ color: tech.color }} />
+                              <span className="text-xs font-medium">{tech.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border bg-background p-6">
+                        <h4 className="font-bold mb-4 flex items-center gap-2">
+                          <div className="h-6 w-6 rounded bg-purple-500/10 flex items-center justify-center">
+                            <Server className="h-3.5 w-3.5 text-purple-500" />
+                          </div>
+                          Databases
+                        </h4>
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { name: "Postgres", icon: SiPostgresql, color: "#4169E1" },
+                            { name: "MySQL", icon: SiMysql, color: "#4479A1" },
+                            { name: "MongoDB", icon: SiMongodb, color: "#47A248" },
+                            { name: "Redis", icon: SiRedis, color: "#DC382D" },
+                            { name: "SQLite", icon: SiSqlite, color: "#003B57" },
+                            { name: "MariaDB", icon: SiMariadb, color: "#003545" },
+                          ].map((tech) => (
+                            <div key={tech.name} className="flex flex-col items-center gap-2 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                              <tech.icon className="w-6 h-6" style={{ color: tech.color }} />
+                              <span className="text-xs font-medium">{tech.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border bg-background p-6">
+                        <h4 className="font-bold mb-4 flex items-center gap-2">
+                          <div className="h-6 w-6 rounded bg-orange-500/10 flex items-center justify-center">
+                            <GitBranch className="h-3.5 w-3.5 text-orange-500" />
+                          </div>
+                          DevOps & Tools
+                        </h4>
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { name: "Docker", icon: SiDocker, color: "#2496ED" },
+                            { name: "Kubernetes", icon: SiKubernetes, color: "#326CE5" },
+                            { name: "GitHub", icon: SiGithub, color: "currentColor" },
+                            { name: "GitLab", icon: SiGitlab, color: "#FC6D26" },
+                            { name: "Nginx", icon: SiNginx, color: "#009639" },
+                            { name: "Vercel", icon: SiVercel, color: "currentColor" },
+                          ].map((tech) => (
+                            <div key={tech.name} className="flex flex-col items-center gap-2 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                              <tech.icon className="w-6 h-6" style={{ color: tech.color }} />
+                              <span className="text-xs font-medium">{tech.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* GITOPS TAB */}
+              <TabsContent value="gitops" className="mt-6">
+                <div className="border rounded-2xl bg-background shadow-sm overflow-hidden">
+                  <div className="p-6 md:p-10">
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10">
+                        <GitBranch className="h-4 w-4 text-green-500" />
+                      </div>
+                      <Badge variant="secondary" className="gap-1">
+                        <GitBranch className="h-3 w-3" /> GitOps Native
+                      </Badge>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">Dari Git Push ke Production.</h3>
+                    <p className="text-muted-foreground max-w-2xl mb-8">
+                      Setiap <strong>Pull Request</strong> mendapatkan environment sendiri yang otomatis dibuat dan dihapus. Workflow modern tanpa konfigurasi rumit.
+                    </p>
+
+                    <div className="grid lg:grid-cols-3 gap-4 mb-8">
+                      <div className="rounded-xl border bg-background p-6 relative">
+                        <div className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-lg">1</div>
+                        <GitBranch className="h-8 w-8 text-blue-500 mb-3" />
+                        <h4 className="font-bold mb-2">Git Push</h4>
+                        <p className="text-sm text-muted-foreground">Developer push kode ke branch baru atau membuat Pull Request di GitHub.</p>
+                      </div>
+                      <div className="rounded-xl border bg-background p-6 relative">
+                        <div className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-yellow-500 text-white flex items-center justify-center font-bold text-sm shadow-lg">2</div>
+                        <Zap className="h-8 w-8 text-yellow-500 mb-3" />
+                        <h4 className="font-bold mb-2">Auto Build</h4>
+                        <p className="text-sm text-muted-foreground">OmniStack otomatis build Docker image, setup database, dan deploy ke cluster.</p>
+                      </div>
+                      <div className="rounded-xl border bg-background p-6 relative">
+                        <div className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm shadow-lg">3</div>
+                        <Globe className="h-8 w-8 text-green-500 mb-3" />
+                        <h4 className="font-bold mb-2">Preview Live</h4>
+                        <p className="text-sm text-muted-foreground">URL unik (<code>pr-42.app.com</code>) aktif. Share ke tim untuk review instan.</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border bg-background overflow-hidden">
+                      <div className="px-6 py-4 border-b bg-muted/30 flex items-center justify-between">
+                        <h4 className="font-bold flex items-center gap-2">
+                          <GitBranch className="h-4 w-4" />
+                          Active Preview Environments
+                        </h4>
+                        <Badge variant="outline">Live Demo</Badge>
+                      </div>
+                      <div className="divide-y">
+                        {[
+                          { branch: "feat/new-checkout", status: "Live", color: "green", url: "pr-142.app.omnistack.dev", time: "2 menit lalu" },
+                          { branch: "fix/payment-bug", status: "Building", color: "yellow", url: "pr-141.app.omnistack.dev", time: "5 menit lalu" },
+                          { branch: "feat/user-dashboard", status: "Live", color: "green", url: "pr-140.app.omnistack.dev", time: "1 jam lalu" },
+                          { branch: "chore/update-deps", status: "Merged", color: "purple", url: "production.app.omnistack.dev", time: "3 jam lalu" },
+                        ].map((pr, idx) => (
+                          <div key={idx} className="px-6 py-4 flex items-center justify-between hover:bg-muted/20 transition-colors">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <div className={cn(
+                                "h-2 w-2 rounded-full shrink-0",
+                                pr.color === "green" && "bg-green-500",
+                                pr.color === "yellow" && "bg-yellow-500 animate-pulse",
+                                pr.color === "purple" && "bg-purple-500",
+                              )} />
+                              <code className="text-sm font-mono truncate">{pr.branch}</code>
+                            </div>
+                            <div className="hidden md:flex items-center gap-4 flex-1 justify-center">
+                              <span className="text-xs text-muted-foreground">{pr.url}</span>
+                            </div>
+                            <div className="flex items-center gap-3 shrink-0">
+                              <Badge variant="outline" className={cn(
+                                "text-xs",
+                                pr.color === "green" && "text-green-600 border-green-600",
+                                pr.color === "yellow" && "text-yellow-600 border-yellow-600",
+                                pr.color === "purple" && "text-purple-600 border-purple-600",
+                              )}>
+                                {pr.status}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground hidden sm:inline">{pr.time}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-4 mt-8">
+                      <div className="flex gap-3">
+                        <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                        <div>
+                          <h5 className="font-semibold mb-1">Zero Downtime Deploy</h5>
+                          <p className="text-sm text-muted-foreground">Blue-green deployment otomatis saat merge ke main.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                        <div>
+                          <h5 className="font-semibold mb-1">Auto Cleanup</h5>
+                          <p className="text-sm text-muted-foreground">Environment dihapus otomatis saat PR ditutup.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                        <div>
+                          <h5 className="font-semibold mb-1">Database Clone</h5>
+                          <p className="text-sm text-muted-foreground">Setiap PR dapat database sendiri dengan data dummy.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </section>
+
+        {/* ================= COMPARISON TABLE ================= */}
+        <section id="compare" className="w-full py-20 md:py-32">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-12 space-y-4">
+              <Badge variant="outline">Perbandingan Platform</Badge>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
+                OmniStack vs Kompetitor
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Lihat mengapa tim engineering beralih dari PaaS mahal dan Control Panel kuno.
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto border rounded-xl overflow-hidden shadow-sm">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-[300px] font-bold">Fitur</TableHead>
+                    <TableHead className="text-center font-bold text-primary">OmniStack</TableHead>
+                    <TableHead className="text-center font-bold text-muted-foreground">Vercel / Heroku</TableHead>
+                    <TableHead className="text-center font-bold text-muted-foreground">cPanel / CyberPanel</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Harga Skala Besar</TableCell>
+                    <TableCell className="text-center text-green-600 font-semibold">Murah (BYOC)</TableCell>
+                    <TableCell className="text-center text-red-500">Sangat Mahal</TableCell>
+                    <TableCell className="text-center text-yellow-600">Murah (Tapi Manual)</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">AI Prompt Engineer</TableCell>
+                    <TableCell className="text-center"><Check className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center"><X className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center"><X className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Kebebasan Tech Stack</TableCell>
+                    <TableCell className="text-center"><Check className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center text-orange-500">Terbatas</TableCell>
+                    <TableCell className="text-center"><Check className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Preview Environments</TableCell>
+                    <TableCell className="text-center"><Check className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center"><Check className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center"><X className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Multi-Node Clustering</TableCell>
+                    <TableCell className="text-center"><Check className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center text-muted-foreground">Terkunci Vendor</TableCell>
+                    <TableCell className="text-center"><X className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">FinOps (Cost Tracking)</TableCell>
+                    <TableCell className="text-center"><Check className="h-5 w-5 text-green-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center"><X className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                    <TableCell className="text-center"><X className="h-5 w-5 text-red-500 mx-auto" /></TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= PRICING ================= */}
+        <section id="pricing" className="w-full py-20 md:py-32 bg-muted/30 border-y">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16 space-y-4">
+              <Badge variant="secondary">Harga Transparan</Badge>
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Bayar untuk Platform, Bukan Markup Cloud.
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Gunakan VPS Anda sendiri (Hetzner, AWS, DigitalOcean, IDCloudHost). Kami hanya menagih biaya lisensi perangkat lunak OmniStack.
+              </p>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+              {/* Tier 1: Hobby */}
+              <div className="flex flex-col p-8 bg-background rounded-2xl border shadow-sm">
+                <h3 className="text-2xl font-bold">Hobby</h3>
+                <p className="text-sm text-muted-foreground mt-2">Untuk developer indie & eksplorasi.</p>
+                <div className="mt-6">
+                  <span className="text-4xl font-bold">Gratis</span>
+                  <span className="text-muted-foreground ml-2">/ selamanya</span>
+                </div>
+                <ul className="mt-8 space-y-3 text-sm flex-1">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Hingga 3 Proyek</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> 1 Node Cluster</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Community Support</li>
+                  <li className="flex items-center gap-2 text-muted-foreground"><X className="h-4 w-4" /> AI Architect (Terbatas)</li>
+                </ul>
+                <Link href="/login" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "mt-8 w-full")}>Mulai Gratis</Link>
+              </div>
+
+              {/* Tier 2: Pro (Recommended) */}
+              <div className="flex flex-col p-8 bg-background rounded-2xl border-2 border-primary shadow-xl relative">
+                <Badge className="absolute top-4 right-4">Populer</Badge>
+                <h3 className="text-2xl font-bold">Pro</h3>
+                <p className="text-sm text-muted-foreground mt-2">Untuk startup & software house.</p>
+                <div className="mt-6">
+                  <span className="text-4xl font-bold">$29</span>
+                  <span className="text-muted-foreground ml-2">/ bulan</span>
+                </div>
+                <ul className="mt-8 space-y-3 text-sm flex-1">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Proyek & Node Tak Terbatas</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> AI Architect Unlimited</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Preview Environments</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> FinOps Dashboard</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Priority Support</li>
+                </ul>
+                <Link href="/login" className={cn(buttonVariants({ size: "lg" }), "mt-8 w-full")}>Pilih Pro</Link>
+              </div>
+
+              {/* Tier 3: Enterprise */}
+              <div className="flex flex-col p-8 bg-background rounded-2xl border shadow-sm">
+                <h3 className="text-2xl font-bold">Enterprise</h3>
+                <p className="text-sm text-muted-foreground mt-2">Untuk korporasi & regulasi ketat.</p>
+                <div className="mt-6">
+                  <span className="text-4xl font-bold">Custom</span>
+                </div>
+                <ul className="mt-8 space-y-3 text-sm flex-1">
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Self-Hosted / On-Premise</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> SSO (SAML / OIDC)</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Audit Logs & RBAC</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> SLA 99.99% Uptime</li>
+                  <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Dedicated Engineer</li>
+                </ul>
+                <Link href="#" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "mt-8 w-full")}>Hubungi Sales</Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= FAQ ================= */}
+        <section id="faq" className="w-full py-20 md:py-32">
+          <div className="container mx-auto px-4 md:px-6 max-w-3xl">
+            <div className="text-center mb-12 space-y-4">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Pertanyaan Umum</h2>
+            </div>
+
+            <Accordion className="w-full space-y-4">
+              <AccordionItem value="item-1" className="border rounded-lg px-6 py-2 bg-muted/20">
+                <AccordionTrigger className="text-lg font-medium hover:no-underline">
+                  Apakah saya harus memindahkan server saya ke OmniStack?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground pb-4">
+                  Tidak. OmniStack menggunakan model <strong>Bring Your Own Cloud (BYOC)</strong>. Anda cukup membeli VPS dari provider mana pun (AWS, Hetzner, Biznet, dll), lalu hubungkan ke OmniStack. Kami yang akan menginstal dan mengelola orkestrasinya secara remote. Data Anda tetap 100% milik Anda.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-2" className="border rounded-lg px-6 py-2 bg-muted/20">
+                <AccordionTrigger className="text-lg font-medium hover:no-underline">
+                  Bahasa pemrograman apa saja yang didukung?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground pb-4">
+                  Hampir semua! Karena kami menggunakan Nixpacks dan Docker di belakang layar, Anda bisa men-deploy Node.js, Python, Go, Rust, Ruby, PHP, Java, hingga .NET. Anda juga bebas memilih library frontend (React, Vue, Svelte) dan backend (Express, Hono, Django, Laravel) apa pun.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-3" className="border rounded-lg px-6 py-2 bg-muted/20">
+                <AccordionTrigger className="text-lg font-medium hover:no-underline">
+                  Bagaimana dengan keamanan dan privasi kode saya?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground pb-4">
+                  OmniStack tidak pernah menyimpan source code Anda. Kami hanya menarik kode dari GitHub/GitLab Anda saat proses build (CI/CD) berlangsung, lalu langsung membangun Docker Image di server Anda sendiri. Untuk klien Enterprise, kami menyediakan opsi instalasi On-Premise di jaringan internal perusahaan Anda.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-4" className="border rounded-lg px-6 py-2 bg-muted/20">
+                <AccordionTrigger className="text-lg font-medium hover:no-underline">
+                  Apa bedanya OmniStack dengan Vercel atau Heroku?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground pb-4">
+                  Vercel dan Heroku sangat mudah digunakan, namun mereka mengunci Anda di infrastruktur mereka (Vendor Lock-in) dan tagihannya bisa sangat mahal saat traffic naik. OmniStack memberikan <em>user experience</em> yang sama mudahnya, namun berjalan di atas server Anda sendiri yang jauh lebih murah, serta mendukung backend dan database secara native (bukan hanya frontend).
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </section>
+
+        {/* ================= FINAL CTA ================= */}
+        <section className="w-full py-20 md:py-32 bg-muted/30 border-t">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="flex flex-col items-center space-y-6 text-center bg-primary text-primary-foreground rounded-3xl p-12 md:p-16 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+              <div className="relative z-10 space-y-6 max-w-2xl">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                  Waktunya Upgrade Infrastruktur Anda.
+                </h2>
+                <p className="mx-auto max-w-[600px] text-primary-foreground/80 md:text-xl/relaxed">
+                  Hentikan pemborosan waktu untuk konfigurasi server dan tagihan cloud yang tidak masuk akal.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                  <Link href="/login" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "gap-2 text-base px-8 h-12 text-primary")}>
+                    Buat Workspace Gratis
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* ================= FOOTER ================= */}
+      <footer className="flex flex-col gap-4 sm:flex-row py-8 w-full shrink-0 items-center px-4 md:px-6 border-t bg-background">
+        <div className="flex items-center gap-2 font-bold">
+          <Boxes className="h-4 w-4" />
+          <span>OmniStack</span>
+        </div>
+        <p className="text-xs text-muted-foreground sm:ml-auto">
+          © 2026 OmniStack Inc. The Developer Operating System.
+        </p>
+        <nav className="flex gap-4 sm:gap-6 text-xs text-muted-foreground">
+          <Link href="#" className="hover:underline">Terms</Link>
+          <Link href="#" className="hover:underline">Privacy</Link>
+          <Link href="#" className="hover:underline">Status</Link>
+        </nav>
+      </footer>
+    </div>
+  )
+}
