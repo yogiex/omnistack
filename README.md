@@ -1,6 +1,3 @@
-Berikut adalah file **README.md** yang komprehensif untuk proyek OmniStack Anda. Buat file `README.md` di root proyek, lalu salin seluruh konten di bawah ini:
-
-````markdown
 <div align="center">
 
 # 🚀 OmniStack
@@ -57,6 +54,7 @@ Prompt: "Buat SaaS Inventory dengan Next.js, Hono API, dan Postgres"
 ✓ Setting up Prisma schema...
 ✓ Ready to deploy in 4.2s.
 ```
+
 ````
 
 ### 🎨 Freedom Stack Builder
@@ -224,3 +222,4 @@ Proyek ini dilisensikan di bawah **MIT License** — lihat file [LICENSE](LICENS
 [Website](#) • [Dokumentasi](#) • [Discord](#) • [Twitter](#)
 
 </div>
+````
