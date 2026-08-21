@@ -55,8 +55,6 @@ Prompt: "Buat SaaS Inventory dengan Next.js, Hono API, dan Postgres"
 ✓ Ready to deploy in 4.2s.
 ```
 
-````
-
 ### 🎨 Freedom Stack Builder
 
 Pilih kombinasi **frontend + backend + database + ORM** apa saja. OmniStack otomatis mendeteksi bahasa dengan Nixpacks/Buildpacks dan menyesuaikan environment-nya.
