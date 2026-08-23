@@ -753,10 +753,9 @@ npm run dev          # Dev server dengan Turbopack
 npm run build        # Production build
 npm run start        # Start production server
 npm run lint         # Run ESLint
-npm run db:push      # Push Prisma schema
-npm run db:seed      # Seed database with test data
-npm run db:studio    # Open Prisma Studio
 ```
+
+> **Catatan:** Saat ini belum ada backend/database — auth & data masih mock (localStorage). Test account tersedia via quick-login di halaman `/login`. Perintah Prisma/seed akan aktif setelah integrasi database.
 
 ---
 
@@ -769,26 +768,26 @@ omnistack/
 │   ├── page.tsx                 # Landing page
 │   ├── (dashboard)/             # Authenticated pages
 │   │   ├── layout.tsx           # Dashboard shell
-│   │   └── page.tsx             # Dashboard
-│   ├── admin/                   # Admin-only pages
-│   │   └── page.tsx
-│   ├── login/page.tsx           # Login
-│   └── api/
-│       └── auth/[...nextauth]/  # NextAuth routes
+│   │   ├── dashboard/           # Overview dashboard
+│   │   ├── projects/            # ✅ Project management (CRUD + RBAC mock)
+│   │   │   └── _components/     # Page-specific components
+│   │   ├── [id]/                # Detail proyek
+│   │   ├── ai-architect/        # AI Architect (WIP)
+│   │   ├── deployments/         # Deployment history
+│   │   ├── finops/              # Cost tracking
+│   │   └── admin/               # Admin-only pages
+│   ├── login/                   # Login (mock auth)
+│   └── register/                # Registrasi (mock)
 ├── components/
 │   ├── ui/                      # shadcn/ui (DO NOT EDIT)
-│   └── [business components]
+│   ├── app-sidebar.tsx          # Main sidebar
+│   ├── top-nav.tsx              # Top navigation bar
+│   └── project-status-badge.tsx # Badge status (Live/Building/Failed/Stopped)
 ├── lib/
-│   ├── auth.ts                  # NextAuth config
-│   ├── prisma.ts                # Prisma client
-│   ├── permissions.ts           # RBAC helpers
-│   └── utils.ts                 # Utilities
-├── prisma/
-│   ├── schema.prisma            # Database schema
-│   └── seed.ts                  # Test data seeder
-├── types/
-│   └── next-auth.d.ts           # Type extensions
-└── middleware.ts                # Route protection
+│   ├── auth-context.tsx         # Mock auth context (localStorage)
+│   ├── mock-data.ts             # Mock data + RBAC helpers
+│   └── utils.ts                 # Utilities (cn, dll)
+└── hooks/                       # Custom React hooks
 ```
 
 ---
@@ -804,8 +803,8 @@ omnistack/
 - [x] Prisma + Database setup
 
 ### 🚧 Phase 2: Core Features (Q4 2026) - IN PROGRESS
+- [x] Project CRUD (mock UI dengan RBAC) ← NEW!
 - [ ] AI Architect real integration
-- [ ] Project CRUD
 - [ ] GitHub OAuth
 - [ ] Cloud IDE
 - [ ] User management UI (admin)
