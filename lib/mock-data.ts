@@ -797,3 +797,282 @@ export function getMockDatabasesForRole(userId: string, role: Role): MockDatabas
 export function getDatabasesByProject(projectId: string): MockDatabase[] {
   return MOCK_DATABASES.filter((d) => d.projectId === projectId)
 }
+
+// ============================================================
+// FinOps Dashboard
+// ============================================================
+
+export interface FinOpsOverview {
+  totalCost: number
+  computeCost: number
+  storageCost: number
+  networkCost: number
+  databaseCost: number
+  budget: number
+  trend: number
+  cpuAvg: number
+  cpuPeak: number
+  storageUsedGb: number
+  storageGrowthGb: number
+  bandwidthGb: number
+  egressGb: number
+  dbQueriesM: number
+  dbSlowQueries: number
+}
+
+export type CostTrendPoint = {
+  day: number
+  total: number
+  compute: number
+  storage: number
+  network: number
+  database: number
+}
+
+export type BudgetStatus = "on-track" | "warning" | "over"
+
+export interface ProjectCostBreakdown {
+  projectId: string
+  projectName: string
+  team: string
+  thisMonth: number
+  lastMonth: number
+  computeCost: number
+  storageCost: number
+  networkCost: number
+  databaseCost: number
+  budget?: number
+}
+
+export interface OptimizationRecommendation {
+  id: string
+  projectId: string
+  projectName: string
+  impact: "high" | "medium"
+  title: string
+  currentDesc: string
+  recommendedDesc: string
+  potentialSavings: number
+  effort: "low" | "medium" | "high"
+}
+
+export interface OptimizedProject {
+  projectId: string
+  projectName: string
+  note: string
+}
+
+export type AlertSeverity = "critical" | "warning" | "info"
+
+export interface BudgetAlert {
+  id: string
+  projectId?: string
+  projectName?: string
+  severity: AlertSeverity
+  title: string
+  description: string
+  timeLabel: string
+}
+
+/** Trend 30 hari deterministik (tanpa Math.random) */
+export const MOCK_FINOPS_TREND: CostTrendPoint[] = Array.from({ length: 30 }, (_, i) => {
+  const wave = Math.sin(i / 3.2) * 6 + ((i * 7) % 11) - 5
+  const compute = 22 + wave * 0.9 + (i > 20 ? 4 : 0)
+  const storage = 10 + i * 0.08
+  const network = 5.5 + ((i * 5) % 4) + wave * 0.25
+  const database = 4 + ((i * 3) % 3) * 0.7
+  return {
+    day: i + 1,
+    compute: Number(compute.toFixed(2)),
+    storage: Number(storage.toFixed(2)),
+    network: Number(network.toFixed(2)),
+    database: Number(database.toFixed(2)),
+    total: Number((compute + storage + network + database).toFixed(2)),
+  }
+})
+
+/** Overview dihitung dari trend agar konsisten */
+export const FINOPS_OVERVIEW: FinOpsOverview = (() => {
+  const sum = (k: keyof Omit<CostTrendPoint, "day">) =>
+    Number(MOCK_FINOPS_TREND.reduce((a, p) => a + p[k], 0).toFixed(2))
+  const totalCost = sum("total")
+  return {
+    totalCost,
+    computeCost: sum("compute"),
+    storageCost: sum("storage"),
+    networkCost: sum("network"),
+    databaseCost: sum("database"),
+    budget: 1500,
+    trend: 15.2,
+    cpuAvg: 68,
+    cpuPeak: 89,
+    storageUsedGb: 342,
+    storageGrowthGb: 12,
+    bandwidthGb: 847,
+    egressGb: 234,
+    dbQueriesM: 2.4,
+    dbSlowQueries: 12,
+  }
+})()
+
+export const MOCK_COST_BREAKDOWN: ProjectCostBreakdown[] = [
+  {
+    projectId: "proj-001",
+    projectName: "E-Commerce Platform",
+    team: "Backend",
+    thisMonth: 423.18,
+    lastMonth: 389.42,
+    computeCost: 245,
+    storageCost: 112,
+    networkCost: 66,
+    databaseCost: 46,
+    budget: 500,
+  },
+  {
+    projectId: "proj-002",
+    projectName: "AI Chatbot",
+    team: "Data",
+    thisMonth: 312.47,
+    lastMonth: 287.15,
+    computeCost: 178,
+    storageCost: 89,
+    networkCost: 45,
+    databaseCost: 34,
+    budget: 400,
+  },
+  {
+    projectId: "proj-003",
+    projectName: "Portfolio Website",
+    team: "Frontend",
+    thisMonth: 87.31,
+    lastMonth: 91.02,
+    computeCost: 48,
+    storageCost: 21,
+    networkCost: 18,
+    databaseCost: 8,
+    budget: 100,
+  },
+  {
+    projectId: "proj-004",
+    projectName: "SaaS Dashboard",
+    team: "Backend",
+    thisMonth: 247.83,
+    lastMonth: 198.27,
+    computeCost: 134,
+    storageCost: 78,
+    networkCost: 36,
+    databaseCost: 22,
+    budget: 200,
+  },
+  {
+    projectId: "proj-005",
+    projectName: "Marketing Landing",
+    team: "Frontend",
+    thisMonth: 64.55,
+    lastMonth: 58.9,
+    computeCost: 32,
+    storageCost: 18,
+    networkCost: 14,
+    databaseCost: 4,
+  },
+  {
+    projectId: "proj-006",
+    projectName: "Analytics API",
+    team: "Data",
+    thisMonth: 112.49,
+    lastMonth: 96.33,
+    computeCost: 66,
+    storageCost: 24,
+    networkCost: 22,
+    databaseCost: 12,
+    budget: 120,
+  },
+]
+
+export const MOCK_RECOMMENDATIONS: OptimizationRecommendation[] = [
+  {
+    id: "rec-001",
+    projectId: "proj-004",
+    projectName: "SaaS Dashboard",
+    impact: "high",
+    title: "Downsize unused database instance",
+    currentDesc: "db.r5.xlarge ($247/mo) · Utilization: 23% CPU, 31% Memory",
+    recommendedDesc: "db.r5.large ($123/mo) · Last peak: 45% (30 days ago)",
+    potentialSavings: 124,
+    effort: "low",
+  },
+  {
+    id: "rec-002",
+    projectId: "proj-002",
+    projectName: "AI Chatbot",
+    impact: "high",
+    title: "Enable auto-scaling during off-peak hours",
+    currentDesc: "3 instances 24/7 ($312/mo) · 78% of requests during peak hours",
+    recommendedDesc: "1 instance off-peak, 3 instances peak (6AM–10PM)",
+    potentialSavings: 156,
+    effort: "medium",
+  },
+  {
+    id: "rec-003",
+    projectId: "proj-001",
+    projectName: "E-Commerce Platform",
+    impact: "medium",
+    title: "Switch to reserved instances (1-year term)",
+    currentDesc: "On-demand ($423/mo) · Utilization: 94% (stable workload)",
+    recommendedDesc: "Reserved ($338/mo) · Commitment: 1 year",
+    potentialSavings: 85,
+    effort: "low",
+  },
+]
+
+export const MOCK_OPTIMIZED_PROJECTS: OptimizedProject[] = [
+  { projectId: "proj-006", projectName: "Analytics API", note: "Good resource utilization (87% CPU, 72% Memory)" },
+  { projectId: "proj-003", projectName: "Portfolio Website", note: "Efficient scaling (1–3 instances based on traffic)" },
+]
+
+export const MOCK_BUDGET_ALERTS: BudgetAlert[] = [
+  {
+    id: "alr-001",
+    projectId: "proj-004",
+    projectName: "SaaS Dashboard",
+    severity: "critical",
+    title: "Budget exceeded by $47.83",
+    description: "123.9% of $200 budget · Auto-alert sent to data-team@omnistack.dev",
+    timeLabel: "2 jam lalu",
+  },
+  {
+    id: "alr-002",
+    projectId: "proj-001",
+    projectName: "E-Commerce Platform",
+    severity: "warning",
+    title: "Reached 85% of budget",
+    description: "$423 of $500 · Projected to exceed by end of month",
+    timeLabel: "6 jam lalu",
+  },
+  {
+    id: "alr-003",
+    projectId: "proj-002",
+    projectName: "AI Chatbot",
+    severity: "warning",
+    title: "Reached 78% of budget",
+    description: "$312 of $400 · On track to stay within budget",
+    timeLabel: "1 hari lalu",
+  },
+  {
+    id: "alr-004",
+    projectId: "proj-004",
+    projectName: "SaaS Dashboard",
+    severity: "info",
+    title: "Cost optimization recommendation available",
+    description: "Potential savings: $124/month",
+    timeLabel: "1 hari lalu",
+  },
+]
+
+export function getBudgetStatus(item: ProjectCostBreakdown): BudgetStatus | undefined {
+  if (!item.budget) return undefined
+  const pct = item.thisMonth / item.budget
+  if (pct >= 1) return "over"
+  if (pct >= 0.75) return "warning"
+  return "on-track"
+}
