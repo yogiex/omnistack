@@ -1,10 +1,15 @@
+import type { Metadata } from "next"
 import { RouteGuard } from "@/components/route-guard"
-import { AiReviewerClient } from "./ai-reviewer-client"
+import { ReviewShell } from "./_components/review-shell"
+
+export const metadata: Metadata = {
+  title: "AI Code Reviewer - OmniStack",
+}
 
 export default function AiReviewerPage() {
   return (
     <RouteGuard requiredRole="USER">
-      <AiReviewerClient />
+      <ReviewShell />
     </RouteGuard>
   )
 }

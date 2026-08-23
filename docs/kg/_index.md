@@ -47,6 +47,7 @@
 - [[component-project-status-badge]]
 - [[component-route-guard]]
 - [[component-deployment-dialogs]]
+- [[component-ai-reviewer-results]] — Results view (tabbed findings + overview + filters)
 
 ## Lib
 
