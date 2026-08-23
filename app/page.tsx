@@ -1,6 +1,6 @@
 import Link from "next/link"
 import {
-  Boxes, ArrowRight, GitBranch, BrainCircuit, Server, DollarSign,
+  Boxes, ArrowRight, GitBranch, BrainCircuit, Server,
   Sparkles, ShieldCheck, Check, X, Zap, ChevronRight,
   Code2, Terminal, Globe
 } from "lucide-react"
@@ -353,12 +353,12 @@ export default function LandingPage() {
                         <div className="flex-1 bg-zinc-950 p-5 font-mono text-xs overflow-auto min-h-[400px]">
                           <pre className="text-zinc-300 leading-relaxed">
 <span className="text-zinc-500"># docker-compose.yml</span>
-<span className="text-purple-400">version</span>: <span className="text-green-400">'3.9'</span>
+<span className="text-purple-400">version</span>: <span className="text-green-400">{"'3.9'"}</span>
 <span className="text-purple-400">services</span>:
   <span className="text-blue-400">frontend</span>:
     <span className="text-purple-400">build</span>: <span className="text-green-400">./frontend</span>
     <span className="text-purple-400">ports</span>:
-      - <span className="text-green-400">"3000:3000"</span>
+      - <span className="text-green-400">{'"3000:3000"'}</span>
     <span className="text-purple-400">environment</span>:
       - <span className="text-orange-400">NEXT_PUBLIC_API_URL</span>=<span className="text-green-400">http://api:8080</span>
     <span className="text-purple-400">depends_on</span>:
@@ -367,7 +367,7 @@ export default function LandingPage() {
   <span className="text-blue-400">api</span>:
     <span className="text-purple-400">build</span>: <span className="text-green-400">./api</span>
     <span className="text-purple-400">ports</span>:
-      - <span className="text-green-400">"8080:8080"</span>
+      - <span className="text-green-400">{'"8080:8080"'}</span>
     <span className="text-purple-400">environment</span>:
       - <span className="text-orange-400">DATABASE_URL</span>=<span className="text-green-400">postgresql://user:pass@db:5432/inventory</span>
       - <span className="text-orange-400">JWT_SECRET</span>=<span className="text-green-400">${"{omnistack-secret}"}</span>
@@ -382,7 +382,7 @@ export default function LandingPage() {
 
   <span className="text-blue-400">s3</span>:
     <span className="text-purple-400">image</span>: <span className="text-green-400">minio/minio</span>
-    <span className="text-purple-400">command</span>: <span className="text-green-400">server /data --console-address ":9001"</span>
+    <span className="text-purple-400">command</span>: <span className="text-green-400">{`server /data --console-address ":9001"`}</span>
 
 <span className="text-purple-400">volumes</span>:
   <span className="text-blue-400">pgdata</span>:
@@ -886,9 +886,8 @@ export default function LandingPage() {
           © 2026 OmniStack Inc. The Developer Operating System.
         </p>
         <nav className="flex gap-4 sm:gap-6 text-xs text-muted-foreground">
-          <Link href="#" className="hover:underline">Terms</Link>
-          <Link href="#" className="hover:underline">Privacy</Link>
-          <Link href="#" className="hover:underline">Status</Link>
+          <Link href="/terms" className="hover:underline">Terms</Link>
+          <Link href="/privacy" className="hover:underline">Privacy</Link>
         </nav>
       </footer>
     </div>

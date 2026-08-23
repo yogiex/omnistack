@@ -4,10 +4,11 @@ import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { Boxes, ArrowRight, ArrowLeft, Check, X, Shield, Mail, Lock, Eye, EyeOff, Loader2, RefreshCw } from "lucide-react"
 import { SiGithub } from "react-icons/si"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/lib/auth-context"
 import zxcvbn from "zxcvbn"
 
 // ==================== STEP TYPES ====================
@@ -154,6 +155,7 @@ function PasswordStrengthMeter({ password }: { password: string }) {
 
 // ==================== MAIN PAGE ====================
 export default function RegisterPage() {
+  const { startDemoSession } = useAuth()
   const [step, setStep] = useState<RegisterStep>("info")
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -653,16 +655,19 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <Button
-                  className="w-full h-11 text-base"
-                  size="lg"
-                  asChild
+                <Link
+                  href="/dashboard"
+                  onClick={() =>
+                    startDemoSession(
+                      name || "Pengguna Baru",
+                      email || "user@omnistack.dev"
+                    )
+                  }
+                  className={cn(buttonVariants({ size: "lg" }), "w-full h-11 text-base")}
                 >
-                  <Link href="/dashboard">
-                    Masuk ke Dashboard
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                  Masuk ke Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </div>
             )}
           </div>

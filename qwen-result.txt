@@ -1,0 +1,703 @@
+# 🎨 UI/UX Blueprint: Projects Dashboard Page
+
+## 📐 Overall Layout Structure
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                    VIEWPORT                                      │
+│                                                                                 │
+│  ┌──────────────┬──────────────────────────────────────────────────────────┐   │
+│  │              │  ┌────────────────────────────────────────────────────┐  │   │
+│  │   SIDEBAR    │  │              TOP NAVIGATION BAR                    │  │   │
+│  │   (240px)    │  │  ┌──────────────────────────────────────────────┐  │  │   │
+│  │              │  │  │ 🔍 Search projects...          [+ New] [👤]  │  │  │   │
+│  │  ┌────────┐  │  │  └──────────────────────────────────────────────┘  │  │   │
+│  │  │ Logo   │  │  └────────────────────────────────────────────────────┘  │   │
+│  │  └────────┘  │                                                          │   │
+│  │              │  ┌────────────────────────────────────────────────────┐  │   │
+│  │  Navigation  │  │                                                    │  │   │
+│  │  ─────────   │  │  ┌──────────────────────────────────────────────┐  │  │   │
+│  │  🏠 Overview │  │  │         PAGE HEADER & STATS CARDS            │  │  │   │
+│  │  📦 Projects │  │  │                                              │  │  │   │
+│  │  🚀 Deploys  │  │  │  Projects                    Filter: [All ▼] │  │  │   │
+│  │  🤖 AI       │  │  │                                              │  │  │   │
+│  │  📊 Monitor  │  │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐       │  │  │   │
+│  │  ⚙️ Settings │  │  │  │ Total   │ │ Active  │ │ Failed  │       │  │  │   │
+│  │              │  │  │  │   12    │ │    8    │ │    1    │       │  │  │   │
+│  │  ─────────   │  │  │  └─────────┘ └─────────┘ └─────────┘       │  │  │   │
+│  │  User Info   │  │  │                                              │  │  │   │
+│  │  ┌────────┐  │  │  └──────────────────────────────────────────────┘  │  │   │
+│  │  │ 👤 dev │  │  │                                                    │  │   │
+│  │  │ @dev   │  │  │  ┌──────────────────────────────────────────────┐  │  │   │
+│  │  └────────┘  │  │  │                                              │  │  │   │
+│  │              │  │  │           PROJECTS GRID (3 columns)          │  │  │   │
+│  └──────────────┘  │  │                                              │  │  │   │
+│                    │  │  ┌─────────────┐ ┌─────────────┐ ┌────────┐  │  │   │
+│                    │  │  │ PROJECT 1   │ │ PROJECT 2   │ │ PROJ 3 │  │  │   │
+│                    │  │  │             │ │             │ │        │  │  │   │
+│                    │  │  └─────────────┘ └─────────────┘ └────────┘  │  │   │
+│                    │  │                                              │  │   │
+│                    │  │  ┌─────────────┐ ┌─────────────┐ ┌────────┐  │  │   │
+│                    │  │  │ PROJECT 4   │ │ PROJECT 5   │ │ PROJ 6 │  │  │   │
+│                    │  │  │             │ │             │ │        │  │  │   │
+│                    │  │  └─────────────┘ └─────────────┘ └────────┘  │  │   │
+│                    │  │                                              │  │   │
+│                    │  └──────────────────────────────────────────────┘  │   │
+│                    └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 🎴 Project Card Component (Detailed)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  PROJECT CARD (Standard)                                    │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  ┌─────────────────────────────────────────────────┐  │ │
+│  │  │  🚀 my-awesome-app                    [●●●]    │  │ │
+│  │  │                                                 │  │ │
+│  │  │  Full-stack e-commerce platform with AI         │  │ │
+│  │  │  recommendations and real-time analytics.       │  │ │
+│  │  │                                                 │  │ │
+│  │  │  ┌───────────────────────────────────────────┐  │  │ │
+│  │  │  │ Tech Stack                                │  │  │ │
+│  │  │  │ [React] [Next.js] [PostgreSQL] [Redis]   │  │  │ │
+│  │  │  └───────────────────────────────────────────┘  │  │ │
+│  │  │                                                 │  │ │
+│  │  │  ┌───────────────────────────────────────────┐  │  │ │
+│  │  │  │ Status: ● Live  │  Last Deploy: 2h ago   │  │  │ │
+│  │  │  │ URL: my-app.omnistack.dev                 │  │  │ │
+│  │  │  └───────────────────────────────────────────┘  │  │ │
+│  │  │                                                 │  │ │
+│  │  │  ┌──────────┐ ┌──────────┐ ┌──────────────┐   │  │ │
+│  │  │  │ 🚀 Deploy│ │ 📊 Logs  │ │ ⚙️ Settings  │   │  │ │
+│  │  │  └──────────┘ └──────────┘ └──────────────┘   │  │ │
+│  │  └─────────────────────────────────────────────────┘  │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  Card Specs:                                                │
+│  - Width: 100% (grid responsive)                           │
+│  - Height: auto (min 280px)                                │
+│  - Padding: p-6                                            │
+│  - Border: rounded-xl border bg-card                       │
+│  - Shadow: hover:shadow-lg transition-shadow               │
+│  - Gap between cards: gap-6                                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🔄 Project Card States
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  STATE 1: SUCCESS / LIVE                                    │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  🚀 my-app                              [●●●]        │ │
+│  │                                                       │ │
+│  │  Description text here...                            │ │
+│  │                                                       │ │
+│  │  Status: ● Live (green)                              │ │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐             │ │
+│  │  │ 🚀 Deploy│ │ 📊 Logs  │ │ ⚙️       │             │ │
+│  │  └──────────┘ └──────────┘ └──────────┘             │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  STATE 2: BUILDING / DEPLOYING                              │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  🚀 my-app                              [●●●]        │ │
+│  │                                                       │ │
+│  │  Description text here...                            │ │
+│  │                                                       │ │
+│  │  Status: ◐ Building... (yellow, animated)            │ │
+│  │  ┌─────────────────────────────────────────────┐     │ │
+│  │  │ ████████░░░░░░░░░░░░░░ 45%                  │     │ │
+│  │  └─────────────────────────────────────────────┘     │ │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐             │ │
+│  │  │ ⏸ Pause  │ │ 📊 Logs  │ │ ⚙️       │             │ │
+│  │  └──────────┘ └──────────┘ └──────────┘             │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  STATE 3: FAILED / ERROR                                    │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  🚀 my-app                              [●●●]        │ │
+│  │                                                       │ │
+│  │  Description text here...                            │ │
+│  │                                                       │ │
+│  │  Status: ✗ Failed (red)                              │ │
+│  │  Error: Build timeout after 300s                     │ │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐             │ │
+│  │  │ 🔄 Retry │ │ 📊 Logs  │ │ ⚙️       │             │ │
+│  │  └──────────┘ └──────────┘ └──────────┘             │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  STATE 4: STOPPED / INACTIVE                                │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  🚀 my-app                              [●●●]        │ │
+│  │                                                       │ │
+│  │  Description text here...                            │ │
+│  │                                                       │ │
+│  │  Status: ○ Stopped (gray)                            │ │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐             │ │
+│  │  │ ▶ Start  │ │ 📊 Logs  │ │ ⚙️       │             │ │
+│  │  └──────────┘ └──────────┘ └──────────┘             │ │
+│  └───────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 📊 Stats Cards Section
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  STATS CARDS ROW (4 cards)                                  │
+│                                                             │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────┐│
+│  │ 📦           │ │ ●            │ │ ◐            │ │ ✗  ││
+│  │              │ │              │ │              │ │    ││
+│  │ Total        │ │ Active       │ │ Building     │ │Fail││
+│  │ Projects     │ │ Projects     │ │ Now          │ │ ed ││
+│  │              │ │              │ │              │ │    ││
+│  │    12        │ │     8        │ │     2        │ │ 1  ││
+│  │              │ │              │ │              │ │    ││
+│  │ +3 this week │ │ 67% of total │ │ 2 in queue   │ │8.3%││
+│  └──────────────┘ └──────────────┘ └──────────────┘ └────┘│
+│                                                             │
+│  Layout:                                                    │
+│  - Grid: grid-cols-2 md:grid-cols-4 gap-4                  │
+│  - Each card: p-6 rounded-xl border bg-card                │
+│  - Icon: h-12 w-12 rounded-lg bg-primary/10                │
+│  - Number: text-3xl font-bold                              │
+│  - Label: text-sm text-muted-foreground                    │
+│  - Trend: text-xs with arrow icon                          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🔍 Filter & Search Bar
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FILTER & SEARCH SECTION                                    │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │                                                       │ │
+│  │  Projects                          [View: Grid | List]│ │
+│  │                                                       │ │
+│  │  ┌─────────────────────────────────────────────────┐  │ │
+│  │  │ 🔍 Search projects...              [Filter ▼]  │  │ │
+│  │  └─────────────────────────────────────────────────┘  │ │
+│  │                                                       │ │
+│  │  Status: [● All] [● Live] [● Building] [● Failed]    │ │
+│  │                                                       │ │
+│  │  Sort by: [Last Updated ▼]  Show: [12 ▼] per page    │ │
+│  │                                                       │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  Components:                                                │
+│  - Search: Input with icon, h-10                           │
+│  - Filter: Dropdown with multi-select                      │
+│  - View Toggle: SegmentedControl (Grid/List)               │
+│  - Status Pills: Clickable badges                          │
+│  - Sort: Select dropdown                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 📋 List View Alternative
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  LIST VIEW (Table Layout)                                   │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │ Name          │ Status  │ Stack      │ Updated │ Act  │ │
+│  ├───────────────┼─────────┼────────────┼─────────┼──────┤ │
+│  │ 🚀 my-app     │ ● Live  │ Next.js    │ 2h ago  │ [⋮] │ │
+│  │   E-commerce  │         │ Postgres   │         │      │ │
+│  ├───────────────┼─────────┼────────────┼─────────┼──────┤ │
+│  │ 🚀 api-svc    │ ● Live  │ NestJS     │ 1d ago  │ [⋮] │ │
+│  │   REST API    │         │ MongoDB    │         │      │ │
+│  ├───────────────┼─────────┼────────────┼─────────┼──────┤ │
+│  │ 🚀 dashboard  │ ◐ Build │ React      │ 5m ago  │ [⋮] │ │
+│  │   Analytics   │         │ Vite       │         │      │ │
+│  ├───────────────┼─────────┼────────────┼─────────┼──────┤ │
+│  │ 🚀 landing    │ ✗ Fail  │ Astro      │ 30m ago │ [⋮] │ │
+│  │   Marketing   │         │ Tailwind   │         │      │ │
+│  └───────────────┴─────────┴────────────┴─────────┴──────┘ │
+│                                                             │
+│  Table Specs:                                               │
+│  - Hover: bg-muted/50                                      │
+│  - Click row: Navigate to project detail                   │
+│  - Actions menu: Dropdown with Deploy, Logs, Settings      │
+│  - Responsive: Stack on mobile                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🆕 Empty State
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  EMPTY STATE (No Projects)                                  │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │                                                       │ │
+│  │                    ┌─────────────┐                    │ │
+│  │                    │             │                    │ │
+│  │                    │   📦 🚀     │                    │ │
+│  │                    │             │                    │ │
+│  │                    └─────────────┘                    │ │
+│  │                                                       │ │
+│  │              No projects yet                          │ │
+│  │                                                       │ │
+│  │    Create your first deployment and start building    │ │
+│  │              amazing applications.                    │ │
+│  │                                                       │ │
+│  │         ┌─────────────────────────────┐               │ │
+│  │         │  + Create New Project       │               │ │
+│  │         └─────────────────────────────┘               │ │
+│  │                                                       │ │
+│  │    Or import from GitHub →                            │ │
+│  │                                                       │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  Design:                                                    │
+│  - Centered content (max-w-md)                             │
+│  - Illustration: 200x200px, muted colors                   │
+│  - Heading: text-2xl font-bold                             │
+│  - Description: text-muted-foreground                      │
+│  - CTA: Primary button, size lg                            │
+│  - Secondary link: Ghost button or text link               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 📱 Responsive Breakpoints
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  MOBILE (< 768px)                                           │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ [☰]  Projects                    [+ New]           │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ Stats: 2x2 grid                                     │   │
+│  │ ┌─────┐ ┌─────┐                                    │   │
+│  │ │ 12  │ │  8  │                                    │   │
+│  │ └─────┘ └─────┘                                    │   │
+│  │ ┌─────┐ ┌─────┐                                    │   │
+│  │ │  2  │ │  1  │                                    │   │
+│  │ └─────┘ └─────┘                                    │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ 🔍 Search...                                        │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ Projects: 1 column (stacked cards)                  │   │
+│  │ ┌───────────────────────────────────────────────┐   │   │
+│  │ │ Project 1                                     │   │   │
+│  │ └───────────────────────────────────────────────┘   │   │
+│  │ ┌───────────────────────────────────────────────┐   │   │
+│  │ │ Project 2                                     │   │   │
+│  │ └───────────────────────────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  TABLET (768px - 1024px)                                    │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ [Sidebar]  Projects                                │   │
+│  │              Stats: 4 columns                       │   │
+│  │              ┌────┐ ┌────┐ ┌────┐ ┌────┐           │   │
+│  │              │ 12 │ │  8 │ │  2 │ │  1 │           │   │
+│  │              └────┘ └────┘ └────┘ └────┘           │   │
+│  │              Projects: 2 columns                    │   │
+│  │              ┌──────┐ ┌──────┐                      │   │
+│  │              │Proj 1│ │Proj 2│                      │   │
+│  │              └──────┘ └──────┘                      │   │
+│  │              ┌──────┐ ┌──────┐                      │   │
+│  │              │Proj 3│ │Proj 4│                      │   │
+│  │              └──────┘ └──────┘                      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  DESKTOP (> 1024px)                                         │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ [Sidebar]  Projects                                │   │
+│  │              Stats: 4 columns                       │   │
+│  │              Projects: 3 columns                    │   │
+│  │              ┌─────┐ ┌─────┐ ┌─────┐               │   │
+│  │              │ P1  │ │ P2  │ │ P3  │               │   │
+│  │              └─────┘ └─────┘ └─────┘               │   │
+│  │              ┌─────┐ ┌─────┐ ┌─────┐               │   │
+│  │              │ P4  │ │ P5  │ │ P6  │               │   │
+│  │              └─────┘ └─────┘ └─────┘               │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🎭 Role-Based Variations
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ADMIN VIEW                                                 │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  All Projects (12)          [Filter: All Users ▼]     │ │
+│  │                                                       │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐     │ │
+│  │  │ 👑 admin    │ │ 👨‍💻 dev1    │ │ 👨‍💻 dev2    │     │ │
+│  │  │ my-app      │ │ api-svc     │ │ dashboard   │     │ │
+│  │  │ ● Live      │ │ ● Live      │ │ ◐ Building  │     │ │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘     │ │
+│  │                                                       │ │
+│  │  [Can see all projects, manage all, delete any]       │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  USER VIEW                                                  │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  My Projects (5)                                      │ │
+│  │                                                       │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐     │ │
+│  │  │ my-app      │ │ api-svc     │ │ dashboard   │     │ │
+│  │  │ ● Live      │ │ ● Live      │ │ ◐ Building  │     │ │
+│  │  │ [Deploy]    │ │ [Deploy]    │ │ [Pause]     │     │ │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘     │ │
+│  │                                                       │ │
+│  │  [Can only see and manage own projects]               │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+│  VIEWER VIEW                                                │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  Shared Projects (3)                                  │ │
+│  │                                                       │ │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐     │ │
+│  │  │ my-app      │ │ api-svc     │ │ dashboard   │     │ │
+│  │  │ ● Live      │ │ ● Live      │ │ ◐ Building  │     │ │
+│  │  │ [View Only] │ │ [View Only] │ │ [View Only] │     │ │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘     │ │
+│  │                                                       │ │
+│  │  [Read-only, no action buttons, can export reports]   │ │
+│  └───────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🎨 Component Hierarchy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  COMPONENT TREE                                             │
+│                                                             │
+│  <ProjectsPage>                                             │
+│  ├── <PageHeader>                                           │
+│  │   ├── <h1>Projects</h1>                                 │
+│  │   └── <Button>Create Project</Button>                   │
+│  │                                                          │
+│  ├── <StatsGrid>                                            │
+│  │   ├── <StatCard icon="📦" label="Total" value={12} />   │
+│  │   ├── <StatCard icon="●" label="Active" value={8} />    │
+│  │   ├── <StatCard icon="◐" label="Building" value={2} />  │
+│  │   └── <StatCard icon="✗" label="Failed" value={1} />    │
+│  │                                                          │
+│  ├── <FilterBar>                                            │
+│  │   ├── <SearchInput placeholder="Search..." />           │
+│  │   ├── <FilterDropdown options={["All", "Live", ...]} /> │
+│  │   ├── <ViewToggle options={["Grid", "List"]} />         │
+│  │   └── <SortSelect options={["Updated", "Name", ...]} /> │
+│  │                                                          │
+│  └── <ProjectsContainer>                                    │
+│      ├── IF view === "grid"                                 │
+│      │   └── <ProjectsGrid>                                │
+│      │       └── <ProjectCard project={project} /> × N     │
+│      │           ├── <CardHeader>                          │
+│      │           │   ├── <ProjectName />                   │
+│      │           │   └── <StatusBadge />                   │
+│      │           ├── <CardContent>                         │
+│      │           │   ├── <Description />                   │
+│      │           │   ├── <TechStack />                     │
+│      │           │   └── <ProjectMeta />                   │
+│      │           └── <CardFooter>                          │
+│      │               └── <ActionButtons />                 │
+│      │                                                      │
+│      └── ELSE IF view === "list"                            │
+│          └── <ProjectsTable>                               │
+│              └── <TableRow project={project} /> × N        │
+│                                                             │
+│  Props & State:                                             │
+│  - projects: Project[]                                      │
+│  - isLoading: boolean                                       │
+│  - view: "grid" | "list"                                   │
+│  - filters: { status, search, sort }                       │
+│  - userRole: "ADMIN" | "USER" | "VIEWER"                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🎯 Interactive Elements
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ACTION MENU (3-dot menu)                                   │
+│                                                             │
+│  Project Card                                    [⋮] ← Click│
+│                                                  ┌────────┐│
+│                                                  │ 🚀 Deploy│
+│                                                  │ 📊 Logs  │
+│                                                  │ 🔗 Domain│
+│                                                  │ ⚙️ Settings│
+│                                                  │ ─────── │
+│                                                  │ 🗑️ Delete │
+│                                                  └────────┘│
+│                                                             │
+│  Quick Actions (on hover):                                  │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  🚀 my-app                              [●●●]       │   │
+│  │                                                     │   │
+│  │  Description...                                     │   │
+│  │                                                     │   │
+│  │  ┌──────┐ ┌──────┐ ┌──────┐  ← Appear on hover    │   │
+│  │  │ 🚀   │ │ 📊   │ │ ⚙️   │                       │   │
+│  │  └──────┘ └──────┘ └──────┘                       │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Keyboard Shortcuts:                                        │
+│  - N: New project                                          │
+│  - /: Focus search                                         │
+│  - G then P: Go to projects                                │
+│  - ?: Show shortcuts help                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 📐 Spacing & Layout Specs
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  SPACING SYSTEM                                             │
+│                                                             │
+│  Page Container:                                            │
+│  - Padding: p-6 (24px)                                     │
+│  - Max width: max-w-7xl (1280px)                           │
+│  - Margin: mx-auto                                         │
+│                                                             │
+│  Section Spacing:                                           │
+│  - Between header & stats: space-y-6 (24px)                │
+│  - Between stats & filters: space-y-6 (24px)               │
+│  - Between filters & grid: space-y-6 (24px)                │
+│                                                             │
+│  Grid Layout:                                               │
+│  - Columns: grid-cols-1 md:grid-cols-2 lg:grid-cols-3     │
+│  - Gap: gap-6 (24px)                                       │
+│                                                             │
+│  Card Internal:                                             │
+│  - Padding: p-6 (24px)                                     │
+│  - Border radius: rounded-xl (12px)                        │
+│  - Border: border (1px)                                    │
+│  - Background: bg-card                                     │
+│                                                             │
+│  Button Spacing:                                            │
+│  - Between buttons: gap-2 (8px)                            │
+│  - Icon + text: gap-2 (8px)                                │
+│                                                             │
+│  Typography:                                                │
+│  - Page title: text-3xl font-bold                          │
+│  - Card title: text-lg font-semibold                       │
+│  - Card description: text-sm text-muted-foreground         │
+│  - Stats number: text-3xl font-bold                        │
+│  - Stats label: text-sm text-muted-foreground              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🎨 Color & Visual Design
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  COLOR USAGE                                                │
+│                                                             │
+│  Status Colors:                                             │
+│  - Live/Success: bg-green-500/10 text-green-600            │
+│  - Building: bg-yellow-500/10 text-yellow-600              │
+│  - Failed: bg-red-500/10 text-red-600                      │
+│  - Stopped: bg-gray-500/10 text-gray-600                   │
+│                                                             │
+│  Action Buttons:                                            │
+│  - Primary (Deploy): bg-primary text-primary-foreground    │
+│  - Secondary (Logs): variant="outline"                     │
+│  - Ghost (Settings): variant="ghost"                       │
+│  - Destructive (Delete): variant="destructive"             │
+│                                                             │
+│  Card States:                                               │
+│  - Default: bg-card border-border                          │
+│  - Hover: shadow-lg border-primary/20                      │
+│  - Active: ring-2 ring-primary                             │
+│  - Disabled: opacity-50 pointer-events-none                │
+│                                                             │
+│  Icons:                                                     │
+│  - Status dots: h-3 w-3 rounded-full                       │
+│  - Action icons: h-4 w-4                                   │
+│  - Tech stack logos: h-6 w-6 (brand colors)                │
+│                                                             │
+│  Dark Mode Adjustments:                                     │
+│  - Cards: bg-card (slightly lighter than background)       │
+│  - Borders: border-border (subtle)                         │
+│  - Shadows: More pronounced in dark mode                   │
+│  - Status colors: Desaturated versions                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🔄 Loading States
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  LOADING STATES                                             │
+│                                                             │
+│  Initial Page Load:                                         │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Projects                                           │   │
+│  │  ┌─────────────────────────────────────────────┐   │   │
+│  │  │ ████████████████████████████ (Skeleton)     │   │   │
+│  │  └─────────────────────────────────────────────┘   │   │
+│  │  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐             │   │
+│  │  │ ████ │ │ ████ │ │ ████ │ │ ████ │ (Skeleton)  │   │
+│  │  └──────┘ └──────┘ └──────┘ └──────┘             │   │
+│  │  ┌─────────────────────────────────────────────┐   │   │
+│  │  │ ┌──────┐ ┌──────┐ ┌──────┐                 │   │   │
+│  │  │ │ ████ │ │ ████ │ │ ████ │ (Skeleton)      │   │   │
+│  │  │ └──────┘ └──────┘ └──────┘                 │   │   │
+│  │  │ ┌──────┐ ┌──────┐ ┌──────┐                 │   │   │
+│  │  │ │ ████ │ │ ████ │ │ ████ │ (Skeleton)      │   │   │
+│  │  │ └──────┘ └──────┘ └──────┘                 │   │   │
+│  │  └─────────────────────────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Card Loading:                                              │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  ┌───────────────────────────────────────────────┐  │   │
+│  │  │ ████████████████████                [●●●]     │  │   │
+│  │  │                                               │  │   │
+│  │  │ ████████████████████████████████              │  │   │
+│  │  │ ██████████████████████                        │  │   │
+│  │  │                                               │  │   │
+│  │  │ ┌─────────────────────────────────────────┐  │  │   │
+│  │  │ │ ██████  ██████  ██████  ██████          │  │  │   │
+│  │  │ └─────────────────────────────────────────┘  │  │   │
+│  │  │                                               │  │   │
+│  │  │ ┌─────────────────────────────────────────┐  │  │   │
+│  │  │ │ ██████ │ ██████ │ ██████                │  │  │   │
+│  │  │ └─────────────────────────────────────────┘  │  │   │
+│  │  └───────────────────────────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Skeleton Specs:                                            │
+│  - Animation: animate-pulse                                │
+│  - Background: bg-muted                                    │
+│  - Border radius: rounded-md                               │
+│  - Height: Match content height                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 📊 Data Structure
+
+```typescript
+┌─────────────────────────────────────────────────────────────┐
+│  PROJECT DATA STRUCTURE                                     │
+│                                                             │
+│  interface Project {                                        │
+│    id: string;                                              │
+│    name: string;                                            │
+│    description?: string;                                    │
+│    status: "live" | "building" | "failed" | "stopped";     │
+│    url?: string;                                            │
+│    createdAt: Date;                                         │
+│    updatedAt: Date;                                         │
+│    lastDeployedAt?: Date;                                   │
+│    ownerId: string;                                         │
+│    owner: {                                                 │
+│      id: string;                                            │
+│      name: string;                                          │
+│      avatar?: string;                                       │
+│    };                                                       │
+│    stack: {                                                 │
+│      frontend?: string[];  // ["React", "Next.js"]         │
+│      backend?: string[];   // ["NestJS", "Express"]        │
+│      database?: string[];  // ["PostgreSQL", "Redis"]      │
+│    };                                                       │
+│    deployment: {                                            │
+│      status: "success" | "failed" | "pending";             │
+│      progress?: number;  // 0-100                          │
+│      error?: string;                                        │
+│      logs?: string[];                                       │
+│    };                                                       │
+│    metrics: {                                               │
+│      requests: number;                                      │
+│      errors: number;                                        │
+│      avgResponseTime: number;                              │
+│    };                                                       │
+│  }                                                          │
+│                                                             │
+│  interface ProjectsPageData {                               │
+│    projects: Project[];                                     │
+│    stats: {                                                 │
+│      total: number;                                         │
+│      active: number;                                        │
+│      building: number;                                      │
+│      failed: number;                                        │
+│    };                                                       │
+│    filters: {                                               │
+│      status?: string[];                                     │
+│      search?: string;                                       │
+│      sort?: "updated" | "name" | "created";                │
+│    };                                                       │
+│    pagination: {                                            │
+│      page: number;                                          │
+│      pageSize: number;                                      │
+│      total: number;                                         │
+│    };                                                       │
+│  }                                                          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🎯 User Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  USER FLOW DIAGRAM                                          │
+│                                                             │
+│  ┌─────────┐                                                │
+│  │  Login  │                                                │
+│  └────┬────┘                                                │
+│       │                                                      │
+│       ▼                                                      │
+│  ┌─────────────────┐                                        │
+│  │  Dashboard      │                                        │
+│  │  (Overview)     │                                        │
+│  └────────┬────────┘                                        │
+│           │                                                  │
+│           ├──────────────────────┐                          │
+│           │                      │                          │
+│           ▼                      ▼                          │
+│  ┌─────────────────┐    ┌─────────────────┐                │
+│  │ Click Projects  │    │ Click "New"     │                │
+│  │ in Sidebar      │    │ Button          │                │
+│  └────────┬────────┘    └────────┬────────┘                │
+│           │                      │                          │
+│           ▼                      ▼                          │
+│  ┌─────────────────┐    ┌─────────────────┐                │
+│  │ Projects Page   │    │ Create Project  │                │
+│  │ (This Blueprint)│    │ Dialog/Form     │                │
+│  └────────┬────────┘    └────────┬────────┘                │
+│           │                      │                          │
+│           │◄─────────────────────┘                          │
+│           │                                                  │
+│           ├──────────────────────┐                          │
+│           │                      │                          │
+│           ▼                      ▼                          │
+│  ┌─────────────────┐    ┌─────────────────┐                │
+│  │ Click Project   │    │ Click Deploy    │                │
+│  │ Card            │    │ Button          │                │
+│  └────────┬────────┘    └────────┬────────┘                │
+│           │                      │                          │
+│           ▼                      ▼                          │
+│  ┌─────────────────┐    ┌─────────────────┐                │
+│  │ Project Detail  │    │ Deployment      │                │
+│  │ Page            │    │ Progress Modal  │                │
+│  └─────────────────┘    └─────────────────┘                │
+│                                                             │
+│  Key Interactions:                                          │
+│  1. View all projects (grid/list)                          │
+│  2. Filter by status, search by name                       │
+│  3. Create new project                                     │
+│  4. Deploy existing project                                │
+│  5. View deployment logs                                   │
+│  6. Access project settings                                │
+│  7. Delete project (with confirmation)                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+This blueprint provides a comprehensive UI/UX design for the Projects Dashboard page, following OmniStack's design system principles and conventions. The design is responsive, accessible, and supports all three user roles (ADMIN, USER, VIEWER) with appropriate permissions and visual indicators.
