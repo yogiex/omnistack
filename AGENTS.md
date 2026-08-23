@@ -2,7 +2,7 @@
 
 > **Universal guide** for all AI coding assistants (Claude, Cursor, GitHub Copilot, Codex, Gemini, Cline, Aider, etc.) working on this codebase.
 
-**Last updated:** 2026-08-23  
+**Last updated:** 2026-08-23 (context engineering infra ditambahkan)  
 **Project:** OmniStack — The Developer Operating System (PaaS)  
 **Stack:** Next.js 16 + TypeScript + Tailwind CSS v4 + shadcn/ui (Base UI)
 
@@ -19,6 +19,28 @@ OmniStack adalah **Platform as a Service (PaaS)** modern yang memposisikan diri 
 - 🌐 **Multi-Node Cluster** — Orchestration container di banyak VPS
 
 **Target users:** Software engineers, startup founders, software houses.
+
+---
+
+## 🗺️ WAJIB: Baca Dokumen Penting Sebelum Coding
+
+File-file markdown berikut adalah sumber kebenaran project. **Baca sesuai urutan prioritas task:**
+
+| Prioritas | File | Kapan wajib dibaca |
+|-----------|------|--------------------|
+| 🔴 Selalu | `docs/kg/_index.md` | Awal SETIAP session/task — peta semua entitas project |
+| 🔴 Selalu | `docs/kg/_ontology.md` | Sebelum membuat/mengubah node KG — kelas & kosakata relasi valid |
+| 🟠 Jika ada | `docs/kg/nodes/<node-relevan>.md` | Sebelum menyentuh page/component/lib tertentu (grep dulu) |
+| 🟡 Referensi | `ARCHITECTURE.md` | Perubahan struktur/arsitektur, route baru, pola data flow |
+| 🟡 Referensi | `CONVENTIONS.md` | Ragu soal pola kode, naming, atau struktur komponen |
+| 🟡 Referensi | `DESIGN.md` | Perubahan visual: warna, tipografi, spacing, animasi |
+| 🟢 Opsional | `CHANGELOG.md` | Sebelum release atau menambah entry changelog |
+
+**Aturan:**
+1. Patuhi bagian **Gotchas** di setiap node `docs/kg/nodes/` yang kamu baca.
+2. Setelah selesai mengubah kode, **update node KG yang terdampak** (lihat skill `omnistack-kg`).
+3. Node baru wajib mengikuti template `docs/kg/nodes/_template.md` dan klasifikasi di `_ontology.md`.
+4. Validasi graf setelah menulis: `bash .opencode/skills/omnistack-kg/scripts/validate-kg.sh`.
 
 ---
 
@@ -568,6 +590,49 @@ Framework yang direkomendasikan: **Vitest + React Testing Library + Playwright (
 2. Apakah sudah test di light & dark mode?
 3. Apakah commit message mengikuti Conventional Commits?
 4. Apakah perlu update dokumentasi (ARCHITECTURE.md, CONVENTIONS.md)?
+
+---
+
+## 🔄 Context Engineering Infrastructure (Skills, Agents, Memory)
+
+Untuk **mengurangi prompt berulang**, project ini punya infrastruktur
+context engineering. Gunakan — jangan minta user mengulang aturan.
+
+### Skills (load on-demand saat task cocok)
+
+| Skill | Kapan dipakai |
+|-------|---------------|
+| `omnistack-mvp-feature` | Tambah fitur/page baru — workflow 6 langkah end-to-end |
+| `omnistack-quality-gate` | Sebelum selesai/commit — lint + typecheck + build via `verify.sh` |
+| `omnistack-kg` | Awal & akhir setiap task yang menyentuh kode |
+| `omnistack-shadcn` | Bekerja dengan komponen di `components/ui/` |
+| `omnistack-uiux-pro-max` | Desain visual: warna, layout, animasi, aksesibilitas |
+
+### Sub-Agents (delegasikan, jangan kerjakan sendiri jika kompleks)
+
+| Agent | Role | Mode |
+|-------|------|------|
+| `mvp-implementer` | Implementasi fitur + quality gate + KG update | edit: allow |
+| `code-reviewer` | Review independen terhadap AGENTS.md/CONVENTIONS.md | edit: deny |
+| `kg-curator` | Maintenance `docs/kg/` | write kg only |
+
+Pola: **maker-checker split** — implementer menulis, reviewer menilai.
+Jangan biarkan agent yang sama menilai kodenya sendiri untuk fitur besar.
+
+### Commands
+
+- `/mvp <deskripsi-fitur>` — orchestrator lengkap: spec → implement → review → laporan
+- `/kg init\|sync\|<node>` — maintenance knowledge graph
+
+### Memory Externalization (`.opencode/memory/`)
+
+Agent WAJIB memanfaatkan file memory ini agar tidak kehilangan konteks antar sesi:
+
+| File | Isi | Aturan |
+|------|-----|--------|
+| `todo.md` | Task aktif + next steps | Baca di awal task; update di tiap milestone (recitation) |
+| `decisions.md` | Keputusan arsitektur + rationale | Baca sebelum memutuskan; tambah entri untuk keputusan baru — JANGAN re-litigate keputusan final |
+| `errors.md` | Error yang pernah terjadi + fix | Konsultasi saat debug; tambah entri setelah error non-trivial diselesaikan — JANGAN hapus entri lama |
 
 ---
 
