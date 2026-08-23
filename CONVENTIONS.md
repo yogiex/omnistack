@@ -14,14 +14,15 @@
 4. [TypeScript Conventions](#-typescript-conventions)
 5. [Next.js Patterns](#-nextjs-patterns)
 6. [shadcn/ui Usage](#-shadcnui-usage)
-7. [Styling & Tailwind](#-styling--tailwind)
-8. [State Management](#-state-management)
-9. [Data Fetching](#-data-fetching)
-10. [Error Handling](#-error-handling)
-11. [Import Order](#-import-order)
-12. [Git & Commit Messages](#-git--commit-messages)
-13. [Anti-Patterns](#-anti-patterns)
-14. [Quick Reference](#-quick-reference)
+7. [Mock Data & RBAC](#-mock-data--rbac-conventions)
+8. [Styling & Tailwind](#-styling--tailwind)
+9. [State Management](#-state-management)
+10. [Data Fetching](#-data-fetching)
+11. [Error Handling](#-error-handling)
+12. [Import Order](#-import-order)
+13. [Git & Commit Messages](#-git--commit-messages)
+14. [Anti-Patterns](#-anti-patterns)
+15. [Quick Reference](#-quick-reference)
 
 ---
 
@@ -84,25 +85,37 @@ TypeScript type yang baik mengurangi kebutuhan komentar.
 omnistack/
 ├── app/                          # Next.js App Router
 │   ├── (dashboard)/             # Route group (tidak muncul di URL)
-│   │   ├── layout.tsx
-│   │   └── page.tsx
+│   │   ├── layout.tsx           # Dashboard shell
+│   │   ├── projects/
+│   │   │   └── _components/     # Page-specific components (underscore = bukan route)
+│   │   └── <fitur>/page.tsx
 │   ├── login/
 │   │   └── page.tsx
 │   ├── layout.tsx               # Root layout
 │   ├── page.tsx                 # Landing page
 │   └── globals.css
 ├── components/
-│   ├── ui/                      # shadcn/ui (JANGAN EDIT MANUAL)
-│   ├── app-sidebar.tsx          # Custom components
+│   ├── ui/                      # shadcn/ui Base UI primitives (JANGAN EDIT MANUAL)
+│   ├── app-sidebar.tsx          # Custom reusable components
 │   ├── top-nav.tsx
 │   └── theme-provider.tsx
 ├── lib/
-│   ├── utils.ts                 # Helper `cn()` dan lainnya
-│   ├── types/                   # Type definitions
-│   └── constants.ts
+│   ├── utils.ts                 # Helper `cn()`
+│   ├── auth-context.tsx         # Mock auth context (localStorage)
+│   └── mock-data.ts             # Mock data + RBAC helpers
 ├── hooks/                       # Custom React hooks
+├── docs/kg/                     # Knowledge graph markdown (AI agents)
+├── .opencode/                   # AI agent infrastructure (lihat INFRASTRUCTURE.md)
 └── public/                      # Static assets
 ```
+
+### Penempatan Komponen
+
+| Jenis | Lokasi | Contoh |
+|-------|--------|--------|
+| Reusable lintas halaman | `components/` | `project-status-badge.tsx` |
+| Hanya dipakai satu halaman | `app/(group)/<halaman>/_components/` | `projects/_components/project-form.tsx` |
+| UI primitives | `components/ui/` | via `npx shadcn@latest add` — jangan edit manual |
 
 ---
 
@@ -404,12 +417,32 @@ export function PrimaryButton({ children, ...props }) {
   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
   {isLoading ? "Deploying..." : "Deploy"}
 </Button>
+```
 
+> **⚠️ Base UI — JANGAN gunakan `asChild`:**
+> Project ini memakai **Base UI primitives** (bukan Radix UI). Prop `asChild`
+> tidak support dan akan error. Untuk styling trigger/non-button element,
+> gunakan `buttonVariants()` langsung:
+
+```tsx
+import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+// ❌ BAD — Base UI tidak punya asChild
+<DialogTrigger asChild>
+  <Button>Create Project</Button>
+</DialogTrigger>
+
+// ✅ GOOD
+<DialogTrigger className={cn(buttonVariants({ variant: "outline" }))}>
+  Create Project
+</DialogTrigger>
+```
+
+```tsx
 // Dialog dengan form
 <Dialog>
-  <DialogTrigger asChild>
-    <Button>Create Project</Button>
-  </DialogTrigger>
+  <DialogTrigger>Create New Project</DialogTrigger>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Create New Project</DialogTitle>
@@ -420,8 +453,14 @@ export function PrimaryButton({ children, ...props }) {
     {/* Form content */}
   </DialogContent>
 </Dialog>
+```
 
-// Form dengan react-hook-form + zod
+> **Catatan:** `react-hook-form` + `zod` **belum ter-install** di project ini
+> (cek `package.json`). Pola form di bawah adalah target untuk saat library
+> ditambahkan. Untuk sekarang, gunakan controlled inputs + `useState`.
+
+```tsx
+// Form pattern (FUTURE — setelah react-hook-form + zod di-install)
 <form onSubmit={form.handleSubmit(onSubmit)}>
   <FormField
     control={form.control}
@@ -438,6 +477,31 @@ export function PrimaryButton({ children, ...props }) {
   />
 </form>
 ```
+
+---
+
+## 🧪 Mock Data & RBAC Conventions
+
+Belum ada backend — semua data via mock layer. Aturan:
+
+1. **Data mock** hanya di `lib/mock-data.ts`. Jangan hardcode array data di komponen.
+2. **Auth** via `useAuth()` dari `lib/auth-context.tsx` (localStorage-based).
+3. **RBAC**: selalu gunakan helper yang sudah ada:
+   ```tsx
+   import { getMockProjectsByUser, roleAtLeast } from "@/lib/mock-data"
+
+   // ✅ Helper handle filtering per role
+   const projects = getMockProjectsByUser(user)
+
+   // ✅ Role check berjenjang
+   if (roleAtLeast(user.role, "ADMIN")) { ... }
+
+   // ❌ Jangan filter manual berdasarkan user.role jika helper sudah ada
+   ```
+4. **Status proyek**: union type `"active" | "inactive" | "deploying" | "failed"`
+   (badge label: Live/Stopped/Building/Failed via `ProjectStatusBadge`).
+5. Saat backend nyata ditambahkan, ganti implementasi helper di tempat yang sama
+   agar pemanggil tidak perlu berubah.
 
 ---
 
@@ -564,6 +628,10 @@ const [state, dispatch] = useReducer(reducer, initialState)
 
 ### Global State (Zustand - Future)
 
+> **Catatan:** `zustand` dan `@tanstack/react-query` **belum ter-install**.
+> Kode di bawah adalah rencana — untuk sekarang gunakan
+> `useState`/`useReducer` + Context (`lib/auth-context.tsx`).
+
 ```tsx
 // lib/store.ts
 import { create } from "zustand"
@@ -669,6 +737,9 @@ export function ProjectsList() {
 
 ### API Routes
 
+> **Catatan:** Belum ada API routes & database di repo ini. Contoh di bawah
+> adalah pola target saat `app/api/` + Prisma ditambahkan.
+
 ```tsx
 // app/api/projects/route.ts
 import { NextResponse } from "next/server"
@@ -760,6 +831,8 @@ async function deployProject(projectId: string) {
 
 ```tsx
 // ✅ Gunakan zod untuk validasi
+// (zod BELUM ter-install — pola target untuk saat library ditambahkan.
+//  Untuk sekarang: validasi manual di handler sebelum setState/submit.)
 import { z } from "zod"
 
 const projectSchema = z.object({
@@ -996,7 +1069,7 @@ import { cn } from "@/lib/utils"
 {items?.map(item => <Item key={item.id} />)}
 {items && items.length > 0 && <List items={items} />}
 
-// Form with react-hook-form
+// Form with react-hook-form (BELUM ter-install — pola future)
 const form = useForm({
   resolver: zodResolver(schema),
   defaultValues: { name: "", email: "" },
@@ -1070,7 +1143,7 @@ Dokumen ini adalah **living document**. Update saat:
 - Teknologi/dependencies berubah
 - Best practices industri berkembang
 
-**Last Updated:** 2026-08-22  
+**Last Updated:** 2026-08-23 (sesuaikan kondisi aktual: Base UI no-asChild, mock data/RBAC conventions, library status)  
 **Maintained by:** OmniStack Team
 
 ---

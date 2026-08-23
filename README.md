@@ -237,18 +237,30 @@ Password: viewer123
 | `/projects` | ✅ (all) | ✅ (own) | ✅ (shared) | ❌ |
 | `/projects/:id` | ✅ | ✅ (own) | ✅ (shared) | ❌ |
 | `/ai-architect` | ✅ | ✅ | ❌ | ❌ |
+| `/ai-reviewer` | ✅ | ✅ | ❌ | ❌ |
 | `/deployments` | ✅ (all) | ✅ (own) | ✅ (shared) | ❌ |
 | `/monitoring` | ✅ | ✅ | ✅ (RO) | ❌ |
+| `/error-tracking` | ✅ | ✅ | ✅ (RO) | ❌ |
+| `/gitops` | ✅ | ✅ | ❌ | ❌ |
+| `/finops` | ✅ | ✅ (own) | ✅ (shared, RO) | ❌ |
 | `/settings` | ✅ | ✅ (profile) | ✅ (profile) | ❌ |
 | `/admin` | ✅ | ❌ | ❌ | ❌ |
 | `/admin/users` | ✅ | ❌ | ❌ | ❌ |
+| `/admin/databases` | ✅ | ❌ | ❌ | ❌ |
 | `/admin/audit` | ✅ | ❌ | ❌ | ❌ |
 | `/admin/settings` | ✅ | ❌ | ❌ | ❌ |
+| `/admin/infrastructure` | ✅ | ❌ | ❌ | ❌ |
+| `/admin/ai-config` | ✅ | ❌ | ❌ | ❌ |
+| `/admin/billing` | ✅ | ❌ | ❌ | ❌ |
 | `/api/*` | ✅ | ✅* | ✅* | ❌ |
 
 **Legend:**
 - RO = Read-Only
 - `*` = Limited to own resources
+
+> **Catatan:** Semua halaman di atas masih mock UI — belum ada backend.
+> Pembatasan akses VIEWER diimplementasikan di sidebar (`app-sidebar.tsx`
+> menyembunyikan item) dan helper RBAC di `lib/mock-data.ts`.
 
 ---
 
@@ -256,47 +268,101 @@ Password: viewer123
 
 #### Sidebar Navigation
 
-**ADMIN Sidebar:**
+Sidebar diimplementasikan di `components/app-sidebar.tsx` dengan 3 grup:
+**Workspace** (semua role, item bervariasi per role), **Administrasi**
+(hanya ADMIN), dan **Akun** (semua role). Header menampilkan identitas role
+(👑 Administrator amber · 👨‍💻 Developer blue · 👁️ Viewer emerald).
+Khusus VIEWER ada footer "Read-only mode".
+
+**👑 ADMIN Sidebar:**
 ```
-┌─────────────────────┐
-│ 🏠 Overview          │
-│ 👥 Users            │  ← ADMIN ONLY
-│ 📦 All Projects     │  ← ADMIN ONLY
-│ 🚀 Deployments      │
-│ 🤖 AI Architect     │
-│ 📊 Monitoring       │
-│ 📋 Audit Logs       │  ← ADMIN ONLY
-│ ⚙️ System Settings  │  ← ADMIN ONLY
-│ 👤 Profile          │
-└─────────────────────┘
+┌──────────────────────────────┐
+│ OmniStack                    │
+│ 👑 Administrator             │
+├──────────────────────────────┤
+│ Workspace                    │
+│  🏠 Overview        → /admin │
+│  📦 All Projects    → /projects │
+│  🚀 Deployments     → /deployments │
+│  📊 Monitoring      → /monitoring │
+│  🐛 Error Tracking  → /error-tracking │
+│  🔀 Preview Env     → /gitops │
+│  💰 FinOps          → /finops │
+│  ✨ AI Architect    → /ai-architect │
+│  🧠 AI Code Reviewer→ /ai-reviewer │
+├──────────────────────────────┤
+│ Administrasi   ← ADMIN ONLY  │
+│  👥 User Management → /admin/users │
+│  🗄️ Databases       → /admin/databases │
+│  📋 Audit Logs      → /admin/audit │
+│  ⚙️ System Settings → /admin/settings │
+│  🖥️ Infrastructure  → /admin/infrastructure │
+│  🤖 AI Config       → /admin/ai-config │
+│  💳 Billing         → /admin/billing │
+├──────────────────────────────┤
+│ Akun                         │
+│  ⚙️ Settings        → /settings │
+└──────────────────────────────┘
 ```
 
-**USER Sidebar:**
+**👨‍💻 USER Sidebar:**
 ```
-┌─────────────────────┐
-│ 🏠 Overview          │
-│ 📦 My Projects      │
-│ 🚀 Deployments      │
-│ 🤖 AI Architect     │
-│ 📊 Monitoring       │
-│ ⚙️ Settings         │
-│ 👤 Profile          │
-└─────────────────────┘
+┌──────────────────────────────┐
+│ OmniStack                    │
+│ 👨‍💻 Developer                │
+├──────────────────────────────┤
+│ Workspace                    │
+│  🏠 Overview        → /dashboard │
+│  📦 My Projects     → /projects │
+│  🚀 Deployments     → /deployments │
+│  📊 Monitoring      → /monitoring │
+│  🐛 Error Tracking  → /error-tracking │
+│  🔀 Preview Env     → /gitops │
+│  💰 FinOps          → /finops │
+│  ✨ AI Architect    → /ai-architect │
+│  🧠 AI Code Reviewer→ /ai-reviewer │
+├──────────────────────────────┤
+│ Akun                         │
+│  ⚙️ Settings        → /settings │
+└──────────────────────────────┘
 ```
 
-**VIEWER Sidebar:**
+**👁️ VIEWER Sidebar:**
 ```
-┌─────────────────────┐
-│ 🏠 Overview (RO)     │
-│ 📦 Shared Projects  │
-│ 📊 Monitoring       │
-│ 💰 FinOps Reports   │
-│ 👤 Profile          │
-│                     │
-│ [All action buttons │
-│  disabled/greyed]   │
-└─────────────────────┘
+┌──────────────────────────────┐
+│ OmniStack                    │
+│ 👁️ Viewer                    │
+├──────────────────────────────┤
+│ Workspace                    │
+│  🏠 Overview (RO)   → /dashboard │
+│  📦 Shared Projects → /projects │
+│  🚀 Deployments     → /deployments │
+│  📊 Monitoring      → /monitoring │
+│  🐛 Error Tracking  → /error-tracking │
+│  💰 FinOps          → /finops │
+│  ❌ Preview Env     → disembunyikan │
+│  ❌ AI Architect    → disembunyikan │
+│  ❌ AI Code Reviewer→ disembunyikan │
+├──────────────────────────────┤
+│ Akun                         │
+│  ⚙️ Settings        → /settings │
+├──────────────────────────────┤
+│ 👁️ Read-only mode            │
+│  Semua tombol aksi           │
+│  dinonaktifkan.              │
+└──────────────────────────────┘
 ```
+
+**Perbedaan kunci antar role:**
+
+| Item | ADMIN | USER | VIEWER |
+|------|:-----:|:----:|:------:|
+| Overview mengarah ke | `/admin` | `/dashboard` | `/dashboard` |
+| Label menu Projects | All Projects | My Projects | Shared Projects |
+| Preview Environments (`/gitops`) | ✅ | ✅ | ❌ Disembunyikan |
+| AI Architect & AI Code Reviewer | ✅ | ✅ | ❌ Disembunyikan |
+| Grup Administrasi (7 item admin) | ✅ | ❌ | ❌ |
+| Footer "Read-only mode" | ❌ | ❌ | ✅ |
 
 #### Button States
 
@@ -509,42 +575,30 @@ Any → VIEWER (by ADMIN)
 
 ### 🔧 Developer Guide: Checking Roles in Code
 
-```typescript
-// Import helper
-import { hasPermission, hasRole, PERMISSIONS } from "@/lib/permissions"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+> **Catatan:** Belum ada backend — auth & data via `lib/auth-context.tsx`
+> (localStorage) dan `lib/mock-data.ts`. Selalu gunakan helper RBAC yang sudah
+> ada (`getMockProjectsByUser`, `roleAtLeast`), jangan filter manual.
 
-// In Server Component
-export default async function AdminPage() {
-  const session = await getServerSession(authOptions)
-  
-  // Check role
-  if (session?.user.role !== "ADMIN") {
-    redirect("/dashboard")
-  }
-  
-  // Or check specific permission
-  if (!hasPermission(session.user.role, "MANAGE_USERS")) {
-    return <AccessDenied />
-  }
-  
-  return <AdminContent />
-}
+```typescript
+// Import dari mock layer (ganti ke next-auth saat backend ready)
+import { useAuth } from "@/lib/auth-context"
+import { getMockProjectsByUser, roleAtLeast } from "@/lib/mock-data"
+import type { Role } from "@/lib/auth-context"
 
 // In Client Component
 "use client"
-import { useSession } from "next-auth/react"
+export function AdminSection() {
+  const { user } = useAuth()
 
-export function AdminButton() {
-  const { data: session } = useSession()
-  
-  if (session?.user.role !== "ADMIN") {
-    return null // Hide button
+  if (!roleAtLeast(user?.role as Role | undefined, "ADMIN")) {
+    return null // Hide section
   }
-  
-  return <Button>Admin Action</Button>
+
+  return <AdminContent />
 }
+
+// Ambil proyek sesuai role (helper sudah handle RBAC)
+const projects = getMockProjectsByUser(user)
 ```
 
 ---
@@ -653,17 +707,19 @@ OmniStack dibangun di atas **6 pilar utama** yang mencakup seluruh siklus hidup 
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Framework** | Next.js 16.3 (App Router + Turbopack) |
-| **Language** | TypeScript 5 (strict mode) |
-| **Styling** | Tailwind CSS v4 |
-| **UI Components** | shadcn/ui (Base UI + Preset Nova) |
-| **Icons** | Lucide React + react-icons/si |
-| **Auth** | NextAuth.js v5 + Prisma Adapter |
-| **Database** | PostgreSQL + Prisma ORM |
-| **RBAC** | Custom permission system |
-| **Deployment** | Docker + Kubernetes / Docker Swarm |
+| Layer | Technology | Status |
+|-------|-----------|--------|
+| **Framework** | Next.js 16.3 (App Router + Turbopack) | ✅ Aktif |
+| **Language** | TypeScript 5 (strict mode) | ✅ Aktif |
+| **Styling** | Tailwind CSS v4 | ✅ Aktif |
+| **UI Components** | shadcn/ui (Base UI primitives) | ✅ Aktif |
+| **Icons** | Lucide React + react-icons/si | ✅ Aktif |
+| **Theme** | next-themes (dark/light mode) | ✅ Aktif |
+| **Auth** | Mock via localStorage (`lib/auth-context.tsx`) | 🧪 Mock — NextAuth v5 planned |
+| **Database** | Belum ada — data mock (`lib/mock-data.ts`) | 🧪 Mock — Prisma + PostgreSQL planned |
+| **RBAC** | Helper di `lib/mock-data.ts` (ADMIN/USER/VIEWER) | 🧪 Mock UI |
+| **AI Agent Infra** | Skills, sub-agents, KG, memory (`.opencode/`, `docs/kg/`) | ✅ Aktif |
+| **Deployment** | Belum dikonfigurasi | 🔮 Docker/K8s planned |
 
 ---
 
@@ -726,19 +782,11 @@ cd omnistack
 # 2. Install dependencies
 npm install
 
-# 3. Setup database
-npx prisma migrate dev --name init
-npx prisma db seed  # Seed test accounts
-
-# 4. Copy environment variables
-cp .env.example .env.local
-# Edit .env.local
-
-# 5. Run development server
+# 3. Run development server
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) dan login dengan salah satu test account:
+Buka [http://localhost:3000](http://localhost:3000) dan login dengan salah satu test account (quick-login tersedia di halaman `/login`):
 
 ```bash
 👑 ADMIN:   admin@omnistack.dev / admin123
@@ -753,9 +801,19 @@ npm run dev          # Dev server dengan Turbopack
 npm run build        # Production build
 npm run start        # Start production server
 npm run lint         # Run ESLint
+
+# Quality gate (AI agents / CI)
+bash .opencode/skills/omnistack-quality-gate/scripts/verify.sh            # lint + typecheck + build
+bash .opencode/skills/omnistack-quality-gate/scripts/verify.sh --no-build # lint + typecheck saja
+
+# Knowledge graph
+bash .opencode/skills/omnistack-kg/scripts/validate-kg.sh                 # validasi docs/kg/
 ```
 
-> **Catatan:** Saat ini belum ada backend/database — auth & data masih mock (localStorage). Test account tersedia via quick-login di halaman `/login`. Perintah Prisma/seed akan aktif setelah integrasi database.
+> **Catatan:** Saat ini belum ada backend/database — auth & data masih mock
+> (localStorage via `lib/auth-context.tsx` + `lib/mock-data.ts`). Test account
+> didefinisikan di `lib/mock-data.ts`. Perintah Prisma/migrate akan aktif
+> setelah integrasi database.
 
 ---
 
@@ -764,30 +822,43 @@ npm run lint         # Run ESLint
 ```
 omnistack/
 ├── app/
-│   ├── layout.tsx               # Root layout
+│   ├── layout.tsx               # Root layout (ThemeProvider, TooltipProvider)
 │   ├── page.tsx                 # Landing page
-│   ├── (dashboard)/             # Authenticated pages
-│   │   ├── layout.tsx           # Dashboard shell
+│   ├── globals.css              # Theme tokens + global styles
+│   ├── (dashboard)/             # Authenticated pages (route group)
+│   │   ├── layout.tsx           # Dashboard shell (Sidebar + TopNav)
 │   │   ├── dashboard/           # Overview dashboard
 │   │   ├── projects/            # ✅ Project management (CRUD + RBAC mock)
 │   │   │   └── _components/     # Page-specific components
 │   │   ├── [id]/                # Detail proyek
 │   │   ├── ai-architect/        # AI Architect (WIP)
+│   │   ├── ai-reviewer/         # AI Code Reviewer (WIP)
 │   │   ├── deployments/         # Deployment history
 │   │   ├── finops/              # Cost tracking
-│   │   └── admin/               # Admin-only pages
-│   ├── login/                   # Login (mock auth)
+│   │   ├── gitops/              # GitOps / preview environments
+│   │   ├── monitoring/          # Observability
+│   │   ├── error-tracking/      # Error tracking
+│   │   ├── admin/               # Admin-only pages (RBAC: ADMIN)
+│   │   └── settings/            # Settings
+│   ├── login/                   # Login (mock auth + quick-login)
 │   └── register/                # Registrasi (mock)
 ├── components/
-│   ├── ui/                      # shadcn/ui (DO NOT EDIT)
+│   ├── ui/                      # shadcn/ui Base UI primitives (DO NOT EDIT)
 │   ├── app-sidebar.tsx          # Main sidebar
 │   ├── top-nav.tsx              # Top navigation bar
-│   └── project-status-badge.tsx # Badge status (Live/Building/Failed/Stopped)
+│   ├── project-status-badge.tsx # Badge status (Live/Building/Failed/Stopped)
+│   └── theme-provider.tsx       # Dark/light mode provider
 ├── lib/
 │   ├── auth-context.tsx         # Mock auth context (localStorage)
 │   ├── mock-data.ts             # Mock data + RBAC helpers
 │   └── utils.ts                 # Utilities (cn, dll)
-└── hooks/                       # Custom React hooks
+├── hooks/                       # Custom React hooks
+├── docs/kg/                     # Knowledge graph markdown (AI agents)
+└── .opencode/                   # AI agent infrastructure (lihat INFRASTRUCTURE.md)
+    ├── skills/                  # 5 skill on-demand
+    ├── agent/                   # Sub-agents (implementer, reviewer, curator)
+    ├── command/                 # Commands (/mvp, /kg)
+    └── memory/                  # Memory externalization (todo, decisions, errors)
 ```
 
 ---
@@ -795,17 +866,18 @@ omnistack/
 ## 🗺️ Roadmap
 
 ### ✅ Phase 1: Foundation (Q3 2026) - COMPLETED
-- [x] Next.js 16 + shadcn/ui setup
+- [x] Next.js 16 + shadcn/ui (Base UI) setup
 - [x] Landing page komprehensif
-- [x] Dashboard shell
-- [x] **RBAC System (ADMIN/USER/VIEWER)** ← NEW!
-- [x] NextAuth.js integration
-- [x] Prisma + Database setup
+- [x] Dashboard shell + sidebar RBAC-aware
+- [x] RBAC mock system (ADMIN/USER/VIEWER) via `lib/mock-data.ts`
+- [x] Mock auth (`lib/auth-context.tsx`, localStorage)
+- [x] AI agent infrastructure: skills, sub-agents, `/mvp` command, memory, knowledge graph (`docs/kg/`)
 
 ### 🚧 Phase 2: Core Features (Q4 2026) - IN PROGRESS
-- [x] Project CRUD (mock UI dengan RBAC) ← NEW!
+- [x] Project CRUD (mock UI dengan RBAC)
 - [ ] AI Architect real integration
-- [ ] GitHub OAuth
+- [ ] NextAuth.js v5 + GitHub OAuth (ganti mock auth)
+- [ ] Prisma + PostgreSQL (ganti mock data)
 - [ ] Cloud IDE
 - [ ] User management UI (admin)
 
@@ -814,7 +886,7 @@ omnistack/
 - [ ] Multi-node clusters
 - [ ] Preview environments
 - [ ] Auto-scaling
-- [ ] FinOps dashboard
+- [ ] FinOps dashboard real data
 
 ### 🌟 Phase 4: Enterprise (Q2 2027) - PLANNED
 - [ ] SSO (SAML/OIDC)
@@ -832,6 +904,7 @@ Kontribusi diterima! Baca dulu:
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — System design
 - [DESIGN.md](./DESIGN.md) — Design system
 - [AGENTS.md](./AGENTS.md) — AI agent guidelines
+- [INFRASTRUCTURE.md](./INFRASTRUCTURE.md) — AI agent infrastructure (skills, agents, KG, memory)
 
 ---
 
@@ -844,6 +917,7 @@ Kontribusi diterima! Baca dulu:
 | **[CONVENTIONS.md](./CONVENTIONS.md)** | Code conventions |
 | **[DESIGN.md](./DESIGN.md)** | Design system |
 | **[AGENTS.md](./AGENTS.md)** | AI agent guide |
+| **[INFRASTRUCTURE.md](./INFRASTRUCTURE.md)** | AI agent infrastructure |
 | **[CHANGELOG.md](./CHANGELOG.md)** | Version history |
 
 ---
