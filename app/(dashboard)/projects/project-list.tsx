@@ -501,7 +501,6 @@ export function ProjectList() {
                 key={project.id}
                 project={project}
                 manageable={canManageProject(project)}
-                canDelete={isAdmin || project.userId === user!.id}
                 isAdmin={Boolean(isAdmin)}
                 isConfirmingDelete={confirmDeleteId === project.id}
                 ownerName={

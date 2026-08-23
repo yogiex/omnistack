@@ -1,388 +1,898 @@
-# 🎨 OmniStack UI/UX - Role VIEWER (ASCII Art)
+# 🚀 OmniStack — Deployments Page (Comprehensive UI/UX)
 
-## 📱 Dashboard Overview (Read-Only)
+Berikut adalah desain ASCII art komprehensif untuk halaman **Deployments** (`/deployments`):
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  🏠 OmniStack Dashboard                                          👁️ VIEWER (RO) │
-├────────────────┬────────────────────────────────────────────────────────────────┤
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│  🏠 Overview   │  │  Welcome back, Viewer!                    [🔔 3] [👤 ▼] │  │
-│  📦 Projects   │  └──────────────────────────────────────────────────────────┘  │
-│  📊 Monitoring │                                                                │
-│  💰 FinOps     │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
-│  👤 Profile    │  │ 📊 Active   │ │ 🚀 Deploy   │ │ ⚠️ Alerts   │ │ 💰 Cost │ │
-│                │  │    12       │ │    3        │ │    2        │ │  $247   │ │
-│  ────────────  │  │ ↑ 8%        │ │ ↑ 12%       │ │ ↓ 5%        │ │ ↑ 15%   │ │
-│  [Read-Only    │  │ vs last wk  │ │ vs last wk  │ │ vs last wk  │ │ vs last │ │
-│   Mode]        │  └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
-│                │                                                                │
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│                │  │  📈 System Health (Last 24h)                             │  │
-│                │  │                                                          │  │
-│                │  │  CPU Usage    ████████████░░░░░░░░  62%                  │  │
-│                │  │  Memory       ████████████████░░░░  78%                  │  │
-│                │  │  Disk I/O     ██████░░░░░░░░░░░░░░  31%                  │  │
-│                │  │  Network      █████████████░░░░░░░  65%                  │  │
-│                │  │                                                          │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-│                │  ┌────────────────────────────┐ ┌────────────────────────────┐│
-│                │  │ 🚀 Recent Deployments      │ │ ⚠️ Recent Alerts           ││
-│                │  │                            │ │                            ││
-│                │  │ ✅ api-service             │ │ 🔴 High CPU usage          ││
-│                │  │    2 min ago · v1.2.3      │ │    api-service · 5m ago    ││
-│                │  │                            │ │                            ││
-│                │  │ ✅ web-frontend            │ │ 🟡 Memory threshold        ││
-│                │  │    15 min ago · v2.0.1     │ │    db-primary · 12m ago    ││
-│                │  │                            │ │                            ││
-│                │  │ ✅ auth-service            │ │ 🔵 Disk cleanup needed     ││
-│                │  │    1 hour ago · v1.0.5     │ │    storage-node · 1h ago   ││
-│                │  │                            │ │                            ││
-│                │  │ [View All Deployments →]   │ │ [View All Alerts →]        ││
-│                │  └────────────────────────────┘ └────────────────────────────┘│
-│                │                                                                │
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│                │  │  📊 Shared Projects Activity                             │  │
-│                │  │                                                          │  │
-│                │  │  Project Name        Status      Last Deploy    Team     │  │
-│                │  │  ─────────────────────────────────────────────────────── │  │
-│                │  │  client-portal       🟢 Live     2 hours ago    5 devs   │  │
-│                │  │  mobile-app          🟡 Build    5 min ago      3 devs   │  │
-│                │  │  analytics-dash      🟢 Live     1 day ago      2 devs   │  │
-│                │  │                                                          │  │
-│                │  │  [View All Shared Projects →]                            │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-└────────────────┴────────────────────────────────────────────────────────────────┘
-```
+---
 
-## 📦 Shared Projects (View Only)
+## 1. 📐 Full Page Layout Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  📦 Shared Projects                                              👁️ VIEWER (RO) │
-├────────────────┬────────────────────────────────────────────────────────────────┤
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│  🏠 Overview   │  │  Shared Projects                          [🔔 3] [👤 ▼] │  │
-│  📦 Projects   │  └──────────────────────────────────────────────────────────┘  │
-│  📊 Monitoring │                                                                │
-│  💰 FinOps     │  ┌──────────────────────────────────────────────────────────┐  │
-│  👤 Profile    │  │  🔍 Search projects...         [Filter ▼] [Sort ▼] [👁️]  │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│  ────────────  │                                                                │
-│  [Read-Only    │  ┌──────────────────────────────────────────────────────────┐  │
-│   Mode]        │  │  📊 Stats                                                │  │
-│                │  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐        │  │
-│                │  │  │ Shared  │ │ Active  │ │ Deploy  │ │ Team    │        │  │
-│                │  │  │   8     │ │   6     │ │   12    │ │   15    │        │  │
-│                │  │  │projects │ │projects │ │ this wk │ │members  │        │  │
-│                │  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘        │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │ 🌐 client-portal                      🟢 LIVE     │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Production web portal for enterprise clients      │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Stack: Next.js · PostgreSQL · Redis              │  │  │
-│                │  │  │  Last deploy: 2 hours ago · v1.2.3                │  │  │
-│                │  │  │  Team: 5 developers · Owner: dev@company.com      │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  [View Details →]  [View Logs]  [View Metrics]    │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │ 📱 mobile-app                         🟡 BUILD    │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  React Native mobile application                   │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Stack: React Native · Node.js · MongoDB          │  │  │
-│                │  │  │  Last deploy: 5 min ago · v2.0.1-beta             │  │  │
-│                │  │  │  Team: 3 developers · Owner: mobile@company.com   │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  [View Details →]  [View Logs]  [View Metrics]    │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │ 📊 analytics-dashboard                🟢 LIVE     │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Internal analytics and reporting dashboard        │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Stack: Vue.js · Python · ClickHouse              │  │  │
-│                │  │  │  Last deploy: 1 day ago · v3.1.0                  │  │  │
-│                │  │  │  Team: 2 developers · Owner: data@company.com     │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  [View Details →]  [View Logs]  [View Metrics]    │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  Showing 3 of 8 shared projects                          │  │
-│                │  │  [← Previous]  Page 1 of 3  [Next →]                     │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-└────────────────┴────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  🔶 OmniStack          Search deployments, commits...          🔔 3  👨‍💻 Developer  ⚙️  🌙      │
+├──────────────┬───────────────────────────────────────────────────────────────────────────────────┤
+│              │                                                                                   │
+│  Workspace   │   🚀 Deployments                                                                  │
+│              │                                                                                   │
+│  🏠 Overview │   ┌────────────┬────────────┬────────────┬────────────┬────────────┐             │
+│  📦 Projects │   │  📊 Total  │  ✅ Success│  🔄 Active │  ❌ Failed │  ⏱️ Avg    │             │
+│  🚀 Deploys  │   │    147     │    128     │     2      │     17     │   3m 42s   │             │
+│  📊 Monitoring│  │  7 days    │   87.1%    │  building  │  11.6%     │  ▼ 12%     │             │
+│  🐛 Errors   │   │  ▲ +23     │   ▲ +19    │            │  ▲ +4      │  vs prev   │             │
+│  🔀 Preview  │   └────────────┴────────────┴────────────┴────────────┴────────────┘             │
+│  💰 FinOps   │                                                                                   │
+│  ✨ AI Arch  │   ┌── Filter & Search ──────────────────────────────────────────────────────────┐ │
+│  🧠 AI Review│   │ 🔍 Search project, commit, author...  │ Status [▼ All ] │ Project [▼ All ] │ │
+│              │   │                                       │ Env [▼ All ]    │ Date [▼ 7 days]  │ │
+│  Akun        │   │ [🔄 Reset]                                    [+ New Deployment]           │ │
+│  ⚙️ Settings │   └─────────────────────────────────────────────────────────────────────────────┘ │
+│              │                                                                                   │
+│              │   ┌── Active Deployments (Live Progress) ──────────────────────────────────────┐  │
+│              │   │                                                                             │  │
+│              │   │  🔄 my-commerce-app  #deploy-147  ────────────────▓▓▓▓▓▓▓▓░░░░░░ 67%      │  │
+│              │   │     feat/payment-gateway → production   by dev@omnistack.dev               │  │
+│              │   │     Step 3/5: Building Docker image...    Started: 2m 14s ago               │  │
+│              │   │     ✅ Clone → ✅ Install → 🔄 Build → ⏳ Push → ⏳ Deploy                   │  │
+│              │   │     [View Logs]  [Cancel]                                                   │  │
+│              │   │                                                                             │  │
+│              │   │  🔄 admin-dashboard  #deploy-146  ──▓▓░░░░░░░░░░░░░░░░░░░ 12%              │  │
+│              │   │     hotfix/auth-error → production   by admin@omnistack.dev                 │  │
+│              │   │     Step 1/5: Cloning repository...    Started: 18s ago                     │  │
+│              │   │     🔄 Clone → ⏳ Install → ⏳ Build → ⏳ Push → ⏳ Deploy                    │  │
+│              │   │     [View Logs]  [Cancel]                                                   │  │
+│              │   │                                                                             │  │
+│              │   └─────────────────────────────────────────────────────────────────────────────┘  │
+│              │                                                                                   │
+│              │   ┌── Deployment History ────────────────────────────────────────────────────────┐│
+│              │   │                                                                                ││
+│              │   │  ┌─ Status ─ Project ─ Commit ─ Branch ─ Environment ─ Author ─ Duration ─ When ────┐│
+│              │   │  │                                                                                │││
+│              │   │  │ ✅ Live    my-commerce-app    #a8f3c2d  feat/payments  🌐 production  dev@omni  3m 42s  12m ago │││
+│              │   │  │    └─ "Add Stripe payment integration with webhook handling"                    │││
+│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
+│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
+│              │   │  │ ❌ Failed  admin-dashboard     #b7e2a1f  hotfix/auth    🌐 production  admin@omni 1m 23s  45m ago│││
+│              │   │  │    └─ "Fix JWT refresh token race condition"                                    │││
+│              │   │  │    └─ Error: Build failed at step 3 — "npm ci" exit code 1                     │││
+│              │   │  │    [🔍 Logs] [🔄 Retry] [🐛 AI Diagnose]                                       │││
+│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
+│              │   │  │ ✅ Live    my-commerce-app    #c4d1e2f  main           🔀 staging     dev@omni  3m 18s  2h ago │││
+│              │   │  │    └─ "Refactor checkout flow with optimistic UI updates"                       │││
+│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
+│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
+│              │   │  │ ✅ Live    api-gateway         #d5e3f4a  main           🌐 production  dev2@omni 4m 02s  4h ago │││
+│              │   │  │    └─ "Rate limiter config update: 1000 req/min per IP"                        │││
+│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
+│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
+│              │   │  │ ✅ Live    mobile-app          #e6f4a5b  release/v2.4   🌐 production  dev@omni  5m 47s  1d ago │││
+│              │   │  │    └─ "v2.4.0: New onboarding flow + biometric auth"                           │││
+│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
+│              │   │                                                                                │││
+│              │   │  └────────────────────────────────────────────────────────────────────────────┘││
+│              │   │                                                                                ││
+│              │   │  Showing 5 of 147 deployments  [← Prev]  Page 1 of 30  [Next →]               ││
+│              │   └────────────────────────────────────────────────────────────────────────────────┘│
+│              │                                                                                   │
+├──────────────┴───────────────────────────────────────────────────────────────────────────────────┤
+│ 📍 /deployments  |  👨‍💻 USER (own projects)  |  Auto-refresh: 10s                                 │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## 📊 Monitoring & Logs
+---
+
+## 2. 📊 Breakdown Detail Per Komponen
+
+### 2.1 Stats Cards (Hero Metrics)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  📊 Monitoring                                                   👁️ VIEWER (RO) │
-├────────────────┬────────────────────────────────────────────────────────────────┤
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│  🏠 Overview   │  │  Monitoring & Logs                        [🔔 3] [👤 ▼] │  │
-│  📦 Projects   │  └──────────────────────────────────────────────────────────┘  │
-│  📊 Monitoring │                                                                │
-│  💰 FinOps     │  ┌──────────────────────────────────────────────────────────┐  │
-│  👤 Profile    │  │  [Overview] [Performance] [Logs] [Errors] [APM]          │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│  ────────────  │                                                                │
-│  [Read-Only    │  ┌──────────────────────────────────────────────────────────┐  │
-│   Mode]        │  │  📈 Real-time Metrics (Last 1 hour)                      │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │  CPU Usage (%)                                     │  │  │
-│                │  │  │  100 ┤                                             │  │  │
-│                │  │  │   75 ┤    ╱╲      ╱╲                               │  │  │
-│                │  │  │   50 ┤╱╲╱╱  ╲╱╲╱╱╱  ╲╱╲                           │  │  │
-│                │  │  │   25 ┤                                             │  │  │
-│                │  │  │    0 ┼────┬────┬────┬────┬────┬────┬────┬─         │  │  │
-│                │  │  │       0m   10m   20m   30m   40m   50m   60m      │  │  │
-│                │  │  │  Avg: 45% · Peak: 78% · Current: 62%              │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │  Memory Usage (MB)                                 │  │  │
-│                │  │  │  2048 ┤                                            │  │  │
-│                │  │  │  1536 ┤         ╱╲                                 │  │  │
-│                │  │  │  1024 ┤╱╲╱╲╱╲╱╱╱  ╲╲╱╲╱╲╱╲                       │  │  │
-│                │  │  │   512 ┤                                            │  │  │
-│                │  │  │     0 ┼────┬────┬────┬────┬────┬────┬────┬─        │  │  │
-│                │  │  │  Avg: 1.2GB · Peak: 1.6GB · Current: 1.4GB        │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│                │  │  📋 Recent Logs                                          │  │
-│                │  │                                                          │  │
-│                │  │  🔍 Filter logs...          [Level ▼] [Service ▼] [🔄]  │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │ 14:23:45 [INFO]  api-service    Request completed  │  │  │
-│                │  │  │              GET /api/users · 200 · 45ms           │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │ 14:23:42 [WARN]  db-primary     Slow query detected│  │  │
-│                │  │  │              SELECT * FROM orders · 2.3s           │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │ 14:23:38 [INFO]  web-frontend   Page rendered      │  │  │
-│                │  │  │              /dashboard · 120ms                    │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │ 14:23:35 [ERROR] api-service    Connection timeout │  │  │
-│                │  │  │              Redis connection failed · Retry 1/3   │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │ 14:23:30 [INFO]  auth-service   User authenticated │  │  │
-│                │  │  │              user@example.com · OAuth              │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  Showing last 100 log entries · Auto-refresh: 5s         │  │
-│                │  │  [Export Logs (CSV)]  [Download Full Log]                │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-└────────────────┴────────────────────────────────────────────────────────────────┘
+┌────────────┬────────────┬────────────┬────────────┬────────────┐
+│  📊 Total  │ ✅ Success │  🔄 Active │ ❌ Failed  │  ⏱️ Avg    │
+│    147     │    128     │     2      │     17     │   3m 42s   │
+│  7 days    │   87.1%    │  building  │  11.6%     │  ▼ 12%     │
+│  ▲ +23     │   ▲ +19    │            │  ▲ +4      │  vs prev   │
+└────────────┴────────────┴────────────┴────────────┴────────────┘
+
+Legend:
+📊 Total      = Semua deployment dalam periode terpilih
+✅ Success    = Deployment berhasil (status: Live)
+🔄 Active     = Deployment sedang berjalan (Building)
+❌ Failed     = Deployment gagal
+⏱️ Avg        = Rata-rata durasi deployment
+▲/▼          = Perubahan dibanding periode sebelumnya
 ```
 
-## 💰 FinOps Reports
+**Detail interaktif per card (on click):**
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  💰 FinOps Reports                                               👁️ VIEWER (RO) │
-├────────────────┬────────────────────────────────────────────────────────────────┤
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│  🏠 Overview   │  │  FinOps & Cost Tracking                   [🔔 3] [👤 ▼] │  │
-│  📦 Projects   │  └──────────────────────────────────────────────────────────┘  │
-│  📊 Monitoring │                                                                │
-│  💰 FinOps     │  ┌──────────────────────────────────────────────────────────┐  │
-│  👤 Profile    │  │  [This Month] [Last Month] [Custom Range] [Export ▼]     │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│  ────────────  │                                                                │
-│  [Read-Only    │  ┌──────────────────────────────────────────────────────────┐  │
-│   Mode]        │  │  💵 Cost Overview (August 2026)                          │  │
-│                │  │                                                          │  │
-│                │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐    │  │
-│                │  │  │ Total    │ │ Compute  │ │ Storage  │ │ Network  │    │  │
-│                │  │  │  $1,247  │ │   $687   │ │   $342   │ │   $218   │    │  │
-│                │  │  │ ↑ 15%    │ │ ↑ 12%    │ │ ↑ 18%    │ │ ↑ 22%    │    │  │
-│                │  │  │ vs July  │ │ vs July  │ │ vs July  │ │ vs July  │    │  │
-│                │  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘    │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│                │  │  📊 Cost Breakdown by Project                            │  │
-│                │  │                                                          │  │
-│                │  │  Project Name          This Month    Last Month    Trend │  │
-│                │  │  ─────────────────────────────────────────────────────── │  │
-│                │  │  client-portal           $423          $389        ↑ 8% │  │
-│                │  │  ████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  │
-│                │  │                                                          │  │
-│                │  │  mobile-app              $312          $287        ↑ 9% │  │
-│                │  │  ████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  │
-│                │  │                                                          │  │
-│                │  │  analytics-dashboard     $247          $198        ↑ 25%│  │
-│                │  │  ████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  │
-│                │  │                                                          │  │
-│                │  │  api-service             $165          $142        ↑ 16%│  │
-│                │  │  ████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  │
-│                │  │                                                          │  │
-│                │  │  auth-service            $100          $92         ↑ 9% │  │
-│                │  │  █████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│                │  │  📈 Daily Cost Trend (Last 30 Days)                      │  │
-│                │  │                                                          │  │
-│                │  │  $60 ┤                                                   │  │
-│                │  │  $45 ┤              ╱╲                                   │  │
-│                │  │  $30 ┤    ╱╲╱╲╱╲╱╱╱  ╲╲╱╲╱╲                            │  │
-│                │  │  $15 ┤╱╲                                                 │  │
-│                │  │   $0 ┼──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬──┬─            │  │
-│                │  │      Aug 1    5    10   15   20   25   30               │  │
-│                │  │                                                          │  │
-│                │  │  Average: $41/day · Peak: $58 (Aug 15)                  │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│                │  │  💡 Cost Optimization Recommendations                    │  │
-│                │  │                                                          │  │
-│                │  │  ⚠️  analytics-dashboard: Consider downsizing unused     │  │
-│                │  │     database instance (save ~$45/month)                  │  │
-│                │  │                                                          │  │
-│                │  │  💡 mobile-app: Enable auto-scaling during off-peak      │  │
-│                │  │     hours (save ~$30/month)                              │  │
-│                │  │                                                          │  │
-│                │  │  ✅ client-portal: Good resource utilization (92%)       │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-│                │  [📥 Export Report (PDF)]  [📊 Export Data (CSV)]              │
-│                │                                                                │
-└────────────────┴────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  ❌ Failed Deployments — Detail         │
+├─────────────────────────────────────────┤
+│  Total Failed:  17 (last 7 days)       │
+│  Failure Rate:  11.6%                  │
+│  Trend:         ▲ +4 vs previous week  │
+│                                        │
+│  Top Failure Reasons:                  │
+│  ┌──────────────────────────────────┐  │
+│  │ Build error      8  (47%) █████  │  │
+│  │ Test failed      4  (24%) ███    │  │
+│  │ Timeout          3  (18%) ██      │  │
+│  │ Config error     2  (11%) █       │  │
+│  └──────────────────────────────────┘  │
+│                                        │
+│  Most Affected Projects:               │
+│  • admin-dashboard     6 failures      │
+│  • my-commerce-app     4 failures      │
+│  • api-gateway         3 failures      │
+│                                        │
+│  [View Failure Analysis →]             │
+└─────────────────────────────────────────┘
 ```
 
-## 👤 Profile Settings
+---
+
+### 2.2 Filter & Search Bar
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│  👤 Profile Settings                                             👁️ VIEWER (RO) │
-├────────────────┬────────────────────────────────────────────────────────────────┤
-│                │  ┌──────────────────────────────────────────────────────────┐  │
-│  🏠 Overview   │  │  Profile Settings                         [🔔 3] [👤 ▼] │  │
-│  📦 Projects   │  └──────────────────────────────────────────────────────────┘  │
-│  📊 Monitoring │                                                                │
-│  💰 FinOps     │  ┌──────────────────────────────────────────────────────────┐  │
-│  👤 Profile    │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │  👤 Profile Information                            │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Avatar:  [🖼️ Change Avatar]                      │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Full Name:                                        │  │  │
-│                │  │  │  ┌──────────────────────────────────────────────┐  │  │  │
-│                │  │  │  │ John Viewer                                  │  │  │  │
-│                │  │  │  └──────────────────────────────────────────────┘  │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Email:                                            │  │  │
-│                │  │  │  ┌──────────────────────────────────────────────┐  │  │  │
-│                │  │  │  │ viewer@omnistack.dev                         │  │  │  │
-│                │  │  │  └──────────────────────────────────────────────┘  │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Role:                                             │  │  │
-│                │  │  │  ┌──────────────────────────────────────────────┐  │  │  │
-│                │  │  │  │ 👁️ VIEWER (Read-Only)                       │  │  │  │
-│                │  │  │  └──────────────────────────────────────────────┘  │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  [Save Changes]  [Cancel]                          │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │  🔔 Notification Preferences                       │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Email Notifications:                              │  │  │
-│                │  │  │  ☑️ Deployment alerts                              │  │  │
-│                │  │  │  ☑️ System alerts                                  │  │  │
-│                │  │  │  ☐  Marketing emails                               │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  In-App Notifications:                             │  │  │
-│                │  │  │  ☑️ Real-time alerts                               │  │  │
-│                │  │  │  ☑️ Daily digest                                   │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  [Save Preferences]                                │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │  🔒 Security                                        │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Password:                                         │  │  │
-│                │  │  │  [Change Password]                                 │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Two-Factor Authentication:                        │  │  │
-│                │  │  │  🟢 Enabled (Authenticator App)                    │  │  │
-│                │  │  │  [Manage 2FA]                                      │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Active Sessions:                                  │  │  │
-│                │  │  │  • Chrome on MacOS · Current session               │  │  │
-│                │  │  │  • Safari on iPhone · 2 hours ago                  │  │  │
-│                │  │  │  [Revoke All Other Sessions]                       │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  │  ┌────────────────────────────────────────────────────┐  │  │
-│                │  │  │  🎨 Appearance                                      │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Theme:                                            │  │  │
-│                │  │  │  ○ Light  ● Dark  ○ System                        │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Language:                                         │  │  │
-│                │  │  │  [English ▼]                                       │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  Timezone:                                         │  │  │
-│                │  │  │  [Asia/Jakarta (UTC+7) ▼]                          │  │  │
-│                │  │  │                                                    │  │  │
-│                │  │  │  [Save Appearance]                                 │  │  │
-│                │  │  └────────────────────────────────────────────────────┘  │  │
-│                │  │                                                          │  │
-│                │  └──────────────────────────────────────────────────────────┘  │
-│                │                                                                │
-└────────────────┴────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                      │
+│  🔍 [Search project, commit SHA, author, branch...              ]                    │
+│                                                                                      │
+│  Status:        Environment:    Project:           Date Range:      Branch:          │
+│  [▼ All     ]   [▼ All      ]   [▼ All Projects ]  [▼ Last 7d  ]   [▼ All     ]     │
+│   • All          • All           • my-commerce-app   • Last 24h      • main          │
+│   • ✅ Success   • 🌐 Production • admin-dashboard    • Last 7d       • develop       │
+│   • 🔄 Building  • 🔀 Staging    • api-gateway       • Last 30d      • feat/*        │
+│   • ❌ Failed    • 🔀 Preview    • mobile-app        • Custom        • hotfix/*      │
+│   • ⏪ Rolled    •                • landing-page      •                • release/*     │
+│                                                                                      │
+│  [🔄 Reset Filters]                    Showing 5 of 147        [+ New Deployment]     │
+│                                                                                      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## 🔍 Key UI/UX Characteristics for VIEWER Role:
+---
 
-### ✅ What VIEWER Can See:
-- **Dashboard Overview** - All metrics, stats, health indicators
-- **Shared Projects** - Projects shared with them (read-only)
-- **Monitoring & Logs** - Full access to logs, metrics, APM
-- **FinOps Reports** - Cost tracking, budgets, export capabilities
-- **Profile Settings** - Personal preferences, security, appearance
+### 2.3 Active Deployments (Live Progress)
 
-### ❌ What's Restricted:
-- **No Create/Edit/Delete buttons** - All action buttons removed or disabled
-- **Read-Only labels** - Clear indication of RO mode throughout UI
-- **No deployment actions** - Cannot deploy, rollback, or modify
-- **No user management** - Cannot invite, edit, or delete users
-- **No system settings** - Cannot modify global configurations
+```
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│  🔄 Active Deployments (2)                                            [Auto-refresh]  │
+│                                                                                      │
+│  ┌────────────────────────────────────────────────────────────────────────────────┐  │
+│  │                                                                                │  │
+│  │  🔄 my-commerce-app          #deploy-147          feat/payment-gateway         │  │
+│  │     ┌────────────────────────────────────────────────────────────────────┐     │  │
+│  │     │  ████████████████████████████░░░░░░░░░░░░░░░░░░░░  67%            │     │  │
+│  │     └────────────────────────────────────────────────────────────────────┘     │  │
+│  │     Target: 🌐 production    Author: dev@omnistack.dev    Started: 2m 14s ago  │  │
+│  │                                                                                │  │
+│  │     Pipeline Steps:                                                            │  │
+│  │     ✅ Clone repository          8s      ✓ Done                               │  │
+│  │     ✅ Install dependencies      42s     ✓ Done                               │  │
+│  │     🔄 Build Docker image        1m 24s  ⏳ In progress...                    │  │
+│  │        └─ Step 4/7: Running npm run build                                    │  │
+│  │        └─ ┌─────────────────────────────────────────────────────────────┐      │  │
+│  │           │ > next build                                                │      │  │
+│  │           │ ✓ Compiled successfully in 12.4s                            │      │  │
+│  │           │ ✓ Generating static pages (45/52)                           │      │  │
+│  │           │ █                                                           │      │  │
+│  │           └─────────────────────────────────────────────────────────────┘      │  │
+│  │     ⏳ Push to registry           —      ⏸ Waiting                             │  │
+│  │     ⏳ Deploy to production      —      ⏸ Waiting                             │  │
+│  │                                                                                │  │
+│  │     [📋 View Full Logs]  [❌ Cancel Deployment]                                │  │
+│  │                                                                                │  │
+│  └────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                      │
+│  ┌────────────────────────────────────────────────────────────────────────────────┐  │
+│  │                                                                                │  │
+│  │  🔄 admin-dashboard          #deploy-146          hotfix/auth-error            │  │
+│  │     ┌────────────────────────────────────────────────────────────────────┐     │  │
+│  │     │  ██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  12%              │     │  │
+│  │     └────────────────────────────────────────────────────────────────────┘     │  │
+│  │     Target: 🌐 production    Author: admin@omnistack.dev    Started: 18s ago   │  │
+│  │                                                                                │  │
+│  │     Pipeline Steps:                                                            │  │
+│  │     🔄 Clone repository        18s     ⏳ In progress...                      │  │
+│  │        └─ Fetching branch hotfix/auth-error from origin                       │  │
+│  │     ⏳ Install dependencies     —      ⏸ Waiting                             │  │
+│  │     ⏳ Build Docker image       —      ⏸ Waiting                             │  │
+│  │     ⏳ Push to registry         —      ⏸ Waiting                             │  │
+│  │     ⏳ Deploy to production     —      ⏸ Waiting                             │  │
+│  │                                                                                │  │
+│  │     [📋 View Full Logs]  [❌ Cancel Deployment]                                │  │
+│  │                                                                                │  │
+│  └────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                      │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+```
 
-### 🎨 Visual Indicators:
-- **👁️ VIEWER (RO)** badge in top navigation
-- **Grayed-out/disabled buttons** for restricted actions
-- **"Read-Only Mode"** indicator in sidebar
-- **Export buttons** remain active (VIEWER can export reports)
-- **View-only icons** (eye icon) for read-only actions
+---
 
-### 📊 Data Presentation:
-- **Comprehensive dashboards** with real-time metrics
-- **Detailed logs** with filtering and search
-- **Cost breakdowns** with visual charts and trends
-- **Status indicators** (Live, Building, Failed, Stopped)
-- **Export capabilities** for reports (PDF, CSV)
+### 2.4 Deployment History (Table View)
 
-This design ensures VIEWERs have full visibility into system operations while maintaining strict read-only access to prevent accidental modifications.
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  📜 Deployment History                                                                  [☰ List] [▦ Grid]    │
+│                                                                                                              │
+│  ┌─ St ─ Project ─────── Commit ── Branch ─────── Env ─────────── Author ────── Dur ─── When ──── Actions ┐│
+│  │                                                                                                          ││
+│  │ ✅  my-commerce-app  #a8f3c2d  feat/payments   🌐 production   dev@omnistack  3m 42s  12m ago           ││
+│  │     └─ "Add Stripe payment integration with webhook handling"                                            ││
+│  │     └─ Commit: a8f3c2d  →  Files changed: 23 (+1,247 / -89)  Tests: ✅ 142/142 passed                   ││
+│  │     [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                        ││
+│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
+│  │ ❌  admin-dashboard  #b7e2a1f  hotfix/auth     🌐 production   admin@omnistack 1m 23s  45m ago          ││
+│  │     └─ "Fix JWT refresh token race condition"                                                            ││
+│  │     └─ Error: Build failed at step 3 — "npm ci" exit code 1                                             ││
+│  │     └─ stderr: ERR! ERESOLVE could not resolve react@19.1.0 vs react-dom@18.3.1                         ││
+│  │     [🔍 Logs] [🔄 Retry] [🐛 AI Diagnose] [⋯ More]                                                      ││
+│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
+│  │ ✅  my-commerce-app  #c4d1e2f  main            🔀 staging      dev@omnistack  3m 18s  2h ago            ││
+│  │     └─ "Refactor checkout flow with optimistic UI updates"                                               ││
+│  │     └─ Commit: c4d1e2f  →  Files changed: 8 (+342 / -128)  Tests: ✅ 138/138 passed                     ││
+│  │     [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                        ││
+│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
+│  │ ✅  api-gateway      #d5e3f4a  main            🌐 production   dev2@omnistack 4m 02s  4h ago            ││
+│  │     └─ "Rate limiter config update: 1000 req/min per IP"                                                 ││
+│  │     └─ Commit: d5e3f4a  →  Files changed: 2 (+18 / -12)  Tests: ✅ 56/56 passed                         ││
+│  │     [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                        ││
+│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
+│  │ ⏪  mobile-app       #e6f4a5b  release/v2.4    🌐 production   dev@omnistack  5m 47s  1d ago            ││
+│  │     └─ "v2.4.0: New onboarding flow + biometric auth"                                                    ││
+│  │     └─ Rolled back to #d5e3f4a at 14:32 by admin@omnistack.dev                                          ││
+│  │     └─ Reason: Memory leak detected in production (RSS +40MB/hr)                                         ││
+│  │     [🔍 Logs] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                                       ││
+│  │                                                                                                          ││
+│  └──────────────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                              │
+│  Showing 5 of 147 deployments    [← Prev]    Page 1 of 30    [Next →]    [Items per page: 20 ▼]              │
+│                                                                                                              │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2.5 Deployment Detail View (Modal / Side Panel)
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  🚀 Deployment Detail — #deploy-145                                                    [✕ Close]          │
+│                                                                                                          │
+│  ┌── Header ──────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │                                                                                                    │  │
+│  │  ✅ Live    my-commerce-app    #deploy-145                                                         │  │
+│  │                                                                                                    │  │
+│  │  Commit:   #a8f3c2d  "Add Stripe payment integration with webhook handling"                        │  │
+│  │  Branch:   feat/payment-gateway → 🌐 production                                                    │  │
+│  │  Author:   dev@omnistack.dev                                                                       │  │
+│  │  Trigger:  Manual (via dashboard)                                                                  │  │
+│  │                                                                                                    │  │
+│  │  Started:  2026-08-24 14:28:12 WIB                                                                 │  │
+│  │  Finished: 2026-08-24 14:31:54 WIB                                                                 │  │
+│  │  Duration: 3m 42s                                                                                  │  │
+│  │                                                                                                    │  │
+│  │  [🔍 View Logs]  [⏪ Rollback]  [🔄 Redeploy]  [📊 Metrics]                                       │  │
+│  │                                                                                                    │  │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                                          │
+│  ┌── Pipeline Timeline ────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                                                    │ │
+│  │  ✅ Clone repository              8s       14:28:12 → 14:28:20                                    │ │
+│  │     └─ git clone origin/feat/payment-gateway                                                      │ │
+│  │                                                                                                    │ │
+│  │  ✅ Install dependencies          42s      14:28:20 → 14:29:02                                    │ │
+│  │     └─ npm ci — 1,247 packages installed                                                          │ │
+│  │                                                                                                    │ │
+│  │  ✅ Run tests                     38s      14:29:02 → 14:29:40                                    │ │
+│  │     └─ 142/142 tests passed  |  Coverage: 87.3%                                                   │ │
+│  │                                                                                                    │ │
+│  │  ✅ Build Docker image            1m 24s   14:29:40 → 14:31:04                                    │ │
+│  │     └─ next build — 52 pages generated  |  Bundle: 245 KB gzip                                   │ │
+│  │                                                                                                    │ │
+│  │  ✅ Push to registry              22s      14:31:04 → 14:31:26                                    │ │
+│  │     └─ registry.omnistack.dev/my-commerce-app:a8f3c2d                                             │ │
+│  │                                                                                                    │ │
+│  │  ✅ Deploy to production          28s      14:31:26 → 14:31:54                                    │ │
+│  │     └─ Blue/Green: switched traffic green → blue  |  3/3 instances healthy                       │ │
+│  │                                                                                                    │ │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                                          │
+│  ┌── Commit Details ───────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                                                    │ │
+│  │  Commit:     a8f3c2d4e5f6a7b8c9d0                                                                  │ │
+│  │  Message:    Add Stripe payment integration with webhook handling                                  │ │
+│  │  Author:     Developer <dev@omnistack.dev>                                                         │ │
+│  │  Date:       2026-08-24 14:15:00 WIB                                                               │ │
+│  │  Files:      23 changed  (+1,247 additions, -89 deletions)                                        │ │
+│  │                                                                                                    │ │
+│  │  ┌─ Files Changed ──────────────────────────────────────────────────────────────────────────┐      │ │
+│  │  │  src/services/payment.ts          +420  -12     ████████████████████░░░░                  │      │ │
+│  │  │  src/api/webhooks/stripe.ts       +180   -0     █████████░░░░░░░░░░░                      │      │ │
+│  │  │  src/components/CheckoutForm.tsx  +156  -34     ████████░░░░░░░░░░░░                      │      │ │
+│  │  │  src/lib/stripe.ts                +98    -8     █████░░░░░░░░░░░░░                        │      │ │
+│  │  │  tests/payment.test.ts            +245   -0     ████████████░░░░░░░░                      │      │ │
+│  │  │  ... 18 more files                                                                       │      │ │
+│  │  └──────────────────────────────────────────────────────────────────────────────────────────┘      │ │
+│  │                                                                                                    │ │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                                          │
+│  ┌── Environment & Resources ──────────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                                                    │ │
+│  │  Environment:    🌐 production                                                                     │ │
+│  │  Region:         🇸🇬 Singapore (sgp-1)                                                             │ │
+│  │  Instances:      3 replicas                                                                        │ │
+│  │  CPU allocated:  2 vCPU / instance                                                                 │ │
+│  │  Memory:         2 GB / instance                                                                   │ │
+│  │  Docker image:   registry.omnistack.dev/my-commerce-app:a8f3c2d  (142 MB)                          │ │
+│  │  Domains:        mycommerce.example.com, www.mycommerce.example.com                                │ │
+│  │  SSL:            ✅ Valid (Let's Encrypt, expires 2026-11-22)                                      │ │
+│  │                                                                                                    │ │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                                          │
+│  ┌── Health Check (Post-Deploy) ───────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                                                    │ │
+│  │  HTTP 200 check:    ✅ Passed (avg 45ms)                                                           │ │
+│  │  Error rate (5m):   ✅ 0.0% (threshold: < 1%)                                                      │ │
+│  │  Response p95:      ✅ 142ms (baseline: 150ms)                                                     │ │
+│  │  Memory usage:      ✅ 62% (threshold: < 80%)                                                      │ │
+│  │                                                                                                    │ │
+│  │  All health checks passed ✅ — Deployment considered stable                                        │ │
+│  │                                                                                                    │ │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                                          │
+│  ┌── Rollback History ─────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                                                    │ │
+│  │  No rollbacks for this deployment.                                                                 │ │
+│  │                                                                                                    │ │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                                          │
+│  ┌── Audit Trail ──────────────────────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                                                    │ │
+│  │  14:28:12  dev@omnistack.dev  Triggered deployment #deploy-145                                     │ │
+│  │  14:31:54  system             Deployment completed successfully                                     │ │
+│  │  14:31:54  system             Health checks passed — marked as Live                                 │ │
+│  │  14:35:00  admin@omnistack.dev  Viewed deployment logs                                             │ │
+│  │                                                                                                    │ │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2.6 Deployment Logs Viewer
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  📋 Deployment Logs — #deploy-145 (my-commerce-app)                                    [✕ Close]          │
+│                                                                                                          │
+│  [▼ All Steps]  [🔍 Filter logs...]  [⬇ Download]  [📋 Copy All]  [🔴 Live: OFF (completed)]            │
+│                                                                                                          │
+│  ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │                                                                                                    │  │
+│  │  ═══ STEP 1/5: Clone repository (8s) ═══════════════════════════════════════════════════════════  │  │
+│  │                                                                                                    │  │
+│  │  [14:28:12] INFO   Cloning repository from origin/feat/payment-gateway...                          │  │
+│  │  [14:28:14] INFO   Resolving deltas: 100% (1847/1847), done.                                      │  │
+│  │  [14:28:18] INFO   Checked out commit a8f3c2d4e5f6a7b8c9d0                                        │  │
+│  │  [14:28:20] SUCCESS  Clone completed in 8s                                                        │  │
+│  │                                                                                                    │  │
+│  │  ═══ STEP 2/5: Install dependencies (42s) ══════════════════════════════════════════════════════  │  │
+│  │                                                                                                    │  │
+│  │  [14:28:20] INFO   Running npm ci...                                                               │  │
+│  │  [14:28:22] INFO   npm warn deprecated eslint@8.57.0: This version is no longer supported          │  │
+│  │  [14:28:35] INFO   added 1247 packages in 15s                                                      │  │
+│  │  [14:28:36] INFO   214 packages are looking for funding                                                 │  │
+│  │  [14:28:36] INFO   run `npm fund` for details                                                      │  │
+│  │  [14:29:02] SUCCESS  Dependencies installed in 42s                                                │  │
+│  │                                                                                                    │  │
+│  │  ═══ STEP 3/5: Run tests (38s) ═════════════════════════════════════════════════════════════════  │  │
+│  │                                                                                                    │  │
+│  │  [14:29:02] INFO   Running npm test...                                                             │  │
+│  │  [14:29:05] INFO   PASS  src/services/__tests__/payment.test.ts                                   │  │
+│  │  [14:29:08] INFO   PASS  src/services/__tests__/checkout.test.ts                                  │  │
+│  │  [14:29:12] INFO   PASS  src/api/__tests__/webhooks.test.ts                                       │  │
+│  │  [14:29:30] INFO   ──────────────────────────────────────────────────                              │  │
+│  │  [14:29:30] INFO   Tests:       142 passed, 142 total                                             │  │
+│  │  [14:29:30] INFO   Snapshots:   24 passed, 24 total                                               │  │
+│  │  [14:29:30] INFO   Time:        28.4s                                                             │  │
+│  │  [14:29:30] INFO   Coverage:    87.3% (threshold: 80%) ✅                                         │  │
+│  │  [14:29:40] SUCCESS  All tests passed in 38s                                                      │  │
+│  │                                                                                                    │  │
+│  │  ═══ STEP 4/5: Build Docker image (1m 24s) ═════════════════════════════════════════════════════  │  │
+│  │                                                                                                    │  │
+│  │  [14:29:40] INFO   Building Docker image from Dockerfile...                                        │  │
+│  │  [14:29:41] INFO   [1/7] FROM node:20-alpine AS base                                              │  │
+│  │  [14:29:45] INFO   [2/7] WORKDIR /app                                                             │  │
+│  │  [14:29:46] INFO   [3/7] COPY package*.json ./                                                    │  │
+│  │  [14:29:50] INFO   [4/7] RUN npm ci --production                                                  │  │
+│  │  [14:30:22] INFO   [5/7] COPY . .                                                                 │  │
+│  │  [14:30:24] INFO   [6/7] RUN npm run build                                                        │  │
+│  │  [14:30:25] INFO   > next build                                                                   │  │
+│  │  [14:30:28] INFO   ✓ Compiled successfully in 12.4s                                               │  │
+│  │  [14:30:30] INFO   ✓ Linting and checking validity of types                                       │  │
+│  │  [14:30:32] INFO   ✓ Generating static pages (52/52)                                              │  │
+│  │  [14:30:34] INFO   ✓ Finalizing page optimization                                                 │  │
+│  │  [14:30:36] INFO   Build output:                                                                  │  │
+│  │  [14:30:36] INFO   ┌──────────────────────────────────────────────────────────────┐               │  │
+│  │  [14:30:36] INFO   │ Route (app)                    Size     First Load JS        │               │  │
+│  │  [14:30:36] INFO   │ ┌ ○ /                          142 B        98.4 kB          │               │  │
+│  │  [14:30:36] INFO   │ ├ ○ /checkout                  2.1 kB       112 kB           │               │  │
+│  │  [14:30:36] INFO   │ ├ ○ /products                  1.8 kB       108 kB           │               │  │
+│  │  [14:30:36] INFO   │ └ ○ /api/webhooks/stripe       0 B          96.2 kB          │               │  │
+│  │  [14:30:36] INFO   └──────────────────────────────────────────────────────────────┘               │  │
+│  │  [14:30:36] INFO   Total bundle size: 245 KB (gzipped)                                            │  │
+│  │  [14:30:40] INFO   [7/7] CMD ["npm", "start"]                                                     │  │
+│  │  [14:31:04] SUCCESS  Docker image built in 1m 24s                                                 │  │
+│  │                                                                                                    │  │
+│  │  ═══ STEP 5/5: Deploy to production (28s) ══════════════════════════════════════════════════════  │  │
+│  │                                                                                                    │  │
+│  │  [14:31:04] INFO   Pushing image to registry...                                                    │  │
+│  │  [14:31:26] INFO   Image pushed: registry.omnistack.dev/my-commerce-app:a8f3c2d                   │  │
+│  │  [14:31:26] INFO   Starting Blue/Green deployment...                                               │  │
+│  │  [14:31:28] INFO   Spinning up 3 green instances...                                                │  │
+│  │  [14:31:38] INFO   Green instances healthy (3/3)                                                   │  │
+│  │  [14:31:40] INFO   Switching traffic: blue → green (canary 10% → 50% → 100%)                     │  │
+│  │  [14:31:48] INFO   Traffic fully routed to green                                                   │  │
+│  │  [14:31:52] INFO   Draining blue instances...                                                      │  │
+│  │  [14:31:54] SUCCESS  Deployment completed in 28s                                                   │  │
+│  │                                                                                                    │  │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                                          │
+│  Summary:  5/5 steps completed  |  Total: 3m 42s  |  Status: ✅ SUCCESS                                 │
+│                                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2.7 Rollback Confirmation Dialog
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                          │
+│                          ┌──────────────────────────────────────────────────────────┐                     │
+│                          │                                                          │                     │
+│                          │  ⏪ Rollback Deployment                                  │                     │
+│                          │                                                          │                     │
+│                          │  Anda akan melakukan rollback untuk:                     │                     │
+│                          │                                                          │                     │
+│                          │  Project:     my-commerce-app                            │                     │
+│                          │  Current:     #deploy-147 (feat/payment-gateway)         │                     │
+│                          │  Rollback to: #deploy-145 (main — "Add Stripe payment") │                     │
+│                          │                                                          │                     │
+│                          │  ⚠️  Perubahan yang akan terjadi:                        │                     │
+│                          │                                                          │                     │
+│                          │  • Deploy #deploy-147 akan di-rollback                   │                     │
+│                          │  • Traffic akan dialihkan ke versi #deploy-145           │                     │
+│                          │  • Durasi rollback: ~30 detik (Blue/Green switch)        │                     │
+│                          │  • Downtime: 0 detik (zero-downtime)                     │                     │
+│                          │                                                          │                     │
+│                          │  ┌────────────────────────────────────────────────────┐  │                     │
+│                          │  │  Alasan rollback (opsional):                       │  │                     │
+│                          │  │  [                                                ]│  │                     │
+│                          │  │  [                                                ]│  │                     │
+│                          │  └────────────────────────────────────────────────────┘  │                     │
+│                          │                                                          │                     │
+│                          │  ☐ Saya memahami dampak dari rollback ini                │                     │
+│                          │                                                          │                     │
+│                          │  [Cancel]                    [⏪ Confirm Rollback]        │                     │
+│                          │                                                          │                     │
+│                          └──────────────────────────────────────────────────────────┘                     │
+│                                                                                                          │
+│  (Background dimmed / overlay)                                                                           │
+│                                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2.8 AI Diagnose (Failed Deployment)
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  🐛 AI Diagnose — Failed Deployment #deploy-146                                          [✕ Close]        │
+│                                                                                                          │
+│  ┌── Error Summary ──────────────────────────────────────────────────────────────────────────────────┐   │
+│  │                                                                                                    │   │
+│  │  ❌ Build failed at step 3 — "npm ci" exit code 1                                                  │   │
+│  │                                                                                                    │   │
+│  │  stderr:                                                                                           │   │
+│  │  ┌────────────────────────────────────────────────────────────────────────────────────────────┐    │   │
+│  │  │ npm ERR! ERESOLVE could not resolve                                                        │    │   │
+│  │  │ npm ERR!                                                                                   │    │   │
+│  │  │ npm ERR! While resolving: react-dom@18.3.1                                                   │    │   │
+│  │  │ npm ERR! Found: react@19.1.0                                                               │    │   │
+│  │  │ npm ERR! Could not resolve dependency:                                                     │    │   │
+│  │  │ npm ERR! peer react@"^18.0.0" from react-dom@18.3.1                                        │    │   │
+│  │  └────────────────────────────────────────────────────────────────────────────────────────────┘    │   │
+│  │                                                                                                    │   │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                                          │
+│  ┌── 🤖 AI Analysis ─────────────────────────────────────────────────────────────────────────────────┐   │
+│  │                                                                                                    │   │
+│  │  🔍 Root Cause:                                                                                    │   │
+│  │  Versi `react` di-upgrade ke 19.1.0 tetapi `react-dom` masih di versi 18.3.1.                    │   │
+│  │  Kedua package ini harus selalu menggunakan versi yang sama.                                     │   │
+│  │                                                                                                    │   │
+│  │  💡 Recommended Fix:                                                                               │   │
+│  │                                                                                                    │   │
+│  │  Option 1 (Recommended): Downgrade react ke 18.x                                                  │   │
+│  │  ┌────────────────────────────────────────────────────────────────────────────────────────────┐    │   │
+│  │  │  npm install react@18.3.1 react-dom@18.3.1                                                 │    │   │
+│  │  └────────────────────────────────────────────────────────────────────────────────────────────┘    │   │
+│  │                                                                                                    │   │
+│  │  Option 2: Upgrade react-dom ke 19.x (perlu testing ekstensif)                                   │   │
+│  │  ┌────────────────────────────────────────────────────────────────────────────────────────────┐    │   │
+│  │  │  npm install react-dom@19.1.0                                                              │    │   │
+│  │  └────────────────────────────────────────────────────────────────────────────────────────────┘    │   │
+│  │                                                                                                    │   │
+│  │  ⚠️  Impact Analysis:                                                                              │   │
+│  │  • React 19 memiliki breaking changes di `useRef`, `forwardRef`, dan Context API                  │   │
+│  │  • 12 komponen di project ini menggunakan `forwardRef` (perlu refactor jika upgrade)              │   │
+│  │  • Rekomendasi: gunakan Option 1 untuk quick fix, plan upgrade terpisah                           │   │
+│  │                                                                                                    │   │
+│  │  📚 References:                                                                                    │   │
+│  │  • React 19 Upgrade Guide: https://react.dev/blog/2024/04/25/react-19-upgrade-guide                │   │
+│  │  • npm ERESOLVE docs: https://docs.npmjs.com/cli/v10/commands/npm-install                          │   │
+│  │                                                                                                    │   │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                                          │
+│  ┌── Actions ──────────────────────────────────────────────────────────────────────────────────────────┐  │
+│  │                                                                                                    │  │
+│  │  [📋 Copy Fix Command]  [🔗 Create Issue]  [🔄 Retry with Fix]  [💬 Ask AI Follow-up]             │  │
+│  │                                                                                                    │  │
+│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2.9 New Deployment Dialog
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                          │
+│                          ┌──────────────────────────────────────────────────────────┐                     │
+│                          │                                                          │                     │
+│                          │  🚀 New Deployment                                       │                     │
+│                          │                                                          │                     │
+│                          │  Project *                                               │                     │
+│                          │  [▼ Select project...                              ]     │                     │
+│                          │                                                          │                     │
+│                          │  Branch *                                                │                     │
+│                          │  [▼ main                                          ]     │                     │
+│                          │   • main                                                 │                     │
+│                          │   • develop                                              │                     │
+│                          │   • feat/payment-gateway                                 │                     │
+│                          │   • hotfix/auth-error                                    │                     │
+│                          │   • release/v2.4                                         │                     │
+│                          │                                                          │                     │
+│                          │  Environment *                                           │                     │
+│                          │  ○ 🌐 Production    ○ 🔀 Staging    ○ 🔀 Preview         │                     │
+│                          │                                                          │                     │
+│                          │  ┌── Advanced Options (collapsible) ──────────────────┐  │                     │
+│                          │  │                                                    │  │                     │
+│                          │  │  Build Command:  [npm run build               ]   │  │                     │
+│                          │  │  Start Command:  [npm start                   ]   │  │                     │
+│                          │  │  Node Version:   [▼ 20 LTS               ]        │  │                     │
+│                          │  │  Instances:      [3        ] (1-10)               │  │                     │
+│                          │  │  CPU:            [2 vCPU   ] per instance          │  │                     │
+│                          │  │  Memory:         [2 GB     ] per instance          │  │                     │
+│                          │  │                                                    │  │                     │
+│                          │  │  ☑ Skip tests (not recommended)                    │  │                     │
+│                          │  │  ☑ Enable zero-downtime (Blue/Green)               │  │                     │
+│                          │  │  ☐ Force rebuild (ignore cache)                    │  │                     │
+│                          │  │                                                    │  │                     │
+│                          │  └────────────────────────────────────────────────────┘  │                     │
+│                          │                                                          │                     │
+│                          │  ┌── Deploy Summary ───────────────────────────────────┐  │                     │
+│                          │  │                                                    │  │                     │
+│                          │  │  Project:     my-commerce-app                      │  │                     │
+│                          │  │  Branch:      main                                 │  │                     │
+│                          │  │  Environment: 🌐 Production                        │  │                     │
+│                          │  │  Strategy:    Blue/Green (zero-downtime)           │  │                     │
+│                          │  │  Resources:   3 × 2 vCPU × 2 GB                   │  │                     │
+│                          │  │                                                    │  │                     │
+│                          │  └────────────────────────────────────────────────────┘  │                     │
+│                          │                                                          │                     │
+│                          │  [Cancel]                          [🚀 Deploy Now]       │                     │
+│                          │                                                          │                     │
+│                          └──────────────────────────────────────────────────────────┘                     │
+│                                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2.10 👁️ VIEWER Mode — Read-Only Restrictions
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐    │
+│  │  👁️ READ-ONLY MODE — Deployments                                                                │    │
+│  │                                                                                                  │    │
+│  │  Anda melihat halaman ini sebagai Viewer.                                                        │    │
+│  │  Hanya deployment dari proyek yang di-share ke Anda yang ditampilkan.                            │    │
+│  │                                                                                                  │    │
+│  │  ✅ Yang bisa dilakukan:                                                                         │    │
+│  │     • Melihat deployment history                                                                 │    │
+│  │     • Membaca deployment logs                                                                    │    │
+│  │     • Melihat pipeline steps                                                                     │    │
+│  │     • Download logs (text file)                                                                  │    │
+│  │     • Melihat commit details                                                                     │    │
+│  │                                                                                                  │    │
+│  │  ❌ Yang tidak bisa dilakukan:                                                                   │    │
+│  │     • Trigger new deployment                                                                     │    │
+│  │     • Rollback deployment                                                                        │    │
+│  │     • Cancel active deployment                                                                   │    │
+│  │     • Redeploy                                                                                   │    │
+│  │     • Retry failed deployment                                                                    │    │
+│  │                                                                                                  │    │
+│  │  Disabled buttons:                                                                               │    │
+│  │  ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐                    │    │
+│  │  │ [+ New Deployment] ✗ │  │ [⏪ Rollback] ✗      │  │ [❌ Cancel] ✗        │                    │    │
+│  │  │  (hidden/disabled)   │  │  (grayed out)        │  │  (grayed out)        │                    │    │
+│  │  └──────────────────────┘  └──────────────────────┘  └──────────────────────┘                    │    │
+│  │                                                                                                  │    │
+│  │  Note: "View Logs" dan "View Details" tetap aktif (read-only)                                    │    │
+│  │                                                                                                  │    │
+│  └──────────────────────────────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 2.11 📱 Mobile View
+
+```
+┌─────────────────────────────────┐
+│ 🔶 OmniStack     ☰   🔔   👨‍💻  │
+├─────────────────────────────────┤
+│ 🚀 Deployments                  │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ 📊 Total    147   ▲ +23    │ │
+│ │ ✅ Success  128   87.1%    │ │
+│ └─────────────────────────────┘ │
+│ ┌─────────────────────────────┐ │
+│ │ 🔄 Active   2   building   │ │
+│ │ ❌ Failed   17   ▲ +4      │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ 🔍 [Search deployments...    ] │
+│ [▼ Status] [▼ Project] [🔄]  │
+│                                 │
+│ ┌── Active ─────────────────┐  │
+│ │ 🔄 my-commerce-app #147   │  │
+│ │ ████████████░░░░░░ 67%    │  │
+│ │ Step 3/5: Building...     │  │
+│ │ [Logs] [Cancel]           │  │
+│ └───────────────────────────┘  │
+│                                 │
+│ ┌── History ────────────────┐  │
+│ │                           │  │
+│ │ ✅ my-commerce-app #147   │  │
+│ │ feat/payments → prod      │  │
+│ │ 3m 42s  •  12m ago        │  │
+│ │ [Logs] [Rollback] [More]  │  │
+│ │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │  │
+│ │                           │  │
+│ │ ❌ admin-dashboard #146   │  │
+│ │ hotfix/auth → prod        │  │
+│ │ 1m 23s  •  45m ago        │  │
+│ │ Build failed: npm ci      │  │
+│ │ [Logs] [Retry] [AI Diag]  │  │
+│ │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │  │
+│ │                           │  │
+│ │ ✅ my-commerce-app #145   │  │
+│ │ main → staging            │  │
+│ │ 3m 18s  •  2h ago         │  │
+│ │ [Logs] [Rollback] [More]  │  │
+│ │                           │  │
+│ └───────────────────────────┘  │
+│                                 │
+│ [← Prev]  Page 1/30  [Next →] │
+│                                 │
+├─────────────────────────────────┤
+│ 🏠  📦  🚀  📊  🐛  ⚙️        │
+└─────────────────────────────────┘
+```
+
+---
+
+### 2.12 Grid View (Alternative Layout)
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│  📜 Deployment History — Grid View                                                    [☰ List] [▦ Grid]  │
+│                                                                                                          │
+│  ┌── my-commerce-app ──────────────┐  ┌── admin-dashboard ───────────────┐  ┌── api-gateway ──────────┐ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  ✅ Live    #deploy-145         │  │  ❌ Failed   #deploy-146         │  │  ✅ Live   #deploy-144  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Branch: feat/payment-gateway   │  │  Branch: hotfix/auth-error      │  │  Branch: main            │ │
+│  │  Env: 🌐 production             │  │  Env: 🌐 production              │  │  Env: 🌐 production      │ │
+│  │  Author: dev@omnistack.dev      │  │  Author: admin@omnistack.dev     │  │  Author: dev2@omnistack  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Duration: 3m 42s               │  │  Duration: 1m 23s               │  │  Duration: 4m 02s        │ │
+│  │  When: 12m ago                  │  │  When: 45m ago                  │  │  When: 4h ago            │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Commit: a8f3c2d                │  │  Commit: b7e2a1f                │  │  Commit: d5e3f4a         │ │
+│  │  "Add Stripe payment..."        │  │  "Fix JWT refresh token..."     │  │  "Rate limiter config..." │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Pipeline:                      │  │  Pipeline:                       │  │  Pipeline:               │ │
+│  │  ✅✅✅✅✅  All passed         │  │  ✅✅❌⏸⏸  Failed at build      │  │  ✅✅✅✅✅  All passed  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  [🔍 Logs] [⏪ Rollback] [⋯]   │  │  [🔍 Logs] [🔄 Retry] [🐛 AI]  │  │  [🔍 Logs] [⏪ Rollback]  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  └─────────────────────────────────┘  └──────────────────────────────────┘  └──────────────────────────┘ │
+│                                                                                                          │
+│  ┌── mobile-app ───────────────────┐  ┌── landing-page ──────────────────┐  ┌── docs-site ─────────────┐ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  ⏪ Rolled Back  #deploy-143    │  │  ✅ Live    #deploy-142          │  │  ✅ Live   #deploy-141  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Branch: release/v2.4           │  │  Branch: main                   │  │  Branch: main            │ │
+│  │  Env: 🌐 production             │  │  Env: 🌐 production              │  │  Env: 🔀 staging         │ │
+│  │  Author: dev@omnistack.dev      │  │  Author: dev@omnistack.dev      │  │  Author: dev3@omnistack  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Duration: 5m 47s               │  │  Duration: 2m 15s               │  │  Duration: 1m 48s        │ │
+│  │  When: 1d ago                   │  │  When: 2d ago                  │  │  When: 3d ago            │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Rolled back by admin@omnistack │  │  Commit: f7a5b6c                │  │  Commit: g8b6c7d         │ │
+│  │  Reason: Memory leak detected   │  │  "Update hero section..."       │  │  "Add API reference..."  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  Pipeline:                      │  │  Pipeline:                       │  │  Pipeline:               │ │
+│  │  ✅✅✅✅✅  Then rolled back   │  │  ✅✅✅✅✅  All passed         │  │  ✅✅✅✅✅  All passed  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  │  [🔍 Logs] [🔄 Redeploy] [⋯]  │  │  [🔍 Logs] [⏪ Rollback] [⋯]   │  │  [🔍 Logs] [⏪ Rollback]  │ │
+│  │                                 │  │                                  │  │                          │ │
+│  └─────────────────────────────────┘  └──────────────────────────────────┘  └──────────────────────────┘ │
+│                                                                                                          │
+│  Showing 6 of 147    [← Prev]    Page 1 of 25    [Next →]                                               │
+│                                                                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. 🎯 Ringkasan Fitur & Fungsi
+
+| # | Komponen | Fungsi | ADMIN | USER | VIEWER |
+|---|----------|--------|-------|------|--------|
+| 1 | **Stats Cards** | Total, Success, Active, Failed, Avg Duration | ✅ All | ✅ Own | ✅ Shared |
+| 2 | **Filter Bar** | Search, status, project, env, date, branch | ✅ | ✅ | ✅ (limited) |
+| 3 | **Active Deployments** | Live progress dengan pipeline steps | ✅ | ✅ Own | ✅ Shared (RO) |
+| 4 | **Deployment History** | Tabel/grid semua deployment | ✅ All | ✅ Own | ✅ Shared |
+| 5 | **Deployment Detail** | Full info: pipeline, commit, env, health check | ✅ | ✅ Own | ✅ Shared |
+| 6 | **Logs Viewer** | Step-by-step build & deploy logs | ✅ | ✅ Own | ✅ Shared |
+| 7 | **New Deployment** | Trigger deploy baru | ✅ Any | ✅ Own | ❌ Hidden |
+| 8 | **Rollback** | Kembali ke versi sebelumnya | ✅ Any | ✅ Own | ❌ Disabled |
+| 9 | **Redeploy** | Deploy ulang versi yang sama | ✅ Any | ✅ Own | ❌ Disabled |
+| 10 | **Cancel** | Hentikan deployment aktif | ✅ Any | ✅ Own | ❌ Disabled |
+| 11 | **Retry** | Ulangi deployment gagal | ✅ Any | ✅ Own | ❌ Disabled |
+| 12 | **AI Diagnose** | Analisis error otomatis dengan AI | ✅ | ✅ Own | ❌ Disabled |
+| 13 | **Export Logs** | Download deployment logs | ✅ | ✅ Own | ✅ Shared |
+| 14 | **Metrics Link** | Link ke monitoring page | ✅ | ✅ Own | ✅ Shared |
+| 15 | **Audit Trail** | Siapa melakukan apa | ✅ | ✅ Own | ❌ Hidden |
+
+---
+
+## 4. 📋 Data Model (Mock)
+
+```typescript
+// lib/mock-data.ts — Deployment types
+
+interface Deployment {
+  id: string                    // "deploy-147"
+  projectId: string             // "proj-001"
+  projectName: string           // "my-commerce-app"
+  commitSha: string             // "a8f3c2d"
+  commitMessage: string         // "Add Stripe payment integration..."
+  branch: string                // "feat/payment-gateway"
+  environment: "production" | "staging" | "preview"
+  status: "building" | "success" | "failed" | "cancelled" | "rolled_back"
+  author: {
+    email: string
+    name: string
+    avatar?: string
+  }
+  trigger: "manual" | "git_push" | "api" | "schedule"
+  startedAt: string             // ISO timestamp
+  finishedAt?: string           // ISO timestamp
+  duration?: number             // seconds
+  pipeline: PipelineStep[]
+  healthCheck?: HealthCheckResult
+  rollbackInfo?: {
+    rolledBackTo: string        // deployment ID
+    rolledBackAt: string
+    rolledBackBy: string
+    reason?: string
+  }
+  resources: {
+    instances: number
+    cpuPerInstance: string
+    memoryPerInstance: string
+    region: string
+  }
+}
+
+interface PipelineStep {
+  name: string                  // "Clone repository"
+  status: "pending" | "running" | "success" | "failed" | "skipped"
+  duration?: number             // seconds
+  logs: string[]
+}
+
+interface HealthCheckResult {
+  httpCheck: boolean
+  errorRate: number
+  responseP95: number
+  memoryUsage: number
+  passed: boolean
+}
+```
+
+---
+
+## 5. 🔐 RBAC Implementation Notes
+
+```typescript
+// Di page component (app/(dashboard)/deployments/page.tsx)
+
+import { useAuth } from "@/lib/auth-context"
+import { getMockProjectsByUser, roleAtLeast } from "@/lib/mock-data"
+
+export default function DeploymentsPage() {
+  const { user } = useAuth()
+
+  // Helper sudah handle filtering per role:
+  // ADMIN  → semua deployment dari semua project
+  // USER   → deployment dari project milik sendiri
+  // VIEWER → deployment dari project yang di-share
+  const deployments = getMockDeploymentsByUser(user)
+
+  const isViewer = user?.role === "VIEWER"
+  const isAdmin = roleAtLeast(user?.role, "ADMIN")
+
+  return (
+    <div>
+      {/* Stats cards — semua role bisa lihat */}
+      <DeploymentStats deployments={deployments} />
+
+      {/* Filter bar — semua role */}
+      <FilterBar />
+
+      {/* New Deployment button — hidden untuk VIEWER */}
+      {!isViewer && <NewDeploymentButton />}
+
+      {/* Active deployments */}
+      <ActiveDeployments
+        deployments={activeDeployments}
+        readOnly={isViewer}  // Disable cancel button
+      />
+
+      {/* History table */}
+      <DeploymentTable
+        deployments={deployments}
+        readOnly={isViewer}  // Disable rollback/redeploy/retry
+      />
+    </div>
+  )
+}
+```
+
+---
+
+> **Catatan Implementasi:**
+> - Semua data masih **mock** dari `lib/mock-data.ts`
+> - Gunakan helper RBAC (`getMockDeploymentsByUser`, `roleAtLeast`)
+> - VIEWER: semua tombol aksi di-`disabled` atau di-`hidden`
+> - Auto-refresh untuk active deployments: 10 detik
+> - Gunakan `components/ui/` (shadcn/ui) untuk Card, Badge, Dialog, Table, Progress, Tabs
+> - Status badge: gunakan `ProjectStatusBadge` atau buat `DeploymentStatusBadge`
+> - Pipeline visualization: gunakan custom component dengan progress bar
+> - Logs viewer: gunakan `<pre>` dengan syntax highlighting sederhana

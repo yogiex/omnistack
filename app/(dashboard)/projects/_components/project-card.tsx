@@ -51,7 +51,6 @@ export interface ProjectCardHandlers {
 interface ProjectCardProps {
   project: ManagedProject
   manageable: boolean
-  canDelete: boolean
   isAdmin: boolean
   isConfirmingDelete: boolean
   ownerName?: string
@@ -63,7 +62,6 @@ interface ProjectCardProps {
 export function ProjectCard({
   project,
   manageable,
-  canDelete,
   isAdmin,
   isConfirmingDelete,
   ownerName,
