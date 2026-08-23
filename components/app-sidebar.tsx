@@ -10,6 +10,7 @@ import {
   Code2,
   CreditCard,
   Crown,
+  Database,
   Eye,
   Gauge,
   GitPullRequest,
@@ -115,6 +116,7 @@ export function AppSidebar() {
     user.role === "ADMIN"
       ? [
           { title: "User Management", url: "/admin/users", icon: Users },
+          { title: "Databases", url: "/admin/databases", icon: Database },
           { title: "Audit Logs", url: "/admin/audit", icon: ScrollText },
           { title: "System Settings", url: "/admin/settings", icon: Settings },
           { title: "Infrastructure", url: "/admin/infrastructure", icon: Server },

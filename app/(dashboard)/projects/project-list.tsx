@@ -1,50 +1,17 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import Link from "next/link"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
-  Archive,
-  ArchiveRestore,
   ChevronLeft,
   ChevronRight,
-  Copy,
-  Eye,
   FolderGit2,
-  MoreVertical,
-  Pencil,
-  Rocket,
-  Search,
-  Trash2,
-  UserRoundPlus,
+  Plus,
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
+import { Card, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Label } from "@/components/ui/label"
-import { ProjectStatusBadge } from "@/components/project-status-badge"
 import { useAuth } from "@/lib/auth-context"
 import {
   getMockProjectsByUser,
@@ -58,17 +25,18 @@ import {
   EMPTY_PROJECT_FORM,
   type ProjectForm,
 } from "./project-form-sheet"
-
-const PROJECT_STACKS: Record<string, string> = {
-  "proj-001": "Next.js + Stripe",
-  "proj-002": "Node.js + OpenAI",
-  "proj-003": "Astro + Tailwind",
-  "proj-004": "React + Vite",
-}
-
-interface ManagedProject extends MockProject {
-  archived?: boolean
-}
+import { ProjectsStats } from "./_components/projects-stats"
+import {
+  ProjectCard,
+  type ManagedProject,
+  type ProjectCardHandlers,
+} from "./_components/project-card"
+import { ProjectsTable } from "./_components/projects-table"
+import {
+  FilterBar,
+  type ProjectView,
+  type SortKey,
+} from "./_components/filter-bar"
 
 const TITLE_BY_ROLE: Record<Role, string> = {
   ADMIN: "Semua Proyek",
@@ -82,26 +50,37 @@ const DESCRIPTION_BY_ROLE: Record<Role, string> = {
   VIEWER: "Proyek yang di-share ke Anda untuk dipantau (read-only).",
 }
 
-type StatusFilter = "all" | "active" | "archived"
+type StatusFilter =
+  | "all"
+  | "active"
+  | "deploying"
+  | "failed"
+  | "inactive"
+  | "archived"
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "Semua" },
-  { value: "active", label: "Active" },
+  { value: "active", label: "Live" },
+  { value: "deploying", label: "Building" },
+  { value: "failed", label: "Failed" },
+  { value: "inactive", label: "Stopped" },
   { value: "archived", label: "Archived" },
 ]
 
 const PAGE_SIZE = 6
+const SKELETON_DELAY_MS = 600
 
 export function ProjectList() {
-  const { user } = useAuth()
+  const { user, isLoading: isAuthLoading } = useAuth()
 
-  const [projects, setProjects] = useState<ManagedProject[]>(() =>
-    user ? getMockProjectsByUser(user.id, user.role) : []
-  )
+  const [projects, setProjects] = useState<ManagedProject[]>([])
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [ownerFilter, setOwnerFilter] = useState<string>("all")
+  const [sortKey, setSortKey] = useState<SortKey>("updated")
+  const [view, setView] = useState<ProjectView>("grid")
   const [currentPage, setCurrentPage] = useState(1)
+  const [isDataLoading, setIsDataLoading] = useState(true)
   const [formSheetOpen, setFormSheetOpen] = useState(false)
   const [formMode, setFormMode] = useState<"create" | "edit">("create")
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -110,6 +89,52 @@ export function ProjectList() {
   const [transferOwner, setTransferOwner] = useState<string>("")
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const searchRef = useRef<HTMLInputElement | null>(null)
+
+  // Simulasi fetch awal untuk menampilkan skeleton
+  useEffect(() => {
+    if (!user) return
+    const timer = setTimeout(() => {
+      setProjects(getMockProjectsByUser(user.id, user.role))
+      setIsDataLoading(false)
+    }, SKELETON_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [user])
+
+  const openCreate = () => {
+    setFormMode("create")
+    setEditingId(null)
+    setForm(EMPTY_PROJECT_FORM)
+    setFormSheetOpen(true)
+  }
+
+  // Keyboard shortcuts: N = proyek baru, / = fokus pencarian
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      const isTyping =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement
+
+      if (
+        !isTyping &&
+        (e.key === "n" || e.key === "N") &&
+        user &&
+        (user.role === "ADMIN" || user.role === "USER")
+      ) {
+        e.preventDefault()
+        openCreate()
+      }
+      if (!isTyping && e.key === "/") {
+        e.preventDefault()
+        searchRef.current?.focus()
+      }
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id])
 
   const isAdmin = user?.role === "ADMIN"
 
@@ -119,8 +144,11 @@ export function ProjectList() {
   const filteredProjects = useMemo(() => {
     let result = projects
 
-    if (statusFilter === "active") result = result.filter((p) => !p.archived)
-    else if (statusFilter === "archived") result = result.filter((p) => p.archived)
+    if (statusFilter === "archived") result = result.filter((p) => p.archived)
+    else if (statusFilter !== "all")
+      result = result.filter(
+        (p) => !p.archived && p.status === statusFilter
+      )
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
@@ -135,30 +163,50 @@ export function ProjectList() {
       result = result.filter((p) => p.userId === ownerFilter)
     }
 
-    return result
-  }, [projects, statusFilter, searchQuery, ownerFilter, isAdmin])
+    switch (sortKey) {
+      case "name":
+        result = [...result].sort((a, b) => a.name.localeCompare(b.name))
+        break
+      case "created":
+        result = [...result].reverse()
+        break
+      case "updated":
+        result = [...result].sort((a, b) => b.deployments - a.deployments)
+        break
+    }
 
-  if (!user) return null
+    return result
+  }, [
+    projects,
+    statusFilter,
+    searchQuery,
+    ownerFilter,
+    sortKey,
+    isAdmin,
+  ])
 
   const showNotice = (message: string) => {
     setNotice(message)
     setTimeout(() => setNotice(null), 3000)
   }
 
-  const canManage = (project: MockProject) =>
-    isAdmin || project.userId === user.id
+  const canManageProject = (project: MockProject) =>
+    isAdmin || project.userId === user?.id
 
   const totalPages = Math.max(1, Math.ceil(filteredProjects.length / PAGE_SIZE))
   const safePage = Math.min(currentPage, totalPages)
   const startIdx = (safePage - 1) * PAGE_SIZE
   const visibleProjects = filteredProjects.slice(startIdx, startIdx + PAGE_SIZE)
 
-  const openCreate = () => {
-    setFormMode("create")
-    setEditingId(null)
-    setForm(EMPTY_PROJECT_FORM)
-    setFormSheetOpen(true)
-  }
+  const stats = useMemo(
+    () => ({
+      total: projects.length,
+      active: projects.filter((p) => p.status === "active").length,
+      building: projects.filter((p) => p.status === "deploying").length,
+      failed: projects.filter((p) => p.status === "failed").length,
+    }),
+    [projects]
+  )
 
   const openEdit = (project: ManagedProject) => {
     setFormMode("edit")
@@ -172,6 +220,7 @@ export function ProjectList() {
       showNotice("Nama proyek wajib diisi.")
       return
     }
+    if (!user) return
 
     if (formMode === "edit" && editingId) {
       setProjects((prev) =>
@@ -193,9 +242,10 @@ export function ProjectList() {
           userId: user.id,
           createdAtLabel: "Baru saja",
           deployments: 0,
+          lastDeployLabel: undefined,
         },
       ])
-      showNotice(`Proyek ${form.name.trim()} dibuat dengan status Active.`)
+      showNotice(`Proyek ${form.name.trim()} dibuat dengan status Live.`)
     }
 
     setFormSheetOpen(false)
@@ -229,9 +279,51 @@ export function ProjectList() {
     showNotice(`Proyek dikloning menjadi "${cloneName}".`)
   }
 
-  const openTransfer = (project: ManagedProject) => {
-    setTransferId(project.id)
-    setTransferOwner(project.userId)
+  const handleDeployLike = (
+    label: string,
+    project: ManagedProject,
+    nextStatus?: ManagedProject["status"]
+  ) => {
+    if (nextStatus) {
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === project.id
+            ? {
+                ...p,
+                status: nextStatus,
+                progress: nextStatus === "deploying" ? 10 : undefined,
+                errorMessage: undefined,
+              }
+            : p
+        )
+      )
+    }
+    showNotice(label)
+  }
+
+  const handlers: ProjectCardHandlers = {
+    onDeploy: (p) =>
+      handleDeployLike(`Deploy ${p.name} dimulai (mock).`, p),
+    onPause: (p) =>
+      handleDeployLike(`Deployment ${p.name} dijeda.`, p, "inactive"),
+    onStart: (p) =>
+      handleDeployLike(`${p.name} dijalankan kembali.`, p, "active"),
+    onRetry: (p) =>
+      handleDeployLike(`Retry deploy ${p.name} antre.`, p, "deploying"),
+    onEdit: openEdit,
+    onToggleArchive: handleToggleArchive,
+    onClone: handleClone,
+    onTransfer: (project) => {
+      setTransferId(project.id)
+      setTransferOwner(project.userId)
+    },
+    onRequestDelete: (projectId) => setConfirmDeleteId(projectId),
+    onCancelDelete: () => setConfirmDeleteId(null),
+    onDelete: (target) => {
+      setProjects((prev) => prev.filter((p) => p.id !== target.id))
+      setConfirmDeleteId(null)
+      showNotice(`Proyek ${target.name} dihapus permanen.`)
+    },
   }
 
   const handleTransfer = () => {
@@ -251,11 +343,8 @@ export function ProjectList() {
     setTransferOwner("")
   }
 
-  const handleDelete = (target: ManagedProject) => {
-    setProjects((prev) => prev.filter((p) => p.id !== target.id))
-    setConfirmDeleteId(null)
-    showNotice(`Proyek ${target.name} dihapus permanen.`)
-  }
+  const canCreate = isAdmin || user?.role === "USER"
+  const isLoading = isAuthLoading || !user || isDataLoading
 
   return (
     <div className="flex flex-col gap-6">
@@ -264,13 +353,15 @@ export function ProjectList() {
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
             <FolderGit2 className="h-7 w-7 text-primary" />
-            {TITLE_BY_ROLE[user.role]}
+            {user ? TITLE_BY_ROLE[user.role] : "Proyek"}
           </h1>
-          <p className="mt-1 text-muted-foreground">{DESCRIPTION_BY_ROLE[user.role]}</p>
+          <p className="mt-1 text-muted-foreground">
+            {user ? DESCRIPTION_BY_ROLE[user.role] : "Memuat sesi..."}
+          </p>
         </div>
-        {(isAdmin || user.role === "USER") && (
+        {canCreate && (
           <Button onClick={openCreate}>
-            <FolderGit2 className="mr-2 h-4 w-4" />
+            <Plus className="mr-2 h-4 w-4" />
             Buat Proyek
           </Button>
         )}
@@ -283,40 +374,45 @@ export function ProjectList() {
         </div>
       )}
 
-      {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Cari proyek..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setCurrentPage(1)
-            }}
-            className="pl-8"
-          />
+      {/* Stats cards (bukan VIEWER) */}
+      {isAdmin && !isLoading ? (
+        <ProjectsStats {...stats} />
+      ) : isLoading ? (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-[132px] rounded-xl" />
+          ))}
         </div>
+      ) : null}
 
-        {isAdmin && (
-          <select
-            value={ownerFilter}
-            onChange={(e) => {
-              setOwnerFilter(e.target.value)
-              setCurrentPage(1)
-            }}
-            className="h-8 rounded-lg border bg-background px-2.5 text-sm outline-none transition-colors focus:border-ring"
-          >
-            <option value="all">Semua Pemilik</option>
-            {MOCK_USERS.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name}
-              </option>
-            ))}
-          </select>
-        )}
+      {/* Filter bar + view toggle */}
+      {user && (
+        <FilterBar
+          searchRef={searchRef}
+          searchQuery={searchQuery}
+          onSearchChange={(value) => {
+            setSearchQuery(value)
+            setCurrentPage(1)
+          }}
+          sortValue={sortKey}
+          onSortChange={(value) => {
+            setSortKey(value)
+            setCurrentPage(1)
+          }}
+          view={view}
+          onViewChange={setView}
+          showOwnerFilter={Boolean(isAdmin)}
+          ownerFilter={ownerFilter}
+          onOwnerFilterChange={(value) => {
+            setOwnerFilter(value)
+            setCurrentPage(1)
+          }}
+        />
+      )}
 
-        <div className="flex items-center gap-2">
+      {/* Pills status */}
+      {user && (
+        <div className="flex flex-wrap items-center gap-2">
           {STATUS_FILTERS.map((f) => (
             <button
               key={f.value}
@@ -326,7 +422,10 @@ export function ProjectList() {
                 setCurrentPage(1)
               }}
               className={cn(
-                buttonVariants({ variant: statusFilter === f.value ? "outline" : "ghost", size: "sm" }),
+                buttonVariants({
+                  variant: statusFilter === f.value ? "outline" : "ghost",
+                  size: "sm",
+                }),
                 statusFilter === f.value && "border-primary/50 font-medium"
               )}
             >
@@ -334,191 +433,87 @@ export function ProjectList() {
             </button>
           ))}
         </div>
-      </div>
+      )}
 
-      {visibleProjects.length === 0 ? (
+      {/* Konten utama */}
+      {isLoading ? (
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-[280px] rounded-xl" />
+          ))}
+        </div>
+      ) : visibleProjects.length === 0 ? (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <Eye className="mb-3 h-10 w-10 text-muted-foreground/40" />
-            <p className="font-medium">Belum ada proyek untuk ditampilkan</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {user.role === "VIEWER"
+          <CardContent className="mx-auto flex max-w-md flex-col items-center justify-center py-16 text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
+              <FolderGit2 className="h-9 w-9 text-muted-foreground" />
+            </div>
+            <h2 className="mt-4 text-2xl font-bold">
+              Belum ada proyek
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {user?.role === "VIEWER"
                 ? "Minta admin atau developer meng-share proyek ke akun Anda."
-                : "Buat proyek baru atau ubah filter status."}
+                : "Buat deployment pertama Anda dan mulai membangun aplikasi luar biasa."}
             </p>
+            {canCreate && (
+              <Button size="lg" className="mt-6" onClick={openCreate}>
+                <Plus className="mr-2 h-4 w-4" />
+                Buat Proyek Baru
+              </Button>
+            )}
           </CardContent>
         </Card>
-      ) : (
+      ) : view === "grid" ? (
         <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {visibleProjects.map((project) => {
-              const manageable = canManage(project)
-              const canDelete = isAdmin || project.userId === user.id
-              const isConfirmingDelete = confirmDeleteId === project.id
-              const stack = PROJECT_STACKS[project.id]
-
-              return (
-                <Card
-                  key={project.id}
-                  className={cn("relative flex flex-col", project.archived && "opacity-60")}
-                >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="hover:underline"
-                      >
-                        {project.name}
-                      </Link>
-                    </CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {project.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="mt-auto pb-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <ProjectStatusBadge status={project.status} />
-                      {stack && (
-                        <Badge variant="secondary" className="text-xs">
-                          {stack}
-                        </Badge>
-                      )}
-                      {project.archived && (
-                        <Badge variant="outline" className="gap-1.5 text-muted-foreground">
-                          <Archive className="h-3 w-3" />
-                          Archived
-                        </Badge>
-                      )}
-                    </div>
-                    {isAdmin && (
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Pemilik: {ownerName(project.userId)}
-                      </p>
-                    )}
-                  </CardContent>
-                  <CardFooter className="justify-between gap-2 border-t bg-muted/20 py-3 text-xs text-muted-foreground">
-                    <span>{project.deployments} deployment</span>
-                    <div className="flex items-center gap-1">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className={cn(
-                          buttonVariants({ variant: "ghost", size: "sm" }),
-                          "h-8 px-2 text-xs"
-                        )}
-                      >
-                        <Eye className="mr-1 h-3 w-3" />
-                        View
-                      </Link>
-                      {(isAdmin || user.role === "USER") && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 text-xs"
-                          onClick={() =>
-                            showNotice("Deploy dimulai (mock)")
-                          }
-                        >
-                          <Rocket className="mr-1 h-3 w-3" />
-                          Deploy
-                        </Button>
-                      )}
-                      {manageable &&
-                        (isConfirmingDelete ? (
-                          <span className="flex items-center gap-2">
-                            <Button variant="destructive" size="sm" onClick={() => handleDelete(project)}>
-                              Ya, Hapus
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => setConfirmDeleteId(null)}>
-                              Batal
-                            </Button>
-                          </span>
-                        ) : (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              className={cn(
-                                buttonVariants({ variant: "ghost", size: "sm" }),
-                                "h-8 w-8 p-0"
-                              )}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                              <span className="sr-only">Aksi untuk {project.name}</span>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-52">
-                              <DropdownMenuItem onClick={() => openEdit(project)}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleArchive(project)}>
-                                {project.archived ? (
-                                  <>
-                                    <ArchiveRestore className="mr-2 h-4 w-4" />
-                                    Unarchive
-                                  </>
-                                ) : (
-                                  <>
-                                    <Archive className="mr-2 h-4 w-4" />
-                                    Archive
-                                  </>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleClone(project)}>
-                                <Copy className="mr-2 h-4 w-4" />
-                                Clone
-                              </DropdownMenuItem>
-                              {isAdmin && (
-                                <DropdownMenuItem onClick={() => openTransfer(project)}>
-                                  <UserRoundPlus className="mr-2 h-4 w-4" />
-                                  Transfer Ownership
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => setConfirmDeleteId(project.id)}
-                                disabled={!canDelete}
-                                className="text-destructive focus:text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Hapus Permanen
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        ))}
-                    </div>
-                  </CardFooter>
-                </Card>
-              )
-            })}
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {visibleProjects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                manageable={canManageProject(project)}
+                canDelete={isAdmin || project.userId === user!.id}
+                isAdmin={Boolean(isAdmin)}
+                isConfirmingDelete={confirmDeleteId === project.id}
+                ownerName={
+                  isAdmin ? ownerName(project.userId) : undefined
+                }
+                handlers={handlers}
+              />
+            ))}
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              Menampilkan {startIdx + 1}–{Math.min(startIdx + PAGE_SIZE, filteredProjects.length)} dari {filteredProjects.length} proyek
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={safePage <= 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Sebelumnya
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                {safePage} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={safePage >= totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-              >
-                Berikutnya
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            filteredCount={filteredProjects.length}
+            startIdx={startIdx}
+            endIdx={Math.min(startIdx + PAGE_SIZE, filteredProjects.length)}
+            page={safePage}
+            totalPages={totalPages}
+            onPrev={() => setCurrentPage((p) => p - 1)}
+            onNext={() => setCurrentPage((p) => p + 1)}
+          />
+        </>
+      ) : (
+        <>
+          <ProjectsTable
+            projects={visibleProjects}
+            canManageProject={canManageProject}
+            isAdmin={Boolean(isAdmin)}
+            confirmDeleteId={confirmDeleteId}
+            handlers={handlers}
+          />
+
+          {/* Pagination */}
+          <Pagination
+            filteredCount={filteredProjects.length}
+            startIdx={startIdx}
+            endIdx={Math.min(startIdx + PAGE_SIZE, filteredProjects.length)}
+            page={safePage}
+            totalPages={totalPages}
+            onPrev={() => setCurrentPage((p) => p - 1)}
+            onNext={() => setCurrentPage((p) => p + 1)}
+          />
         </>
       )}
 
@@ -586,6 +581,54 @@ export function ProjectList() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+    </div>
+  )
+}
+
+interface PaginationProps {
+  filteredCount: number
+  startIdx: number
+  endIdx: number
+  page: number
+  totalPages: number
+  onPrev: () => void
+  onNext: () => void
+}
+
+function Pagination({
+  filteredCount,
+  startIdx,
+  endIdx,
+  page,
+  totalPages,
+  onPrev,
+  onNext,
+}: PaginationProps) {
+  if (filteredCount === 0) return null
+
+  return (
+    <div className="flex items-center justify-between">
+      <p className="text-sm text-muted-foreground">
+        Menampilkan {startIdx + 1}–{endIdx} dari {filteredCount} proyek
+      </p>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" disabled={page <= 1} onClick={onPrev}>
+          <ChevronLeft className="h-4 w-4" />
+          Sebelumnya
+        </Button>
+        <span className="text-sm text-muted-foreground tabular-nums">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={page >= totalPages}
+          onClick={onNext}
+        >
+          Berikutnya
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   )
 }

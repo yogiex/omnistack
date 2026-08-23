@@ -4,10 +4,8 @@ import { useState, useMemo } from "react"
 import {
   ChevronLeft,
   ChevronRight,
-  Code2,
-  Crown,
-  Eye,
-  KeyRound,
+  MailCheck,
+  MailX,
   MoreVertical,
   Pencil,
   Search,
@@ -27,7 +25,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import {
@@ -40,7 +37,18 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/lib/auth-context"
-import { MOCK_USERS, type MockUser, type Role } from "@/lib/mock-data"
+import {
+  MOCK_USERS,
+  getUserStatus,
+  type MockUser,
+  type Role,
+  type UserStatus,
+} from "@/lib/mock-data"
+import { RoleBadge, InvitedBadge } from "./_components/role-badge"
+import { StatsGrid } from "./_components/stats-grid"
+import { InviteUserDialog } from "./_components/invite-user-dialog"
+import { DeleteUserDialog } from "./_components/delete-user-dialog"
+import { UsersEmptyState } from "./_components/empty-state"
 import {
   UserFormSheet,
   EMPTY_USER_FORM,
@@ -48,35 +56,11 @@ import {
 } from "./user-form-sheet"
 import { cn } from "@/lib/utils"
 
-const ROLE_META: Record<
-  Role,
-  { icon: typeof Crown; label: string; color: string; bg: string }
-> = {
-  ADMIN: {
-    icon: Crown,
-    label: "ADMIN",
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
-  },
-  USER: {
-    icon: Code2,
-    label: "USER",
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
-  },
-  VIEWER: {
-    icon: Eye,
-    label: "VIEWER",
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
-  },
-}
-
 const PAGE_SIZE = 10
 
 type SortField = "name" | "email" | "createdAt" | "role"
 type SortDir = "asc" | "desc"
-type StatusFilter = "all" | "active" | "suspended"
+type StatusFilter = "all" | UserStatus
 type RoleFilter = "all" | Role
 
 const SORT_OPTIONS: { value: SortField; label: string }[] = [
@@ -88,7 +72,14 @@ const SORT_OPTIONS: { value: SortField; label: string }[] = [
 
 const ROLE_SORT: Record<Role, number> = { ADMIN: 0, USER: 1, VIEWER: 2 }
 
-export function UsersList() {
+const STATUS_FILTER_LABEL: Record<StatusFilter, string> = {
+  all: "Semua",
+  active: "Active",
+  suspended: "Suspended",
+  invited: "Invited",
+}
+
+export function UsersPageClient() {
   const { user: currentUser } = useAuth()
 
   const [users, setUsers] = useState<MockUser[]>(MOCK_USERS)
@@ -96,7 +87,8 @@ export function UsersList() {
   const [sheetMode, setSheetMode] = useState<"create" | "edit">("create")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<UserForm>(EMPTY_USER_FORM)
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [inviteOpen, setInviteOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<MockUser | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [twofaEnabledIds, setTwofaEnabledIds] = useState<Set<string>>(new Set())
 
@@ -107,13 +99,26 @@ export function UsersList() {
   const [sortDir, setSortDir] = useState<SortDir>("asc")
   const [page, setPage] = useState(1)
 
+  const hasFilters =
+    search.trim() !== "" || roleFilter !== "all" || statusFilter !== "all"
+
   const showNotice = (message: string) => {
     setNotice(message)
     setTimeout(() => setNotice(null), 3000)
   }
 
   const countActiveAdmins = (list: MockUser[]) =>
-    list.filter((u) => u.role === "ADMIN" && u.isActive).length
+    list.filter(
+      (u) =>
+        u.role === "ADMIN" && u.isActive && getUserStatus(u) === "active"
+    ).length
+
+  const clearFilters = () => {
+    setSearch("")
+    setRoleFilter("all")
+    setStatusFilter("all")
+    setPage(1)
+  }
 
   const filteredUsers = useMemo(() => {
     let result = [...users]
@@ -129,10 +134,8 @@ export function UsersList() {
       result = result.filter((u) => u.role === roleFilter)
     }
 
-    if (statusFilter === "active") {
-      result = result.filter((u) => u.isActive)
-    } else if (statusFilter === "suspended") {
-      result = result.filter((u) => !u.isActive)
+    if (statusFilter !== "all") {
+      result = result.filter((u) => getUserStatus(u) === statusFilter)
     }
 
     result.sort((a, b) => {
@@ -153,13 +156,6 @@ export function UsersList() {
   const rangeStart = filteredUsers.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1
   const rangeEnd = Math.min(safePage * PAGE_SIZE, filteredUsers.length)
 
-  const openCreate = () => {
-    setSheetMode("create")
-    setEditingId(null)
-    setForm(EMPTY_USER_FORM)
-    setSheetOpen(true)
-  }
-
   const openEdit = (user: MockUser) => {
     setSheetMode("edit")
     setEditingId(user.id)
@@ -167,7 +163,7 @@ export function UsersList() {
     setSheetOpen(true)
   }
 
-  const handleSubmit = () => {
+  const handleSheetSubmit = () => {
     if (!form.name.trim() || !form.email.includes("@")) {
       showNotice("Nama dan email valid wajib diisi.")
       return
@@ -183,9 +179,7 @@ export function UsersList() {
         showNotice("Gagal: minimal harus ada 1 ADMIN aktif di sistem.")
         return
       }
-      if (
-        users.some((u) => u.email === form.email && u.id !== editingId)
-      ) {
+      if (users.some((u) => u.email === form.email && u.id !== editingId)) {
         showNotice("Email sudah dipakai user lain.")
         return
       }
@@ -197,38 +191,63 @@ export function UsersList() {
         )
       )
       showNotice(`Data ${form.name} diperbarui.`)
-    } else {
-      if (users.some((u) => u.email === form.email)) {
-        showNotice("Email sudah terdaftar.")
-        return
-      }
-      setUsers((prev) => [
-        ...prev,
-        {
-          id: `user-local-${Date.now()}`,
-          email: form.email.trim(),
-          password: "demo1234",
-          name: form.name.trim(),
-          role: form.role,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-        },
-      ])
-      showNotice(`User ${form.name} dibuat dengan role ${form.role}.`)
     }
 
     setSheetOpen(false)
-    setConfirmDeleteId(null)
+  }
+
+  const handleInvite = (email: string, role: Role) => {
+    if (users.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      showNotice("Gagal: email sudah terdaftar di sistem.")
+      return
+    }
+    const now = new Date().toISOString()
+    setUsers((prev) => [
+      ...prev,
+      {
+        id: `user-invite-${Date.now()}`,
+        email,
+        password: "",
+        name: email.split("@")[0],
+        role,
+        isActive: false,
+        status: "invited",
+        invitedAt: now,
+        createdAt: now,
+      },
+    ])
+    setInviteOpen(false)
+    showNotice(`Undangan dikirim ke ${email} dengan role ${role} (mock).`)
+  }
+
+  const handleResendInvite = (target: MockUser) => {
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === target.id ? { ...u, invitedAt: new Date().toISOString() } : u
+      )
+    )
+    showNotice(`Undangan dikirim ulang ke ${target.email} (mock).`)
+  }
+
+  const handleCancelInvite = (target: MockUser) => {
+    setUsers((prev) => prev.filter((u) => u.id !== target.id))
+    showNotice(`Undangan untuk ${target.email} dibatalkan.`)
   }
 
   const handleToggleSuspend = (target: MockUser) => {
-    if (target.role === "ADMIN" && target.isActive && countActiveAdmins(users) <= 1) {
+    if (
+      target.role === "ADMIN" &&
+      target.isActive &&
+      countActiveAdmins(users) <= 1
+    ) {
       showNotice("Gagal: tidak bisa menangguhkan ADMIN terakhir.")
       return
     }
     setUsers((prev) =>
       prev.map((u) =>
-        u.id === target.id ? { ...u, isActive: !u.isActive } : u
+        u.id === target.id
+          ? { ...u, isActive: !u.isActive, status: undefined }
+          : u
       )
     )
     showNotice(
@@ -259,15 +278,20 @@ export function UsersList() {
     )
   }
 
-  const handleDelete = (target: MockUser) => {
-    if (target.role === "ADMIN" && countActiveAdmins(users) <= 1) {
+  const confirmDelete = () => {
+    if (!deleteTarget) return
+    if (
+      deleteTarget.role === "ADMIN" &&
+      deleteTarget.isActive &&
+      countActiveAdmins(users) <= 1
+    ) {
       showNotice("Gagal: tidak bisa menghapus ADMIN terakhir.")
-      setConfirmDeleteId(null)
+      setDeleteTarget(null)
       return
     }
-    setUsers((prev) => prev.filter((u) => u.id !== target.id))
-    setConfirmDeleteId(null)
-    showNotice(`${target.name} dihapus permanen.`)
+    setUsers((prev) => prev.filter((u) => u.id !== deleteTarget.id))
+    showNotice(`${deleteTarget.name} dihapus permanen.`)
+    setDeleteTarget(null)
   }
 
   return (
@@ -280,12 +304,12 @@ export function UsersList() {
             User Management
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Kelola user & role di sistem. Hanya ADMIN yang dapat mengakses halaman ini.
+            Kelola user, role, dan undangan tim. Hanya ADMIN yang dapat mengakses.
           </p>
         </div>
-        <Button onClick={openCreate}>
+        <Button onClick={() => setInviteOpen(true)}>
           <UserRoundPlus className="mr-2 h-4 w-4" />
-          Tambah User
+          Invite User
         </Button>
       </div>
 
@@ -295,13 +319,15 @@ export function UsersList() {
         </div>
       )}
 
+      {/* Stats */}
+      <StatsGrid users={users} />
+
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4">
-            {/* Search + Sort */}
             <div className="flex flex-wrap items-center gap-3">
-              <div className="relative flex-1 min-w-[200px]">
+              <div className="relative min-w-[200px] flex-1">
                 <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Cari nama atau email..."
@@ -321,7 +347,8 @@ export function UsersList() {
                   )}
                 >
                   <SlidersHorizontal className="h-4 w-4" />
-                  {SORT_OPTIONS.find((o) => o.value === sortField)?.label} ({sortDir === "asc" ? "A-Z" : "Z-A"})
+                  {SORT_OPTIONS.find((o) => o.value === sortField)?.label} (
+                  {sortDir === "asc" ? "A-Z" : "Z-A"})
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuGroup>
@@ -379,25 +406,27 @@ export function UsersList() {
             {/* Status filter */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">Status:</span>
-              {(["all", "active", "suspended"] as StatusFilter[]).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => {
-                    setStatusFilter(s)
-                    setPage(1)
-                  }}
-                  className={cn(
-                    buttonVariants({
-                      variant: statusFilter === s ? "outline" : "ghost",
-                      size: "sm",
-                    }),
-                    statusFilter === s && "border-primary/50 font-medium"
-                  )}
-                >
-                  {s === "all" ? "Semua" : s === "active" ? "Active" : "Suspended"}
-                </button>
-              ))}
+              {(["all", "active", "suspended", "invited"] as StatusFilter[]).map(
+                (s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(s)
+                      setPage(1)
+                    }}
+                    className={cn(
+                      buttonVariants({
+                        variant: statusFilter === s ? "outline" : "ghost",
+                        size: "sm",
+                      }),
+                      statusFilter === s && "border-primary/50 font-medium"
+                    )}
+                  >
+                    {STATUS_FILTER_LABEL[s]}
+                  </button>
+                )
+              )}
             </div>
           </div>
         </CardContent>
@@ -408,45 +437,45 @@ export function UsersList() {
         <CardHeader>
           <CardTitle>Semua User ({users.length})</CardTitle>
           <CardDescription>
-            Create, edit, ubah role, suspend, atau hapus user. Kamu tidak bisa
-            menghapus akunmu sendiri.
+            Kelola user aktif dan undangan pending. Kamu tidak bisa menghapus
+            akunmu sendiri atau ADMIN terakhir.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {pagedUsers.map((user) => {
-              const meta = ROLE_META[user.role]
-              const Icon = meta.icon
+              const status = getUserStatus(user)
               const isSelf = currentUser?.email === user.email
-              const isConfirmingDelete = confirmDeleteId === user.id
 
               return (
                 <div
                   key={user.id}
                   className={cn(
                     "flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4 transition-colors",
-                    !user.isActive && "opacity-60"
+                    status !== "active" && "opacity-70"
                   )}
                 >
                   <div className="flex min-w-0 items-center gap-4">
-                    <Avatar>
-                      {user.avatar && (
+                    <Avatar className={cn(status === "invited" && "opacity-60")}>
+                      {user.avatar ? (
                         <AvatarImage src={user.avatar} alt={user.name} />
-                      )}
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      ) : null}
+                      <AvatarFallback>
+                        {status === "invited" ? "?" : user.name.charAt(0)}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0">
-                      <p className="truncate font-medium">
+                      <p
+                        className={cn(
+                          "truncate font-medium",
+                          status === "invited" && "italic text-muted-foreground"
+                        )}
+                      >
                         {user.name}
                         {isSelf && (
-                          <span className="ml-2 text-xs text-muted-foreground">
+                          <span className="ml-2 text-xs not-italic text-muted-foreground">
                             (kamu)
                           </span>
-                        )}
-                        {!user.isActive && (
-                          <Badge variant="outline" className="ml-2 text-[10px]">
-                            Ditangguhkan
-                          </Badge>
                         )}
                       </p>
                       <p className="truncate text-sm text-muted-foreground">
@@ -456,110 +485,103 @@ export function UsersList() {
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
-                    <Badge variant="outline" className={cn("gap-1.5", meta.color)}>
-                      <Icon className="h-3 w-3" />
-                      {meta.label}
-                    </Badge>
+                    <RoleBadge role={user.role} />
+                    {status === "invited" && <InvitedBadge />}
                     {twofaEnabledIds.has(user.id) && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] text-green-500 border-green-500/40 bg-green-500/10"
-                      >
+                      <span className="rounded-full border border-green-500/40 bg-green-500/10 px-2 py-0.5 text-[10px] text-green-500">
                         2FA
-                      </Badge>
+                      </span>
                     )}
 
-                    {isConfirmingDelete ? (
-                      <>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(user)}
-                        >
-                          Ya, Hapus
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setConfirmDeleteId(null)}
-                        >
-                          Batal
-                        </Button>
-                      </>
-                    ) : (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          className={cn(
-                            "inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background text-sm transition-colors hover:bg-muted"
-                          )}
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                          <span className="sr-only">Aksi untuk {user.name}</span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-52">
-                          <DropdownMenuItem onClick={() => openEdit(user)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit / Ubah Role
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleResetPassword(user)}
-                          >
-                            <KeyRound className="mr-2 h-4 w-4" />
-                            Reset Password
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleToggleSuspend(user)}
-                            disabled={isSelf}
-                          >
-                            {user.isActive ? (
-                              <>
-                                <ShieldBan className="mr-2 h-4 w-4" />
-                                Suspend Akun
-                              </>
-                            ) : (
-                              <>
-                                <ShieldCheck className="mr-2 h-4 w-4" />
-                                Aktifkan Kembali
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleToggle2FA(user)}
-                            disabled={isSelf}
-                          >
-                            {twofaEnabledIds.has(user.id) ? (
-                              <>
-                                <ShieldOff className="mr-2 h-4 w-4" />
-                                Disable 2FA
-                              </>
-                            ) : (
-                              <>
-                                <ShieldCheck className="mr-2 h-4 w-4" />
-                                Enable 2FA
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => setConfirmDeleteId(user.id)}
-                            disabled={isSelf}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Hapus Permanen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        className={cn(
+                          "inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background text-sm transition-colors hover:bg-muted"
+                        )}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">Aksi untuk {user.name}</span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-52">
+                        {status === "invited" ? (
+                          <>
+                            <DropdownMenuItem onClick={() => handleResendInvite(user)}>
+                              <MailCheck className="mr-2 h-4 w-4" />
+                              Kirim Ulang Undangan
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleCancelInvite(user)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <MailX className="mr-2 h-4 w-4" />
+                              Batalkan Undangan
+                            </DropdownMenuItem>
+                          </>
+                        ) : (
+                          <>
+                            <DropdownMenuItem onClick={() => openEdit(user)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit / Ubah Role
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleResetPassword(user)}>
+                              Reset Password
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleToggleSuspend(user)}
+                              disabled={isSelf}
+                            >
+                              {user.isActive ? (
+                                <>
+                                  <ShieldBan className="mr-2 h-4 w-4" />
+                                  Suspend Akun
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="mr-2 h-4 w-4" />
+                                  Aktifkan Kembali
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleToggle2FA(user)}
+                              disabled={isSelf}
+                            >
+                              {twofaEnabledIds.has(user.id) ? (
+                                <>
+                                  <ShieldOff className="mr-2 h-4 w-4" />
+                                  Disable 2FA
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="mr-2 h-4 w-4" />
+                                  Enable 2FA
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteTarget(user)}
+                              disabled={isSelf}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Hapus Permanen
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               )
             })}
 
             {pagedUsers.length === 0 && (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Tidak ada user yang cocok dengan filter.
-              </p>
+              <UsersEmptyState
+                hasFilters={hasFilters}
+                searchQuery={search.trim() || undefined}
+                onClearFilters={clearFilters}
+              />
             )}
           </div>
 
@@ -597,13 +619,27 @@ export function UsersList() {
         </CardContent>
       </Card>
 
+      {/* Dialogs & Sheets */}
+      <InviteUserDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        onInvite={handleInvite}
+      />
+      <DeleteUserDialog
+        user={deleteTarget}
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null)
+        }}
+        onConfirm={confirmDelete}
+      />
       <UserFormSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         mode={sheetMode}
         form={form}
         onFormChange={setForm}
-        onSubmit={handleSubmit}
+        onSubmit={handleSheetSubmit}
       />
     </div>
   )
