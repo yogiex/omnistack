@@ -37,6 +37,7 @@
 - [[page-dashboard-shell]] — app/(dashboard)/layout.tsx, Sidebar + TopNav
 - [[page-dashboard]] — overview client dashboard
 - [[page-projects]] — CRUD project lengkap
+- [[page-deployments]] — Deployment history + actions
 - [[page-login-register]] — login / register / forgot-password (mock auth)
 
 ## Components
@@ -45,6 +46,7 @@
 - [[component-top-nav]]
 - [[component-project-status-badge]]
 - [[component-route-guard]]
+- [[component-deployment-dialogs]]
 
 ## Lib
 

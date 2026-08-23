@@ -53,6 +53,13 @@ export interface MockProject {
 
 export type DeploymentStatus = "success" | "building" | "failed" | "queued"
 
+export interface PipelineStep {
+  name: string
+  status: "pending" | "running" | "success" | "failed" | "skipped"
+  durationSeconds?: number
+  logs: string[]
+}
+
 export interface MockDeployment {
   id: string
   projectId: string
@@ -63,6 +70,14 @@ export interface MockDeployment {
   timeLabel: string
   durationLabel?: string
   logLines: string[]
+  commitSha: string
+  environment: "production" | "staging" | "preview"
+  authorEmail: string
+  trigger: "manual" | "git_push" | "api"
+  startedAt: string
+  finishedAt?: string
+  durationSeconds?: number
+  pipeline: PipelineStep[]
 }
 
 // ==================== MOCK USERS (3 test accounts) ====================
@@ -240,6 +255,7 @@ export const MOCK_PROJECTS: MockProject[] = [
 export const SHARED_PROJECT_IDS = ["proj-001", "proj-003"]
 
 export const MOCK_DEPLOYMENTS: MockDeployment[] = [
+  // 1. dep-101 — proj-001, success, production, 5 steps all success
   {
     id: "dep-101",
     projectId: "proj-001",
@@ -256,7 +272,22 @@ export const MOCK_DEPLOYMENTS: MockDeployment[] = [
       "✓ Rolling update 4/4 replica sehat",
       "✓ Live di https://shop.app.omnistack.dev",
     ],
+    commitSha: "a3f7c21",
+    environment: "production",
+    authorEmail: "admin@omnistack.dev",
+    trigger: "manual",
+    startedAt: "2026-08-23T14:32:00Z",
+    finishedAt: "2026-08-23T14:34:14Z",
+    durationSeconds: 134,
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 12, logs: ["Cloning into '/build/workspace'...", "HEAD is now at a3f7c21"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 38, logs: ["npm ci --prefer-offline", "added 847 packages in 38s"] },
+      { name: "Run tests", status: "success", durationSeconds: 45, logs: ["vitest run --coverage", "Tests: 142 passed, 0 failed"] },
+      { name: "Build image", status: "success", durationSeconds: 38, logs: ["docker build -t shop-api:a3f7c21 .", "Successfully built a3f7c21"] },
+      { name: "Deploy", status: "success", durationSeconds: 12, logs: ["Rolling update 4/4 replicas", "Health check OK"] },
+    ],
   },
+  // 2. dep-102 — proj-002, building, preview, 3 steps (2 success, 1 running)
   {
     id: "dep-102",
     projectId: "proj-002",
@@ -271,7 +302,18 @@ export const MOCK_DEPLOYMENTS: MockDeployment[] = [
       "→ Installing dependencies...",
       "→ Running build (tsc + next build)...",
     ],
+    commitSha: "b9e4d08",
+    environment: "preview",
+    authorEmail: "dev@omnistack.dev",
+    trigger: "git_push",
+    startedAt: "2026-08-23T14:43:00Z",
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 9, logs: ["Cloning into '/build/workspace'...", "HEAD is now at b9e4d08"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 28, logs: ["npm ci --prefer-offline", "added 612 packages in 28s"] },
+      { name: "Run tests", status: "running", logs: ["vitest run --coverage", "Running 87 tests..."] },
+    ],
   },
+  // 3. dep-103 — proj-003, success, production, 5 steps all success
   {
     id: "dep-103",
     projectId: "proj-003",
@@ -287,7 +329,22 @@ export const MOCK_DEPLOYMENTS: MockDeployment[] = [
       "✓ Cache CDN di-purge",
       "✓ Live di https://portfolio.omnistack.dev",
     ],
+    commitSha: "c1d2e3f",
+    environment: "production",
+    authorEmail: "dev@omnistack.dev",
+    trigger: "git_push",
+    startedAt: "2026-08-23T12:46:00Z",
+    finishedAt: "2026-08-23T12:46:48Z",
+    durationSeconds: 48,
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 8, logs: ["Cloning into '/build/workspace'...", "HEAD is now at c1d2e3f"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 14, logs: ["npm ci --prefer-offline", "added 312 packages in 14s"] },
+      { name: "Run tests", status: "success", durationSeconds: 6, logs: ["vitest run", "Tests: 34 passed, 0 failed"] },
+      { name: "Build image", status: "success", durationSeconds: 12, logs: ["astro build", "✓ 18 pages built in 12s"] },
+      { name: "Deploy", status: "success", durationSeconds: 8, logs: ["CDN cache purged", "Live at portfolio.omnistack.dev"] },
+    ],
   },
+  // 4. dep-104 — proj-001, failed, production, 5 steps (3 success, 1 failed)
   {
     id: "dep-104",
     projectId: "proj-001",
@@ -304,7 +361,22 @@ export const MOCK_DEPLOYMENTS: MockDeployment[] = [
       "✗ Rollback otomatis ke revisi sebelumnya",
       "! Periksa log container: omnistack logs shop-api",
     ],
+    commitSha: "d4e5f6a",
+    environment: "production",
+    authorEmail: "admin@omnistack.dev",
+    trigger: "manual",
+    startedAt: "2026-08-23T09:54:00Z",
+    finishedAt: "2026-08-23T09:55:02Z",
+    durationSeconds: 62,
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 10, logs: ["Cloning into '/build/workspace'...", "HEAD is now at d4e5f6a"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 36, logs: ["npm ci --prefer-offline", "added 847 packages in 36s"] },
+      { name: "Run tests", status: "success", durationSeconds: 42, logs: ["vitest run --coverage", "Tests: 142 passed, 0 failed"] },
+      { name: "Build image", status: "failed", durationSeconds: 44, logs: ["docker build -t shop-api:d4e5f6a .", "✗ Health check failed: /api/health timeout after 30s"] },
+      { name: "Deploy", status: "skipped", logs: ["Skipped: previous step failed"] },
+    ],
   },
+  // 5. dep-105 — proj-004, queued, staging, 1 step pending
   {
     id: "dep-105",
     projectId: "proj-004",
@@ -317,8 +389,170 @@ export const MOCK_DEPLOYMENTS: MockDeployment[] = [
       "$ omnistack deploy --preview",
       "→ Menunggu worker slot bebas (posisi #1)...",
     ],
+    commitSha: "e7f8a9b",
+    environment: "staging",
+    authorEmail: "admin@omnistack.dev",
+    trigger: "manual",
+    startedAt: "2026-08-23T08:48:00Z",
+    pipeline: [
+      { name: "Clone repository", status: "pending", logs: ["Waiting for worker slot..."] },
+    ],
+  },
+  // 6. dep-106 — proj-002, success, production, 5 steps all success
+  {
+    id: "dep-106",
+    projectId: "proj-002",
+    branch: "feat/vector-search",
+    commitMessage: "Implement cosine similarity search",
+    status: "success",
+    triggeredBy: "Developer OmniStack",
+    timeLabel: "8 jam lalu",
+    durationLabel: "1m 52s",
+    logLines: [
+      "$ omnistack deploy --prod",
+      "✓ Build Docker image (1m 18s)",
+      "✓ Push ke registry internal",
+      "✓ Rolling update 3/3 replica sehat",
+      "✓ Live di https://chatbot.app.omnistack.dev",
+    ],
+    commitSha: "f2a3b4c",
+    environment: "production",
+    authorEmail: "dev@omnistack.dev",
+    trigger: "git_push",
+    startedAt: "2026-08-23T06:46:00Z",
+    finishedAt: "2026-08-23T06:47:52Z",
+    durationSeconds: 112,
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 11, logs: ["Cloning into '/build/workspace'...", "HEAD is now at f2a3b4c"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 42, logs: ["npm ci --prefer-offline", "added 923 packages in 42s"] },
+      { name: "Run tests", status: "success", durationSeconds: 38, logs: ["vitest run --coverage", "Tests: 96 passed, 0 failed"] },
+      { name: "Build image", status: "success", durationSeconds: 18, logs: ["docker build -t chatbot-api:f2a3b4c .", "Successfully built f2a3b4c"] },
+      { name: "Deploy", status: "success", durationSeconds: 12, logs: ["Rolling update 3/3 replicas", "Health check OK"] },
+    ],
+  },
+  // 7. dep-107 — proj-001, success, production, 5 steps all success (rolled back)
+  {
+    id: "dep-107",
+    projectId: "proj-001",
+    branch: "release/v2.0",
+    commitMessage: "Release v2.0.0 — new checkout flow",
+    status: "success",
+    triggeredBy: "Admin OmniStack",
+    timeLabel: "1 hari lalu",
+    durationLabel: "3m 08s",
+    logLines: [
+      "$ omnistack deploy --prod",
+      "✓ Build Docker image (2m 22s)",
+      "✓ Push ke registry internal",
+      "✓ Rolling update 4/4 replica sehat",
+      "✓ Live di https://shop.app.omnistack.dev",
+      "✗ Rollback to previous revision",
+    ],
+    commitSha: "1a2b3c4",
+    environment: "production",
+    authorEmail: "admin@omnistack.dev",
+    trigger: "manual",
+    startedAt: "2026-08-22T10:30:00Z",
+    finishedAt: "2026-08-22T10:33:08Z",
+    durationSeconds: 188,
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 14, logs: ["Cloning into '/build/workspace'...", "HEAD is now at 1a2b3c4"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 56, logs: ["npm ci --prefer-offline", "added 1045 packages in 56s"] },
+      { name: "Run tests", status: "success", durationSeconds: 62, logs: ["vitest run --coverage", "Tests: 158 passed, 0 failed"] },
+      { name: "Build image", status: "success", durationSeconds: 42, logs: ["docker build -t shop-api:1a2b3c4 .", "Successfully built 1a2b3c4"] },
+      { name: "Deploy", status: "success", durationSeconds: 14, logs: ["Rolling update 4/4 replicas", "Health check OK", "✗ Rollback to previous revision"] },
+    ],
+  },
+  // 8. dep-108 — proj-003, building, preview, 2 steps (1 success, 1 running)
+  {
+    id: "dep-108",
+    projectId: "proj-003",
+    branch: "feat/i18n",
+    commitMessage: "Add Indonesian & English translations",
+    status: "building",
+    triggeredBy: "Developer OmniStack",
+    timeLabel: "15 menit lalu",
+    logLines: [
+      "$ omnistack deploy --preview",
+      "✓ Deteksi stack: Astro (Nixpacks)",
+      "→ Installing dependencies...",
+    ],
+    commitSha: "5d6e7f8",
+    environment: "preview",
+    authorEmail: "dev@omnistack.dev",
+    trigger: "git_push",
+    startedAt: "2026-08-23T14:31:00Z",
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 8, logs: ["Cloning into '/build/workspace'...", "HEAD is now at 5d6e7f8"] },
+      { name: "Install dependencies", status: "running", logs: ["npm ci --prefer-offline", "Installing 324 packages..."] },
+    ],
+  },
+  // 9. dep-109 — proj-004, failed, production, 5 steps (2 success, 1 failed)
+  {
+    id: "dep-109",
+    projectId: "proj-004",
+    branch: "main",
+    commitMessage: "Merge feature dashboard widgets",
+    status: "failed",
+    triggeredBy: "Admin OmniStack",
+    timeLabel: "12 jam lalu",
+    durationLabel: "Gagal di 2m 18s",
+    logLines: [
+      "$ omnistack deploy --prod",
+      "✓ Build Docker image",
+      "✓ Health check passed",
+      "✗ Database migration failed: column 'theme' already exists",
+      "✗ Rollback otomatis ke revisi sebelumnya",
+    ],
+    commitSha: "9a0b1c2",
+    environment: "production",
+    authorEmail: "admin@omnistack.dev",
+    trigger: "manual",
+    startedAt: "2026-08-23T02:38:00Z",
+    finishedAt: "2026-08-23T02:40:18Z",
+    durationSeconds: 138,
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 10, logs: ["Cloning into '/build/workspace'...", "HEAD is now at 9a0b1c2"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 48, logs: ["npm ci --prefer-offline", "added 978 packages in 48s"] },
+      { name: "Run tests", status: "success", durationSeconds: 54, logs: ["vitest run --coverage", "Tests: 112 passed, 0 failed"] },
+      { name: "Build image", status: "success", durationSeconds: 36, logs: ["docker build -t saas-dashboard:9a0b1c2 .", "Successfully built 9a0b1c2"] },
+      { name: "Deploy", status: "failed", durationSeconds: 42, logs: ["Running migrations...", "✗ Migration failed: column 'theme' already exists in 'projects'"] },
+    ],
+  },
+  // 10. dep-110 — proj-006, success, staging, 5 steps all success
+  {
+    id: "dep-110",
+    projectId: "proj-006",
+    branch: "feat/metrics",
+    commitMessage: "Add Prometheus metrics endpoint",
+    status: "success",
+    triggeredBy: "Developer OmniStack",
+    timeLabel: "18 jam lalu",
+    durationLabel: "1m 24s",
+    logLines: [
+      "$ omnistack deploy --staging",
+      "✓ Build Docker image (58s)",
+      "✓ Push ke registry internal",
+      "✓ Rolling update 2/2 replica sehat",
+      "✓ Live at https://api-analytics-staging.omnistack.dev",
+    ],
+    commitSha: "3e4f5a6",
+    environment: "staging",
+    authorEmail: "dev@omnistack.dev",
+    trigger: "api",
+    startedAt: "2026-08-22T20:42:00Z",
+    finishedAt: "2026-08-22T20:43:24Z",
+    durationSeconds: 84,
+    pipeline: [
+      { name: "Clone repository", status: "success", durationSeconds: 9, logs: ["Cloning into '/build/workspace'...", "HEAD is now at 3e4f5a6"] },
+      { name: "Install dependencies", status: "success", durationSeconds: 22, logs: ["go mod download", "All dependencies cached"] },
+      { name: "Run tests", status: "success", durationSeconds: 18, logs: ["go test ./...", "ok  github.com/omnistack/analytics  1.2s"] },
+      { name: "Build image", status: "success", durationSeconds: 28, logs: ["docker build -t analytics-api:3e4f5a6 .", "Successfully built 3e4f5a6"] },
+      { name: "Deploy", status: "success", durationSeconds: 12, logs: ["Rolling update 2/2 replicas", "Health check OK"] },
+    ],
   },
 ]
+
 
 // ==================== MOCK AUDIT LOGS (ADMIN only) ====================
 

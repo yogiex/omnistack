@@ -10,7 +10,7 @@ export type ProjectView = "grid" | "list"
 export type SortKey = "updated" | "name" | "created"
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: "updated", label: "Terakhir Diupdate" },
+  { value: "updated", label: "Paling Banyak Deploy" },
   { value: "name", label: "Nama A–Z" },
   { value: "created", label: "Tanggal Dibuat" },
 ]
