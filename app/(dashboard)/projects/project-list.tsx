@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import Link from "next/link"
 import {
   ChevronLeft,
   ChevronRight,
   FolderGit2,
   Plus,
+  Search,
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -347,7 +349,7 @@ export function ProjectList() {
   const isLoading = isAuthLoading || !user || isDataLoading
 
   return (
-    <div className="flex flex-col gap-6">
+    <main className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -369,7 +371,7 @@ export function ProjectList() {
 
       {/* Notifikasi aksi */}
       {notice && (
-        <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+        <div role="status" aria-live="polite" className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
           {notice}
         </div>
       )}
@@ -417,6 +419,7 @@ export function ProjectList() {
             <button
               key={f.value}
               type="button"
+              aria-pressed={statusFilter === f.value}
               onClick={() => {
                 setStatusFilter(f.value)
                 setCurrentPage(1)
@@ -442,6 +445,26 @@ export function ProjectList() {
             <Skeleton key={i} className="h-[280px] rounded-xl" />
           ))}
         </div>
+      ) : filteredProjects.length === 0 && projects.length > 0 ? (
+        <Card>
+          <CardContent className="mx-auto flex max-w-md flex-col items-center justify-center py-16 text-center">
+            <Search className="h-9 w-9 text-muted-foreground" />
+            <h2 className="mt-4 text-lg font-semibold">
+              Tidak ada proyek yang cocok
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Coba ubah filter atau kata kunci pencarian Anda.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={() => { setSearchQuery(""); setStatusFilter("all"); setOwnerFilter("all") }}
+            >
+              Reset Filter
+            </Button>
+          </CardContent>
+        </Card>
       ) : visibleProjects.length === 0 ? (
         <Card>
           <CardContent className="mx-auto flex max-w-md flex-col items-center justify-center py-16 text-center">
@@ -462,6 +485,12 @@ export function ProjectList() {
                 Buat Proyek Baru
               </Button>
             )}
+            <p className="mt-3 text-sm text-muted-foreground">
+              Atau buat instan dengan{" "}
+              <Link href="/ai-architect" className="text-primary underline underline-offset-4 hover:text-primary/80">
+                AI Architect
+              </Link>
+            </p>
           </CardContent>
         </Card>
       ) : view === "grid" ? (
@@ -581,7 +610,7 @@ export function ProjectList() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
-    </div>
+    </main>
   )
 }
 

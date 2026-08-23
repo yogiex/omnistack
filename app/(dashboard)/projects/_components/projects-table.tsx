@@ -2,17 +2,6 @@
 
 import Link from "next/link"
 import {
-  Archive,
-  ArchiveRestore,
-  Copy,
-  MoreVertical,
-  Pencil,
-  Rocket,
-  Trash2,
-  UserRoundPlus,
-} from "lucide-react"
-import { buttonVariants } from "@/components/ui/button"
-import {
   Table,
   TableBody,
   TableCell,
@@ -20,17 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { ProjectStatusBadge } from "@/components/project-status-badge"
+import { ProjectActionsMenu } from "./project-actions-menu"
 import {
   getProjectStackList,
+  MOCK_COST_BREAKDOWN,
   MOCK_USERS,
   type MockProject,
 } from "@/lib/mock-data"
@@ -64,7 +48,10 @@ export function ProjectsTable({
             <TableHead>Status</TableHead>
             <TableHead className="hidden md:table-cell">Stack</TableHead>
             <TableHead className="hidden sm:table-cell">Updated</TableHead>
-            <TableHead className="w-12" />
+            <TableHead className="hidden sm:table-cell">FinOps</TableHead>
+            <TableHead className="w-12">
+              <span className="sr-only">Aksi</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -119,90 +106,21 @@ export function ProjectsTable({
                     </span>
                   )}
                 </TableCell>
+                <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                  {(() => {
+                    const cost = MOCK_COST_BREAKDOWN.find((c) => c.projectId === project.id)
+                    return cost ? `$${cost.thisMonth.toFixed(2)}/mo` : "—"
+                  })()}
+                </TableCell>
                 <TableCell>
-                  {manageable ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        className={cn(
-                          buttonVariants({ variant: "ghost", size: "sm" }),
-                          "h-8 w-8 p-0"
-                        )}
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                        <span className="sr-only">
-                          Aksi untuk {project.name}
-                        </span>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-52">
-                        <DropdownMenuItem
-                          onClick={() => handlers.onDeploy(project)}
-                        >
-                          <Rocket className="mr-2 h-4 w-4" />
-                          Deploy
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handlers.onEdit(project)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handlers.onToggleArchive(project)}
-                        >
-                          {project.archived ? (
-                            <>
-                              <ArchiveRestore className="mr-2 h-4 w-4" />
-                              Unarchive
-                            </>
-                          ) : (
-                            <>
-                              <Archive className="mr-2 h-4 w-4" />
-                              Archive
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handlers.onClone(project)}>
-                          <Copy className="mr-2 h-4 w-4" />
-                          Clone
-                        </DropdownMenuItem>
-                        {isAdmin && (
-                          <DropdownMenuItem
-                            onClick={() => handlers.onTransfer(project)}
-                          >
-                            <UserRoundPlus className="mr-2 h-4 w-4" />
-                            Transfer Ownership
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        {confirmDeleteId === project.id ? (
-                          <>
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => handlers.onDelete(project)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Konfirmasi Hapus
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handlers.onCancelDelete}>
-                              Batal
-                            </DropdownMenuItem>
-                          </>
-                        ) : (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handlers.onRequestDelete(project.id)
-                            }
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Hapus Permanen
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">
-                      View only
-                    </span>
-                  )}
+                  <ProjectActionsMenu
+                    project={project}
+                    manageable={manageable}
+                    isAdmin={isAdmin}
+                    confirmDeleteId={confirmDeleteId}
+                    handlers={handlers}
+                    showDeploy
+                  />
                 </TableCell>
               </TableRow>
             )
