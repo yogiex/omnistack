@@ -2,10 +2,12 @@
 
 import Link from "next/link"
 import {
+  Activity,
   Archive,
   ArchiveRestore,
   Copy,
   Eye,
+  FileText,
   MoreVertical,
   Pencil,
   Play,
@@ -64,6 +66,8 @@ interface ProjectCardProps {
   isAdmin: boolean
   isConfirmingDelete: boolean
   ownerName?: string
+  ownerEmail?: string
+  viewerMode?: boolean
   handlers: ProjectCardHandlers
 }
 
@@ -74,6 +78,8 @@ export function ProjectCard({
   isAdmin,
   isConfirmingDelete,
   ownerName,
+  ownerEmail,
+  viewerMode = false,
   handlers,
 }: ProjectCardProps) {
   const stack = getProjectStackList(project)
@@ -179,6 +185,11 @@ export function ProjectCard({
             Pemilik: {ownerName}
           </p>
         )}
+        {viewerMode && ownerEmail && (
+          <p className="text-xs text-muted-foreground">
+            Owner: {ownerEmail}
+          </p>
+        )}
         {project.archived && (
           <Badge variant="outline" className="w-fit gap-1.5 text-muted-foreground">
             <Archive className="h-3 w-3" />
@@ -189,19 +200,53 @@ export function ProjectCard({
 
       <CardFooter className="justify-between gap-2 border-t bg-muted/20 py-3 text-xs text-muted-foreground">
         <span>{project.deployments} deployment</span>
-        <div className="flex items-center gap-1">
-          <Link
-            href={`/projects/${project.id}`}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "sm" }),
-              "h-8 px-2 text-xs"
-            )}
-          >
-            <Eye className="mr-1 h-3 w-3" />
-            View
-          </Link>
-          {(manageable || project.status !== "inactive") &&
-            primaryAction()}
+        {viewerMode ? (
+          <div className="flex items-center gap-1">
+            <Link
+              href={`/projects/${project.id}`}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-8 px-2 text-xs"
+              )}
+            >
+              <Eye className="mr-1 h-3 w-3" />
+              Detail
+            </Link>
+            <Link
+              href="/deployments"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "h-8 px-2 text-xs"
+              )}
+            >
+              <FileText className="mr-1 h-3 w-3" />
+              Logs
+            </Link>
+            <Link
+              href="/monitoring"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "h-8 px-2 text-xs"
+              )}
+            >
+              <Activity className="mr-1 h-3 w-3" />
+              Metrik
+            </Link>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1">
+            <Link
+              href={`/projects/${project.id}`}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "h-8 px-2 text-xs"
+              )}
+            >
+              <Eye className="mr-1 h-3 w-3" />
+              View
+            </Link>
+            {(manageable || project.status !== "inactive") &&
+              primaryAction()}
           {manageable &&
             (isConfirmingDelete ? (
               <span className="flex items-center gap-2">
@@ -271,6 +316,7 @@ export function ProjectCard({
               </DropdownMenu>
             ))}
         </div>
+        )}
       </CardFooter>
     </Card>
   )
