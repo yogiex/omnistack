@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button" // Import styling tombol
 import {
   DropdownMenu,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils" // Import utility untuk menggabungkan class
-import { Moon, Sun, Search, LogOut, UserRound } from "lucide-react"
+import { Moon, Sun, Search, LogOut, UserRound, Eye } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useAuth } from "@/lib/auth-context"
 
@@ -48,6 +49,17 @@ export function TopNav() {
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
+        {/* Indikator Read-Only untuk role VIEWER */}
+        {user.role === "VIEWER" && (
+          <Badge
+            variant="outline"
+            className="hidden gap-1.5 text-xs font-medium text-emerald-500 sm:flex"
+          >
+            <Eye className="h-3 w-3" />
+            Read-Only
+          </Badge>
+        )}
+
         {/* Theme Toggle - Menggunakan buttonVariants langsung */}
         <DropdownMenu>
           <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}>

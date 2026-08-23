@@ -5,8 +5,8 @@ import {
   BadgeCheck,
   Check,
   Copy,
-  Eye,
   KeyRound,
+  LogOut,
   MonitorSmartphone,
   Plus,
   Settings,
@@ -29,6 +29,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/lib/auth-context"
 import type { Role } from "@/lib/mock-data"
@@ -125,6 +132,67 @@ function generateMockKey(): ApiKeyItem {
   }
 }
 
+interface NotifPrefs {
+  deploymentAlerts: boolean
+  systemAlerts: boolean
+  marketingEmails: boolean
+  realtimeAlerts: boolean
+  dailyDigest: boolean
+}
+
+const INITIAL_NOTIF_PREFS: NotifPrefs = {
+  deploymentAlerts: true,
+  systemAlerts: true,
+  marketingEmails: false,
+  realtimeAlerts: true,
+  dailyDigest: true,
+}
+
+const NOTIF_OPTION_GROUPS: {
+  group: string
+  options: { key: keyof NotifPrefs; label: string }[]
+}[] = [
+  {
+    group: "Notifikasi Email",
+    options: [
+      { key: "deploymentAlerts", label: "Deployment alerts" },
+      { key: "systemAlerts", label: "System alerts" },
+      { key: "marketingEmails", label: "Marketing emails" },
+    ],
+  },
+  {
+    group: "Notifikasi In-App",
+    options: [
+      { key: "realtimeAlerts", label: "Real-time alerts" },
+      { key: "dailyDigest", label: "Daily digest" },
+    ],
+  },
+]
+
+interface MockSession {
+  id: string
+  device: string
+  detail: string
+  current: boolean
+}
+
+const MOCK_SESSIONS: MockSession[] = [
+  { id: "sess-1", device: "Chrome on MacOS", detail: "Sesi saat ini", current: true },
+  { id: "sess-2", device: "Safari on iPhone", detail: "2 jam lalu", current: false },
+]
+
+const LANGUAGE_OPTIONS = [
+  { value: "id", label: "Indonesia" },
+  { value: "en", label: "English" },
+]
+
+const TIMEZONE_OPTIONS = [
+  { value: "Asia/Jakarta", label: "Asia/Jakarta (UTC+7)" },
+  { value: "Asia/Makassar", label: "Asia/Makassar (UTC+8)" },
+  { value: "Asia/Jayapura", label: "Asia/Jayapura (UTC+9)" },
+  { value: "UTC", label: "UTC (UTC+0)" },
+]
+
 export function SettingsClient() {
   const { user } = useAuth()
   const { theme, setTheme } = useTheme()
@@ -141,8 +209,17 @@ export function SettingsClient() {
   // Tab Integrasi
   const [gitlabNotice, setGitlabNotice] = useState(false)
 
-  // Tab Preferensi
-  const [emailNotif, setEmailNotif] = useState(false)
+  // Tab Preferensi — notifikasi granular
+  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(INITIAL_NOTIF_PREFS)
+  const [prefsSaved, setPrefsSaved] = useState(false)
+
+  // Tab Preferensi — bahasa & zona waktu
+  const [language, setLanguage] = useState("id")
+  const [timezone, setTimezone] = useState("Asia/Jakarta")
+  const [localeSaved, setLocaleSaved] = useState(false)
+
+  // Tab Profil — sesi aktif
+  const [sessionsNotice, setSessionsNotice] = useState(false)
 
   if (!user) return null
 
@@ -196,6 +273,28 @@ export function SettingsClient() {
     // Mock connect — di backend nyata ini redirect ke OAuth GitLab
     setGitlabNotice(true)
     setTimeout(() => setGitlabNotice(false), 2500)
+  }
+
+  const handleToggleNotif = (key: keyof NotifPrefs) => {
+    setNotifPrefs((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+
+  const handleSavePreferences = () => {
+    // Mock save — di backend nyata ini PATCH /api/user/preferences
+    setPrefsSaved(true)
+    setTimeout(() => setPrefsSaved(false), 2000)
+  }
+
+  const handleSaveLocale = () => {
+    // Mock save — di backend nyata ini PATCH /api/user/locale
+    setLocaleSaved(true)
+    setTimeout(() => setLocaleSaved(false), 2000)
+  }
+
+  const handleRevokeOtherSessions = () => {
+    // Mock revoke — di backend nyata ini DELETE /api/auth/sessions/others
+    setSessionsNotice(true)
+    setTimeout(() => setSessionsNotice(false), 2500)
   }
 
   return (
@@ -371,23 +470,49 @@ export function SettingsClient() {
                     Sesi Aktif
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-1 text-sm text-muted-foreground">
-                  <p>Browser ini · sesi mock via localStorage</p>
-                  <p>Login terakhir: baru saja</p>
+                <CardContent className="space-y-3 text-sm">
+                  <ul className="space-y-2">
+                    {MOCK_SESSIONS.map((session) => (
+                      <li
+                        key={session.id}
+                        className="flex items-start gap-2 text-muted-foreground"
+                      >
+                        <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                        <span>
+                          {session.device}
+                          <span
+                            className={cn(
+                              "ml-1 text-xs",
+                              session.current && "text-green-500"
+                            )}
+                          >
+                            · {session.detail}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-2 w-full"
+                    className="w-full"
                     disabled={isViewer}
+                    onClick={handleRevokeOtherSessions}
                   >
-                    <Eye className="mr-2 h-4 w-4" />
-                    Kelola Sesi
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Cabut Semua Sesi Lain
                     {isViewer && (
                       <span className="ml-auto text-xs text-muted-foreground">
                         Read-only
                       </span>
                     )}
                   </Button>
+                  {sessionsNotice && (
+                    <p className="flex items-center gap-1 text-green-500">
+                      <BadgeCheck className="h-4 w-4" />
+                      Mock: semua sesi lain telah dicabut.
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -584,19 +709,100 @@ export function SettingsClient() {
                   Atur bagaimana OmniStack mengabari Anda.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3">
-                  <Checkbox
-                    id="settings-email-notif"
-                    checked={emailNotif}
-                    onCheckedChange={(checked) => setEmailNotif(Boolean(checked))}
-                  />
-                  <Label htmlFor="settings-email-notif" className="font-normal">
-                    Notifikasi Email{" "}
-                    <span className="text-xs text-muted-foreground">
-                      (status deploy, gagal build, laporan mingguan) · mock
+              <CardContent className="space-y-4">
+                {NOTIF_OPTION_GROUPS.map((group) => (
+                  <div key={group.group} className="space-y-2">
+                    <p className="text-sm font-medium">{group.group}</p>
+                    {group.options.map((option) => (
+                      <div
+                        key={option.key}
+                        className="flex items-center gap-3"
+                      >
+                        <Checkbox
+                          id={`settings-notif-${option.key}`}
+                          checked={notifPrefs[option.key]}
+                          onCheckedChange={() => handleToggleNotif(option.key)}
+                        />
+                        <Label
+                          htmlFor={`settings-notif-${option.key}`}
+                          className="font-normal"
+                        >
+                          {option.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+                <div className="flex items-center gap-3 pt-1">
+                  <Button size="sm" onClick={handleSavePreferences}>
+                    Simpan Preferences
+                  </Button>
+                  {prefsSaved && (
+                    <span className="flex items-center gap-1 text-sm text-green-500">
+                      <BadgeCheck className="h-4 w-4" />
+                      Tersimpan
                     </span>
-                  </Label>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Bahasa &amp; Zona Waktu</CardTitle>
+                <CardDescription>
+                  Lokalisasi tampilan dashboard (mock, belum terhubung backend).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="settings-language">Bahasa</Label>
+                  <Select
+                    value={language}
+                    onValueChange={(value) => setLanguage(String(value))}
+                  >
+                    <SelectTrigger id="settings-language" className="w-full sm:w-64">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGE_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="settings-timezone">Zona Waktu</Label>
+                  <Select
+                    value={timezone}
+                    onValueChange={(value) => setTimezone(String(value))}
+                  >
+                    <SelectTrigger id="settings-timezone" className="w-full sm:w-64">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIMEZONE_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-3 pt-1">
+                  <Button size="sm" onClick={handleSaveLocale}>
+                    Simpan Bahasa &amp; Zona Waktu
+                  </Button>
+                  {localeSaved && (
+                    <span className="flex items-center gap-1 text-sm text-green-500">
+                      <BadgeCheck className="h-4 w-4" />
+                      Tersimpan
+                    </span>
+                  )}
                 </div>
               </CardContent>
             </Card>

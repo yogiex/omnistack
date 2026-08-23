@@ -1,8 +1,11 @@
 import {
   Boxes,
+  CalendarClock,
   CircleCheck,
   CircleX,
   LoaderCircle,
+  Share2,
+  Users,
 } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
@@ -76,6 +79,48 @@ export function ProjectsStats({
         label="Failed"
         value={failed}
         hint={pct(failed)}
+      />
+    </div>
+  )
+}
+
+const VIEWER_DEPLOYMENTS_THIS_WEEK = 8
+const VIEWER_TEAM_MEMBERS = 15
+
+interface ViewerProjectsStatsProps {
+  totalShared: number
+  active: number
+}
+
+export function ViewerProjectsStats({
+  totalShared,
+  active,
+}: ViewerProjectsStatsProps) {
+  return (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <StatCard
+        icon={<Share2 className="h-5 w-5 text-primary" />}
+        label="Proyek Di-share"
+        value={totalShared}
+        hint="read-only"
+      />
+      <StatCard
+        icon={<CircleCheck className="h-5 w-5 text-green-500" />}
+        label="Aktif"
+        value={active}
+        hint="status live"
+      />
+      <StatCard
+        icon={<CalendarClock className="h-5 w-5 text-yellow-500" />}
+        label="Deployment Minggu Ini"
+        value={VIEWER_DEPLOYMENTS_THIS_WEEK}
+        hint="7 hari terakhir"
+      />
+      <StatCard
+        icon={<Users className="h-5 w-5 text-blue-500" />}
+        label="Anggota Tim"
+        value={VIEWER_TEAM_MEMBERS}
+        hint="semua workspace"
       />
     </div>
   )
