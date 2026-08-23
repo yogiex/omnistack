@@ -36,6 +36,25 @@ Perubahan yang sudah di-merge tapi belum di-release.
 - **Preview Environments** otomatis per Pull Request
 - **FinOps Dashboard** untuk tracking biaya per-aplikasi
 - Multi-node cluster management UI
+- **Projects Dashboard** lengkap sesuai UI/UX blueprint:
+  - Stats cards (Total / Live / Building / Failed) dengan persentase
+  - Project card dengan 4 state: Live (Deploy), Building (progress bar %), Failed (error message + Retry), Stopped (Start)
+  - Tech stack badges per proyek dari data `stack[]`
+  - View toggle Grid/List (tabel responsive dengan actions dropdown)
+  - Sort (Terakhir Diupdate / Nama / Tanggal Dibuat) & pills filter status
+  - Loading skeleton (`animate-pulse`) untuk initial load
+  - Empty state dengan CTA "Buat Proyek Baru"
+  - Keyboard shortcuts: `N` (proyek baru), `/` (fokus pencarian)
+  - Pagination & role-based view dipertahankan (ADMIN/USER/VIEWER)
+- Komponen page-specific di `app/(dashboard)/projects/_components/`:
+  - `project-card.tsx`, `projects-table.tsx`, `filter-bar.tsx`, `projects-stats.tsx`
+- Mock data diperluas: `ProjectStatus` ditambah `"failed"`, field `stack`, `url`, `lastDeployLabel`, `progress`, `errorMessage`; total 6 mock proyek mencakup semua state
+- Helper `getProjectStackList()` di `lib/mock-data.ts`
+
+### Changed
+- Label status badge diperbarui: Active→Live, Deploying→Building, Inactive→Stopped, plus state baru **Failed**
+- Halaman detail proyek: opsi status editor kini menyertakan "Failed"
+- Refactor `project-list.tsx`: ekstraksi komponen ke `_components/`, urutan hooks dirapikan sesuai Rules of Hooks
 
 ### Planned
 - [ ] Authentication real dengan NextAuth.js v5
@@ -223,6 +242,7 @@ Setup awal proyek OmniStack.
 
 | Version | Release Date | Status | Major Features |
 |---------|--------------|--------|----------------|
+| **Unreleased** | — | 🚧 WIP | Projects Dashboard blueprint, mock RBAC data, AI Architect (WIP), FinOps |
 | **1.0.0** | 2026-08-22 | ✅ Released | Landing page, Auth, Dashboard, Docs |
 | **0.1.0** | 2026-08-21 | 🏁 Initial | Project setup & foundation |
 | **0.0.0** | 2026-08-20 | 💡 Concept | Idea & planning phase |

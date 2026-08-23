@@ -22,6 +22,13 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { DeploymentStatusBadge } from "@/components/deployment-status-badge"
 import { useAuth } from "@/lib/auth-context"
 import {
@@ -49,6 +56,31 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
 ]
 
 const PAGE_SIZE = 5
+
+const DATE_SORT_OPTIONS: { value: DateSort; label: string }[] = [
+  { value: "newest", label: "Terbaru" },
+  { value: "oldest", label: "Terlama" },
+]
+
+type DateSort = "newest" | "oldest"
+
+const TIME_UNIT_SECONDS: Record<string, number> = {
+  detik: 1,
+  menit: 60,
+  jam: 3600,
+  hari: 86400,
+  minggu: 604800,
+  bulan: 2592000,
+}
+
+function getTimeLabelSecondsAgo(label: string): number {
+  const normalized = label.trim().toLowerCase()
+  if (normalized === "baru saja") return 0
+  if (normalized.includes("kemarin")) return TIME_UNIT_SECONDS.hari
+  const match = normalized.match(/(\d+)\s*(detik|menit|jam|hari|minggu|bulan)/)
+  if (!match) return Number.MAX_SAFE_INTEGER
+  return Number(match[1]) * TIME_UNIT_SECONDS[match[2]]
+}
 
 function getEffectiveStatus(d: MockDeployment): DeploymentStatus | "cancelled" | "rolled_back" {
   if (d.logLines.some((l) => l.includes("Dibatalkan"))) return "cancelled"
@@ -119,6 +151,7 @@ export function DeploymentsList() {
   const [projectFilter, setProjectFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [triggeredByFilter, setTriggeredByFilter] = useState<string>("all")
+  const [dateSort, setDateSort] = useState<DateSort>("newest")
   const [currentPage, setCurrentPage] = useState(1)
 
   const showNotice = (message: string) => {
@@ -158,8 +191,23 @@ export function DeploymentsList() {
       result = result.filter((d) => d.triggeredBy === triggeredByFilter)
     }
 
+    result = [...result].sort((a, b) => {
+      const timeA = getTimeLabelSecondsAgo(a.timeLabel)
+      const timeB = getTimeLabelSecondsAgo(b.timeLabel)
+      return dateSort === "newest" ? timeA - timeB : timeB - timeA
+    })
+
     return result
-  }, [deployments, searchQuery, projectFilter, statusFilter, triggeredByFilter])
+  }, [deployments, searchQuery, projectFilter, statusFilter, triggeredByFilter, dateSort])
+
+  const resetFilters = () => {
+    setSearchQuery("")
+    setProjectFilter("all")
+    setStatusFilter("all")
+    setTriggeredByFilter("all")
+    setDateSort("newest")
+    setCurrentPage(1)
+  }
 
   if (!user) return null
 
@@ -313,6 +361,25 @@ export function DeploymentsList() {
             </option>
           ))}
         </select>
+
+        <Select
+          value={dateSort}
+          onValueChange={(v) => {
+            setDateSort((v ?? "newest") as DateSort)
+            setCurrentPage(1)
+          }}
+        >
+          <SelectTrigger className="w-[120px]" aria-label="Urutkan tanggal">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {DATE_SORT_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-5">
@@ -344,6 +411,9 @@ export function DeploymentsList() {
                         <p className="truncate text-sm font-medium">
                           {projectNameOf(deployment.projectId)}
                         </p>
+                        <p className="truncate text-xs text-foreground/80">
+                          {deployment.commitMessage}
+                        </p>
                         <p className="truncate font-mono text-xs text-muted-foreground">
                           <GitBranch className="mr-1 inline h-3 w-3" />
                           {deployment.branch}
@@ -351,8 +421,6 @@ export function DeploymentsList() {
                           <span className="rounded bg-muted px-1 py-0.5 text-[10px]">
                             {getShortCommitHash(deployment.id)}
                           </span>
-                          <span className="mx-1.5 text-muted-foreground/50">·</span>
-                          {deployment.commitMessage}
                         </p>
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1">
@@ -381,17 +449,24 @@ export function DeploymentsList() {
             </div>
 
             {pagedDeployments.length === 0 && (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Tidak ada deployment yang cocok dengan filter.
-              </p>
+              <div className="mt-2 flex flex-col items-center gap-3 rounded-lg border border-dashed py-10 text-center">
+                <Search className="h-6 w-6 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Tidak ada deployment yang cocok dengan filter.
+                </p>
+                <Button variant="outline" size="sm" onClick={resetFilters}>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Reset Filter
+                </Button>
+              </div>
             )}
 
             {/* Pagination */}
             <div className="mt-4 flex items-center justify-between border-t pt-4">
               <p className="text-xs text-muted-foreground">
                 {filteredDeployments.length === 0
-                  ? "Tidak ada data"
-                  : `Menampilkan ${startIdx + 1}–${Math.min(startIdx + PAGE_SIZE, filteredDeployments.length)} dari ${filteredDeployments.length}`}
+                  ? "Menampilkan 0–0 dari 0 deployment"
+                  : `Menampilkan ${startIdx + 1}–${Math.min(startIdx + PAGE_SIZE, filteredDeployments.length)} dari ${filteredDeployments.length} deployment`}
               </p>
               <div className="flex items-center gap-2">
                 <Button

@@ -191,12 +191,23 @@ app/
 ├── (dashboard)/                  # Route Group: Authenticated pages
 │   ├── layout.tsx               # Dashboard shell (Sidebar + TopNav)
 │   ├── page.tsx                 # Dashboard overview (URL: /)
-│   ├── projects/                # Future: Project management
+│   ├── dashboard/               # Overview dashboard (client dashboard)
+│   ├── projects/                # ✅ Project management (CRUD lengkap)
 │   │   ├── page.tsx             # URL: /projects
-│   │   └── [id]/page.tsx        # URL: /projects/:id
-│   ├── ai-architect/            # Future: AI Prompt Engineer
-│   │   └── page.tsx             # URL: /ai-architect
-│   └── settings/                # Future: User settings
+│   │   ├── project-list.tsx     # Client component utama (grid/list/filter)
+│   │   ├── project-form-sheet.tsx
+│   │   ├── _components/         # Page-specific components
+│   │   │   ├── project-card.tsx    # Card 4 state + actions
+│   │   │   ├── projects-table.tsx  # List view (tabel)
+│   │   │   ├── projects-stats.tsx  # Stats cards
+│   │   │   └── filter-bar.tsx      # Search/sort/view toggle
+│   │   └── [id]/                # URL: /projects/:id
+│   ├── ai-architect/            # AI Prompt Engineer (WIP)
+│   │   ├── page.tsx             # URL: /ai-architect
+│   │   └── _components/
+│   ├── deployments/             # Deployment history
+│   ├── finops/                  # Cost tracking
+│   └── settings/                # User settings
 │       └── page.tsx             # URL: /settings
 │
 ├── (marketing)/                  # Route Group: Public pages (future)
@@ -259,14 +270,11 @@ components/
 
 ```
 lib/
-├── utils.ts                     # Helper functions (cn, formatDate, etc.)
-├── constants.ts                 # Global constants
+├── utils.ts                     # Helper functions (cn, dll)
+├── mock-data.ts                 # ✅ Mock users/projects/deployments/audit + RBAC helpers
+├── auth-context.tsx             # ✅ Auth context mock (localStorage-based)
 │
-├── types/                       # TypeScript type definitions
-│   ├── user.ts                  # User-related types
-│   ├── project.ts               # Project-related types
-│   ├── deployment.ts            # Deployment-related types
-│   └── api.ts                   # API response types
+├── types/                       # TypeScript type definitions (future)
 │
 ├── validators/                  # Zod schemas (future)
 │   ├── auth.ts
@@ -277,6 +285,8 @@ lib/
     ├── projects.ts              # Project service
     └── auth.ts                  # Auth service
 ```
+
+**Catatan:** Saat ini belum ada backend. Semua data berasal dari `mock-data.ts` dengan helper role (`getMockProjectsByUser`, `roleAtLeast`) untuk data isolation per role (ADMIN/USER/VIEWER). Saat backend siap, ganti sumber data di level halaman tanpa mengubah komponen.
 
 #### 📂 `hooks/` — Custom React Hooks
 
@@ -954,10 +964,10 @@ Mengaktifkan **strict mode** di `tsconfig.json`:
 
 ### Phase 1: Foundation (Current)
 - ✅ Landing page
-- ✅ Authentication flow
+- ✅ Authentication flow (mock, localStorage-based)
 - ✅ Dashboard shell
+- ✅ Project management (CRUD + RBAC mock)
 - 🔄 AI Architect page
-- 🔄 Project management
 
 ### Phase 2: Core Features
 - [ ] Freedom Stack Builder
@@ -1106,6 +1116,7 @@ ARCHITECTURE.md ini adalah **living document**. Update saat:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.1.0 | 2026-08-23 | OmniStack Team | Update struktur projects (`_components/`), mock data & RBAC helpers, status Phase 1 |
 | 1.0.0 | 2026-08-22 | OmniStack Team | Initial architecture documentation |
 
 ---

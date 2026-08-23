@@ -1,12 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import {
   Activity,
+  Bot,
   Crown,
   Eye,
   FolderGit2,
   Gauge,
+  GitBranch,
+  Plus,
+  ScrollText,
   Server,
   ShieldCheck,
   Settings,
@@ -22,10 +27,13 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ProjectStatusBadge } from "@/components/project-status-badge"
+import { DeploymentStatusBadge } from "@/components/deployment-status-badge"
 import { useAuth } from "@/lib/auth-context"
 import {
+  getMockDeploymentsForRole,
   getMockProjectsByUser,
   getTotalDeployments,
+  MOCK_PROJECTS,
   MOCK_USERS,
   type Role,
 } from "@/lib/mock-data"
@@ -74,6 +82,7 @@ const ROLE_META: Record<
 
 export function ClientDashboard() {
   const { user } = useAuth()
+  const [showGitNotice, setShowGitNotice] = useState(false)
 
   if (!user) return null
 
@@ -82,6 +91,13 @@ export function ClientDashboard() {
 
   const projects = getMockProjectsByUser(user.id, user.role)
   const totalDeployments = getTotalDeployments(projects)
+  const recentDeployments = getMockDeploymentsForRole(
+    user.id,
+    user.role
+  ).slice(0, 5)
+  const projectNameById = new Map(
+    MOCK_PROJECTS.map((project) => [project.id, project.name])
+  )
   const isAdmin = user.role === "ADMIN"
   const isViewer = user.role === "VIEWER"
 
@@ -147,6 +163,41 @@ export function ClientDashboard() {
           {meta.label}
         </Badge>
       </div>
+
+      {/* ================= AKSI CEPAT ================= */}
+      {!isViewer && (
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/projects"
+            className={buttonVariants({ variant: "default" })}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Proyek Baru
+          </Link>
+          <Link
+            href="/ai-architect"
+            className={cn(buttonVariants({ variant: "outline" }))}
+          >
+            <Bot className="mr-2 h-4 w-4" />
+            Tanya AI Architect
+          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowGitNotice((v) => !v)}
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <GitBranch className="mr-2 h-4 w-4" />
+              Hubungkan Git Provider
+            </button>
+            {showGitNotice && (
+              <span className="text-sm text-muted-foreground">
+                Integrasi Git segera hadir
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ================= STAT CARDS ================= */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -277,6 +328,81 @@ export function ClientDashboard() {
           </Card>
         </div>
       </div>
+
+      {/* ================= DEPLOYMENT TERBARU ================= */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" />
+            Deployment Terbaru
+          </CardTitle>
+          <CardDescription>
+            {isViewer
+              ? "Read-only • 5 deployment terakhir dari proyek yang di-share"
+              : "5 deployment terakhir"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {recentDeployments.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-10 text-center">
+              <Activity className="mb-2 h-8 w-8 text-muted-foreground/50" />
+              <p className="text-sm text-muted-foreground">
+                Belum ada deployment untuk ditampilkan.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {recentDeployments.map((deployment) => (
+                <div
+                  key={deployment.id}
+                  className="flex flex-wrap items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/projects/${deployment.projectId}`}
+                      className="truncate text-sm font-medium hover:underline"
+                    >
+                      {projectNameById.get(deployment.projectId) ??
+                        deployment.projectId}
+                    </Link>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <GitBranch className="h-3 w-3" />
+                      {deployment.branch}
+                      <span aria-hidden>•</span>
+                      {deployment.timeLabel}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <DeploymentStatusBadge status={deployment.status} />
+                    {!isViewer && (
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/projects/${deployment.projectId}`}
+                          className={cn(
+                            buttonVariants({ variant: "ghost", size: "sm" })
+                          )}
+                        >
+                          <Eye className="mr-1.5 h-3.5 w-3.5" />
+                          Lihat
+                        </Link>
+                        <Link
+                          href="/deployments"
+                          className={cn(
+                            buttonVariants({ variant: "ghost", size: "sm" })
+                          )}
+                        >
+                          <ScrollText className="mr-1.5 h-3.5 w-3.5" />
+                          Logs
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

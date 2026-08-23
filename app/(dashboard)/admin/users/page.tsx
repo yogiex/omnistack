@@ -1,10 +1,10 @@
 import { RouteGuard } from "@/components/route-guard"
-import { UsersList } from "./users-list"
+import { UsersPageClient } from "./users-page-client"
 
 export default function AdminUsersPage() {
   return (
     <RouteGuard requiredRole="ADMIN">
-      <UsersList />
+      <UsersPageClient />
     </RouteGuard>
   )
 }

@@ -2,7 +2,7 @@
 
 > **Universal guide** for all AI coding assistants (Claude, Cursor, GitHub Copilot, Codex, Gemini, Cline, Aider, etc.) working on this codebase.
 
-**Last updated:** 2026-08-22  
+**Last updated:** 2026-08-23  
 **Project:** OmniStack — The Developer Operating System (PaaS)  
 **Stack:** Next.js 16 + TypeScript + Tailwind CSS v4 + shadcn/ui (Base UI)
 
@@ -49,27 +49,32 @@ omnistack/
 │   │
 │   ├── (dashboard)/             # Route group — authenticated pages
 │   │   ├── layout.tsx           # Dashboard shell (Sidebar + TopNav)
-│   │   └── page.tsx             # Dashboard overview
+│   │   ├── dashboard/           # Overview page (client dashboard)
+│   │   ├── projects/            # Project management (CRUD lengkap)
+│   │   │   ├── page.tsx
+│   │   │   ├── project-list.tsx
+│   │   │   └── _components/     # ⚠️ Page-specific components (underscore = bukan route)
+│   │   ├── [id]/                # Detail proyek (dynamic route)
+│   │   ├── ai-architect/        # AI Architect (WIP)
+│   │   ├── deployments/         # Deployment history
+│   │   ├── finops/              # Cost tracking
+│   │   └── settings/
 │   │
-│   ├── login/
-│   │   └── page.tsx             # Login page (standalone, no dashboard layout)
-│   │
+│   ├── login/                   # Login page (standalone, mock auth)
+│   ├── register/                # Registrasi (mock)
 │   └── api/                     # API routes (future)
 │
 ├── components/
 │   ├── ui/                      # ⚠️ shadcn/ui — JANGAN EDIT MANUAL
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── sidebar.tsx
-│   │   └── ... (other primitives)
-│   │
 │   ├── app-sidebar.tsx          # Main sidebar
 │   ├── top-nav.tsx              # Top navigation bar
+│   ├── project-status-badge.tsx # Badge status proyek (Live/Building/Failed/Stopped)
 │   └── theme-provider.tsx       # Dark/light mode provider
 │
 ├── lib/
 │   ├── utils.ts                 # `cn()` helper & utilities
-│   ├── types/                   # TypeScript type definitions
+│   ├── mock-data.ts             # Mock users/projects/deployments + RBAC helpers
+│   ├── auth-context.tsx         # Auth context (mock, localStorage-based)
 │   └── constants.ts             # Global constants
 │
 ├── hooks/                       # Custom React hooks
@@ -78,7 +83,6 @@ omnistack/
 │
 ├── components.json              # shadcn/ui config
 ├── next.config.ts
-├── tailwind.config.ts
 └── tsconfig.json
 ```
 
@@ -480,6 +484,15 @@ app/(dashboard)/projects/page.tsx  →  URL: /projects
 app/(marketing)/about/page.tsx     →  URL: /about
 ```
 
+### 6. Page-Specific Components → `_components/`
+Komponen yang hanya dipakai satu halaman diletakkan di `app/(group)/page/_components/` (underscore = bukan route). Contoh: `app/(dashboard)/projects/_components/`. Komponen reusable lintas halaman tetap di `components/`.
+
+### 7. Rules of Hooks
+Jangan letakkan `return` kondisional sebelum semua hooks (`useState`, `useMemo`, `useEffect`). Pola yang benar: deklarasikan semua hooks dulu, baru early-return di render. Juga deklarasikan fungsi helper yang dipakai di dalam `useEffect` **sebelum** effect tersebut (ESLint `react-hooks/immutability`).
+
+### 8. Mock Auth & RBAC Data
+Belum ada backend. Auth via `lib/auth-context.tsx` (localStorage) dan data via `lib/mock-data.ts`. Selalu gunakan helper role (`getMockProjectsByUser`, `roleAtLeast`) — jangan filter manual berdasarkan `user.role` jika helper sudah ada. Status proyek: `"active" | "inactive" | "deploying" | "failed"` (badge label: Live/Stopped/Building/Failed).
+
 ---
 
 ## 📝 Commit Convention (Conventional Commits)
@@ -536,8 +549,8 @@ Framework yang direkomendasikan: **Vitest + React Testing Library + Playwright (
 | `ARCHITECTURE.md` | System design & technical blueprint |
 | `CONVENTIONS.md` | Code conventions (lebih detail) |
 | `DESIGN.md` | Design system & visual language |
+| `CHANGELOG.md` | Version history (Keep a Changelog) |
 | `AGENTS.md` | **This file** — AI agent guide |
-| `CLAUDE.md` | Claude-specific guidelines |
 
 ---
 
