@@ -1,898 +1,586 @@
-# 🚀 OmniStack — Deployments Page (Comprehensive UI/UX)
+# 🎨 UI/UX BLUEPRINT — AI CODE REVIEWER (NIST SSDF SECURE-BY-DESIGN)
 
-Berikut adalah desain ASCII art komprehensif untuk halaman **Deployments** (`/deployments`):
+Berikut blueprint komprehensif untuk halaman **AI Code Reviewer** yang mematuhi **NIST SSDF (SP 800-218)** dengan filosofi **Secure by Design** — bukan sekadar compliance checklist.
 
 ---
 
-## 1. 📐 Full Page Layout Overview
+## 📐 INFORMASI ARSITEKTUR
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│  🔶 OmniStack          Search deployments, commits...          🔔 3  👨‍💻 Developer  ⚙️  🌙      │
-├──────────────┬───────────────────────────────────────────────────────────────────────────────────┤
-│              │                                                                                   │
-│  Workspace   │   🚀 Deployments                                                                  │
-│              │                                                                                   │
-│  🏠 Overview │   ┌────────────┬────────────┬────────────┬────────────┬────────────┐             │
-│  📦 Projects │   │  📊 Total  │  ✅ Success│  🔄 Active │  ❌ Failed │  ⏱️ Avg    │             │
-│  🚀 Deploys  │   │    147     │    128     │     2      │     17     │   3m 42s   │             │
-│  📊 Monitoring│  │  7 days    │   87.1%    │  building  │  11.6%     │  ▼ 12%     │             │
-│  🐛 Errors   │   │  ▲ +23     │   ▲ +19    │            │  ▲ +4      │  vs prev   │             │
-│  🔀 Preview  │   └────────────┴────────────┴────────────┴────────────┴────────────┘             │
-│  💰 FinOps   │                                                                                   │
-│  ✨ AI Arch  │   ┌── Filter & Search ──────────────────────────────────────────────────────────┐ │
-│  🧠 AI Review│   │ 🔍 Search project, commit, author...  │ Status [▼ All ] │ Project [▼ All ] │ │
-│              │   │                                       │ Env [▼ All ]    │ Date [▼ 7 days]  │ │
-│  Akun        │   │ [🔄 Reset]                                    [+ New Deployment]           │ │
-│  ⚙️ Settings │   └─────────────────────────────────────────────────────────────────────────────┘ │
-│              │                                                                                   │
-│              │   ┌── Active Deployments (Live Progress) ──────────────────────────────────────┐  │
-│              │   │                                                                             │  │
-│              │   │  🔄 my-commerce-app  #deploy-147  ────────────────▓▓▓▓▓▓▓▓░░░░░░ 67%      │  │
-│              │   │     feat/payment-gateway → production   by dev@omnistack.dev               │  │
-│              │   │     Step 3/5: Building Docker image...    Started: 2m 14s ago               │  │
-│              │   │     ✅ Clone → ✅ Install → 🔄 Build → ⏳ Push → ⏳ Deploy                   │  │
-│              │   │     [View Logs]  [Cancel]                                                   │  │
-│              │   │                                                                             │  │
-│              │   │  🔄 admin-dashboard  #deploy-146  ──▓▓░░░░░░░░░░░░░░░░░░░ 12%              │  │
-│              │   │     hotfix/auth-error → production   by admin@omnistack.dev                 │  │
-│              │   │     Step 1/5: Cloning repository...    Started: 18s ago                     │  │
-│              │   │     🔄 Clone → ⏳ Install → ⏳ Build → ⏳ Push → ⏳ Deploy                    │  │
-│              │   │     [View Logs]  [Cancel]                                                   │  │
-│              │   │                                                                             │  │
-│              │   └─────────────────────────────────────────────────────────────────────────────┘  │
-│              │                                                                                   │
-│              │   ┌── Deployment History ────────────────────────────────────────────────────────┐│
-│              │   │                                                                                ││
-│              │   │  ┌─ Status ─ Project ─ Commit ─ Branch ─ Environment ─ Author ─ Duration ─ When ────┐│
-│              │   │  │                                                                                │││
-│              │   │  │ ✅ Live    my-commerce-app    #a8f3c2d  feat/payments  🌐 production  dev@omni  3m 42s  12m ago │││
-│              │   │  │    └─ "Add Stripe payment integration with webhook handling"                    │││
-│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
-│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
-│              │   │  │ ❌ Failed  admin-dashboard     #b7e2a1f  hotfix/auth    🌐 production  admin@omni 1m 23s  45m ago│││
-│              │   │  │    └─ "Fix JWT refresh token race condition"                                    │││
-│              │   │  │    └─ Error: Build failed at step 3 — "npm ci" exit code 1                     │││
-│              │   │  │    [🔍 Logs] [🔄 Retry] [🐛 AI Diagnose]                                       │││
-│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
-│              │   │  │ ✅ Live    my-commerce-app    #c4d1e2f  main           🔀 staging     dev@omni  3m 18s  2h ago │││
-│              │   │  │    └─ "Refactor checkout flow with optimistic UI updates"                       │││
-│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
-│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
-│              │   │  │ ✅ Live    api-gateway         #d5e3f4a  main           🌐 production  dev2@omni 4m 02s  4h ago │││
-│              │   │  │    └─ "Rate limiter config update: 1000 req/min per IP"                        │││
-│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
-│              │   │  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │││
-│              │   │  │ ✅ Live    mobile-app          #e6f4a5b  release/v2.4   🌐 production  dev@omni  5m 47s  1d ago │││
-│              │   │  │    └─ "v2.4.0: New onboarding flow + biometric auth"                           │││
-│              │   │  │    [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics]                          │││
-│              │   │                                                                                │││
-│              │   │  └────────────────────────────────────────────────────────────────────────────┘││
-│              │   │                                                                                ││
-│              │   │  Showing 5 of 147 deployments  [← Prev]  Page 1 of 30  [Next →]               ││
-│              │   └────────────────────────────────────────────────────────────────────────────────┘│
-│              │                                                                                   │
-├──────────────┴───────────────────────────────────────────────────────────────────────────────────┤
-│ 📍 /deployments  |  👨‍💻 USER (own projects)  |  Auto-refresh: 10s                                 │
-└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│  ROUTE      : /ai-reviewer                                                │
+│  LOKASI     : app/(dashboard)/ai-reviewer/page.tsx                        │
+│  RBAC       : ✅ ADMIN  ✅ USER  ❌ VIEWER (disembunyikan)                │
+│  FRAMEWORK  : NIST SSDF (PO · PS · PW · RV)                               │
+│  PILAR      : Pillar 1 — AI-Powered Development + Pillar 6 — Security     │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+### Struktur Halaman (IA)
+```
+/ai-reviewer
+ ├─ [VIEW 1] Review Dashboard      ← Landing default
+ ├─ [VIEW 2] New Review Wizard     ← Pilih PR + konfigurasi
+ ├─ [VIEW 3] Review In Progress    ← Live scan
+ ├─ [VIEW 4] Review Results        ← Hasil utama (tab-based)
+ │    ├─ Tab: Overview
+ │    ├─ Tab: Security Findings    ← Core NIST SSDF
+ │    ├─ Tab: Code Quality
+ │    ├─ Tab: NIST SSDF Matrix     ← Compliance mapping
+ │    └─ Tab: Diff Viewer
+ ├─ [VIEW 5] Finding Detail        ← Drawer/side panel
+ ├─ [VIEW 6] Settings              ← ADMIN only
+ └─ [STATES] Empty / Loading / Error / Read-only
 ```
 
 ---
 
-## 2. 📊 Breakdown Detail Per Komponen
-
-### 2.1 Stats Cards (Hero Metrics)
+## 🧭 VIEW 1 — REVIEW DASHBOARD (Landing)
 
 ```
-┌────────────┬────────────┬────────────┬────────────┬────────────┐
-│  📊 Total  │ ✅ Success │  🔄 Active │ ❌ Failed  │  ⏱️ Avg    │
-│    147     │    128     │     2      │     17     │   3m 42s   │
-│  7 days    │   87.1%    │  building  │  11.6%     │  ▼ 12%     │
-│  ▲ +23     │   ▲ +19    │            │  ▲ +4      │  vs prev   │
-└────────────┴────────────┴────────────┴────────────┴────────────┘
-
-Legend:
-📊 Total      = Semua deployment dalam periode terpilih
-✅ Success    = Deployment berhasil (status: Live)
-🔄 Active     = Deployment sedang berjalan (Building)
-❌ Failed     = Deployment gagal
-⏱️ Avg        = Rata-rata durasi deployment
-▲/▼          = Perubahan dibanding periode sebelumnya
+┌────────────────────────────────────────────────────────────────────────────┐
+│ OmniStack ▸ 🧠 AI Code Reviewer                    🔔  👨‍💻 dev ▾          │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  🧠 AI Code Reviewer                          [+ New Review]  [⚙ Settings] │
+│  Secure-by-design code analysis · NIST SSDF aligned                        │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ 🛡 SECURITY POSTURE                                    NIST SSDF ✓ │   │
+│  │ ████████████████████░░░░  82/100   ·  3 open criticals             │   │
+│  │ Last scan: 2h ago · Next scheduled: daily 02:00 UTC                │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐                 │
+│  │ Total    │  │ Open     │  │ Critical │  │ Fixed    │                 │
+│  │ Reviews  │  │ Findings │  │ & High   │  │ this wk  │                 │
+│  │   148    │  │   23     │  │   7 🔴   │  │   41     │                 │
+│  │ +12% ▲   │  │ -8%  ▼   │  │ +2   ▲   │  │ +23% ▲   │                 │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘                 │
+│                                                                            │
+│  Recent Reviews                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ Repo            PR     Branch      Score  Status      Time        │   │
+│  ├────────────────────────────────────────────────────────────────────┤   │
+│  │ api-gateway    #142   feat/auth    61 🟠  ⚠ 4 critical  2h ago    │   │
+│  │ web-frontend   #141   hotfix/xss   94 🟢  ✓ passed     5h ago     │   │
+│  │ payment-svc    #140   release/2.1  78 🟡  ⚠ 1 high     1d ago     │   │
+│  │ auth-service   #139   main         88 🟢  ✓ passed     2d ago     │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Detail interaktif per card (on click):**
+**Catatan Desain:**
+- **Security Posture banner** langsung terlihat — *secure by design* = postur keamanan adalah hal pertama yang dilihat, bukan afterthought.
+- Skor 0–100 dengan warna semantik (🔴 <60, 🟠 60-79, 🟡 80-89, 🟢 ≥90) sesuai `DESIGN.md`.
+- Badge `NIST SSDF ✓` memberi sinyal framework aktif tanpa jadi "compliance theater".
+
+---
+
+## 🧭 VIEW 2 — NEW REVIEW WIZARD (3 Langkah)
+
+### Step 1: Pilih Sumber
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│  New Review                                            Step 1 of 3         │
+│  ●━━━━━━━━━━━○━━━━━━━━━━━○                                                 │
+│  Source       Security     Confirm                                          │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  Repository *                                                                │
+│  ┌──────────────────────────────────────────────┐                         │
+│  │ ▾ api-gateway                          🔍    │                         │
+│  └──────────────────────────────────────────────┘                         │
+│                                                                            │
+│  Review Type                                                               │
+│  ┌─────────────────────────┐  ┌─────────────────────────┐                 │
+│  │ ◉ Pull Request          │  │ ○ Branch Compare        │                 │
+│  │   Review diff dari PR   │  │   Bandingkan 2 branch   │                 │
+│  └─────────────────────────┘  └─────────────────────────┘                 │
+│                                                                            │
+│  Pull Request *                                                              │
+│  ┌──────────────────────────────────────────────┐                         │
+│  │ #142 · feat/auth — Add JWT middleware   ▾    │                         │
+│  └──────────────────────────────────────────────┘                         │
+│                                                                            │
+│  ┌──────────────────────────────────────────────────────────────┐         │
+│  │ ℹ Preview: main ← feat/auth · 14 files · +320 / -88 lines    │         │
+│  └──────────────────────────────────────────────────────────────┘         │
+│                                                                            │
+│                                         [Cancel]        [Next: Security →]│
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Step 2: Security Ruleset (NIST SSDF Core)
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│  New Review                                            Step 2 of 3         │
+│  ━━━━━━━━━━━━●━━━━━━━━━━━○                                                 │
+│  Source       Security     Confirm                                          │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  🛡 Security Analysis Profile                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ ◉ Standard  (recommended)                                          │   │
+│  │   SAST + secrets detection + dependency scan + OWASP Top 10        │   │
+│  ├────────────────────────────────────────────────────────────────────┤   │
+│  │ ○ Deep      (+ data-flow analysis, + IaC scan, +2x duration)       │   │
+│  ├────────────────────────────────────────────────────────────────────┤   │
+│  │ ○ Quick     (secrets + critical CWE only)                          │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│  NIST SSDF Practice Checks                                       [ℹ]      │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ [✓] PW.4  — Review & analyze code (SAST)                           │   │
+│  │ [✓] PW.5  — Test executable code (dynamic checks)                  │   │
+│  │ [✓] PS.3  — Verify software integrity (dependency lockfile)        │   │
+│  │ [✓] PS.1  — Protect secrets & credentials (secret scanning)        │   │
+│  │ [✓] PW.1  — Reuse secure components (known-vuln detection)         │   │
+│  │ [ ] RV.1  — Continuous vuln monitoring (post-merge tracking)       │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│  ⚠ Security Gate                                                           │
+│  Block merge jika ditemukan:  [Critical ▾]  atau lebih                     │
+│  ☑ Kirim hasil ke Audit Log (immutable, ADMIN-only)                        │
+│                                                                            │
+│                              [← Back]                    [Next: Confirm →] │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Step 3: Konfirmasi
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│  New Review                                            Step 3 of 3         │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━●                                                │
+│  Source       Security     Confirm                                          │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  Review Summary                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ Repository     api-gateway                                         │   │
+│  │ Pull Request   #142 · feat/auth                                    │   │
+│  │ Profile        Standard                                            │   │
+│  │ SSDF Checks    5 of 6 enabled                                      │   │
+│  │ Security Gate  Block on Critical                                   │   │
+│  │ Audit Log      Enabled                                             │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ 🔒 Data notice: Code diff diproses oleh AI model. Tidak ada        │   │
+│  │    source code yang disimpan permanen. Lihat Data Retention.       │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│                              [← Back]                  [🚀 Start Review]   │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Catatan Desain:**
+- **Step 2 adalah inti secure-by-design**: user *secara sadar* memilih NIST SSDF practice mana yang aktif — transparansi kontrol keamanan.
+- **Security Gate** = keputusan blok merge berbasis severity, bukan sekadar laporan.
+- **Data notice** di Step 3 = prinsip *transparency* (bagian dari secure design).
+
+---
+
+## 🧭 VIEW 3 — REVIEW IN PROGRESS (Live Scan)
 
 ```
-┌─────────────────────────────────────────┐
-│  ❌ Failed Deployments — Detail         │
-├─────────────────────────────────────────┤
-│  Total Failed:  17 (last 7 days)       │
-│  Failure Rate:  11.6%                  │
-│  Trend:         ▲ +4 vs previous week  │
-│                                        │
-│  Top Failure Reasons:                  │
-│  ┌──────────────────────────────────┐  │
-│  │ Build error      8  (47%) █████  │  │
-│  │ Test failed      4  (24%) ███    │  │
-│  │ Timeout          3  (18%) ██      │  │
-│  │ Config error     2  (11%) █       │  │
-│  └──────────────────────────────────┘  │
-│                                        │
-│  Most Affected Projects:               │
-│  • admin-dashboard     6 failures      │
-│  • my-commerce-app     4 failures      │
-│  • api-gateway         3 failures      │
-│                                        │
-│  [View Failure Analysis →]             │
-└─────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────┐
+│  Reviewing: api-gateway #142 · feat/auth            [✕ Cancel]            │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│        ◐  Analyzing…  (3m 12s elapsed · ~2m remaining)                     │
+│        ████████████████████░░░░░░░░░░  68%                                 │
+│                                                                            │
+│  Live Security Pipeline                                                    │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ ✅ Fetch diff            main ← feat/auth · 14 files               │   │
+│  │ ✅ Secrets scan          0 leaked credentials                      │   │
+│  │ ✅ Dependency check      lockfile verified · 0 known-vuln          │   │
+│  │ 🔄 Static analysis       parsing data-flow… (7/14 files)           │   │
+│  │ ⬜ Dynamic checks        pending                                   │   │
+│  │ ⬜ SSDF mapping          pending                                   │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ ▸ stream                                                         │   │
+│  │   [02:14] SAST: scanning src/middleware/auth.ts                    │   │
+│  │   [02:15] ⚠ potential CWE-287 at line 42                          │   │
+│  │   [02:16] SAST: scanning src/routes/login.ts                      │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Catatan Desain:**
+- **Live pipeline** menunjukkan setiap tahap keamanan berjalan — *trust through visibility*.
+- Stream log real-time memberi feedback instan (prinsip `DESIGN.md`: *instant feedback*).
+
+---
+
+## 🧭 VIEW 4 — REVIEW RESULTS (Main View, Tab-Based)
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│  ◂ Back to reviews                                                         │
+│                                                                            │
+│  api-gateway ▸ PR #142 · feat/auth                          [⬇ Export]     │
+│  Security Score: 61/100 🟠    Status: ⚠ FAILED SECURITY GATE              │
+│  Scanned 2h ago · 14 files · +320/-88 · profile: Standard                  │
+│                                                                            │
+│  ┌────────────┬──────────────────┬─────────────┬──────────────┬─────────┐ │
+│  │ Overview   │ Security (7) 🔴  │ Code Quality│ NIST SSDF    │ Diff    │ │
+│  └────────────┴──────────────────┴─────────────┴──────────────┴─────────┘ │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  Severity Breakdown                                                        │
+│  ┌─────────┬─────────┬──────────┬──────────┬──────────┐                  │
+│  │ 🔴 Crit │ 🟠 High │ 🟡 Med   │ 🔵 Low   │ ⚪ Info  │                  │
+│  │    4    │    3    │    8     │    5     │    3     │                  │
+│  └─────────┴─────────┴──────────┴──────────┴──────────┘                  │
+│                                                                            │
+│  Filter: [All ▾] [Severity ▾] [CWE ▾] [SSDF ▾]     🔍 search…             │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ 🔴 CRITICAL  CWE-287 · Improper Authentication                     │   │
+│  │ src/middleware/auth.ts:42                                          │   │
+│  │ JWT signature tidak diverifikasi sebelum grant access              │   │
+│  │ SSDF: PW.4 · OWASP: A01    [View Detail →]                         │   │
+│  ├────────────────────────────────────────────────────────────────────┤   │
+│  │ 🔴 CRITICAL  CWE-89 · SQL Injection                                │   │
+│  │ src/db/query.ts:118                                                │   │
+│  │ String concatenation pada query SQL dengan input user              │   │
+│  │ SSDF: PW.5 · OWASP: A03    [View Detail →]                         │   │
+│  ├────────────────────────────────────────────────────────────────────┤   │
+│  │ 🟠 HIGH  CWE-79 · Cross-site Scripting (XSS)                       │   │
+│  │ src/components/Comment.tsx:67                                      │   │
+│  │ dangerouslySetInnerHTML dengan unsanitized input                   │   │
+│  │ SSDF: PW.4 · OWASP: A03    [View Detail →]                         │   │
+│  ├────────────────────────────────────────────────────────────────────┤   │
+│  │ 🟠 HIGH  CWE-22 · Path Traversal                                   │   │
+│  │ src/utils/file.ts:23                                               │   │
+│  │ SSDF: PW.4 · OWASP: A01    [View Detail →]                         │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ 🚫 Security Gate: BLOCKED — 4 critical findings.                   │   │
+│  │    Merge tidak diizinkan sampai resolved atau di-override ADMIN.   │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Catatan Desain:**
+- **Tab "Security (7) 🔴"** selalu menampilkan jumlah + indikator merah — findings kritis tidak bisa diabaikan.
+- Setiap finding punya **triple mapping**: CWE (teknis) + SSDF practice (proses) + OWASP (risiko bisnis).
+- **Security Gate banner** di bawah = enforce keputusan, bukan sekadar informasi.
+
+---
+
+## 🧭 VIEW 5 — FINDING DETAIL (Side Drawer)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Finding Detail                                        [✕]   │
+├──────────────────────────────────────────────────────────────┤
+│  🔴 CRITICAL                                                 │
+│  CWE-287 · Improper Authentication                           │
+│  src/middleware/auth.ts : line 42                            │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ Mappings                                               │ │
+│  │ NIST SSDF : PW.4 — Review & analyze code               │ │
+│  │ OWASP     : A01:2021 — Broken Access Control           │ │
+│  │ CWE       : CWE-287                                    │ │
+│  │ CVSS      : 9.1 (Critical)                             │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  Vulnerable Code                                             │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ 40 │ const token = req.headers.authorization           │ │
+│  │ 41 │ const payload = jwt.decode(token)  // ⚠ no verify │ │
+│  │ 42 │ if (payload.role === 'admin') { grantAccess() }   │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  💡 Why this is dangerous                                    │
+│  jwt.decode() tanpa verify memungkinkan attacker membuat   │
+│  token palsu dengan role 'admin' → full access bypass.      │
+│                                                              │
+│  ✅ Recommended Fix (AI-generated)                           │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ const payload = await jwt.verify(token, SECRET)        │ │
+│  │ // + tambah signature check & expiry validation        │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  [✨ Apply AI Fix]  [Mark False Positive]  [Assign ▾]        │
+│  [💬 Comment]                                                │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ 🕘 Audit Trail                                         │ │
+│  │ 02:16 — Detected by AI Reviewer                        │ │
+│  │ —     — (no actions yet)                               │ │
+│  └────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Catatan Desain:**
+- **AI Fix suggestion** dengan tombol `Apply AI Fix` = remediation terbimbing, bukan hanya deteksi.
+- **Mark False Positive** tetap dicatat di **Audit Trail** = akuntabilitas (NIST RV).
+- Setiap finding punya **CVSS score** untuk prioritisasi objektif.
+
+---
+
+## 🧭 VIEW 6 — NIST SSDF COMPLIANCE MATRIX (Tab)
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│  Tab: Overview │ Security │ Code Quality │ [NIST SSDF] │ Diff              │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  NIST SSDF Coverage — Review #142                                          │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ Practice │ Description              │ Status  │ Findings │ Action │   │
+│  ├──────────┼──────────────────────────┼─────────┼──────────┼────────┤   │
+│  │ PS.1     │ Protect source code      │ ✅ Pass │    0     │   —    │   │
+│  │ PS.3     │ Verify integrity         │ ✅ Pass │    0     │   —    │   │
+│  │ PW.1     │ Reuse secure components  │ ⚠ Warn  │    1     │ [View] │   │
+│  │ PW.4     │ Review & analyze code    │ ❌ Fail │    4     │ [View] │   │
+│  │ PW.5     │ Test executable code     │ ❌ Fail │    2     │ [View] │   │
+│  │ RV.1     │ Continuous monitoring    │ ⬜ Skip │    —     │ [Info] │   │
+│  └──────────┴──────────────────────────┴─────────┴──────────┴────────┘   │
+│                                                                            │
+│  Compliance Summary                                                        │
+│  ████████░░░░░░░░  2/6 pass · 2 fail · 1 warn · 1 skipped                  │
+│                                                                            │
+│  ┌────────────────────────────────────────────────────────────────────┐   │
+│  │ 📌 Insight: PW.4 & PW.5 gagal karena tidak ada verifikasi          │   │
+│  │    autentikasi dan SQL injection. Prioritaskan fix critical dulu.  │   │
+│  └────────────────────────────────────────────────────────────────────┘   │
+│                                                                            │
+│  [⬇ Export SSDF Report (CSV/PDF)]   [🕘 View full audit log]              │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Catatan Desain:**
+- Matrix ini adalah **bukti kepatuhan yang actionable**, bukan dokumen statis.
+- Setiap baris bisa di-klik → jump ke findings terkait (**traceability**).
+- **Export CSV/PDF** untuk kebutuhan audit enterprise (sesuai Pillar 6).
+
+---
+
+## 🧭 VIEW 7 — SETTINGS (ADMIN Only)
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│  ⚙ AI Code Reviewer Settings                              👑 ADMIN only    │
+├────────────────────────────────────────────────────────────────────────────┤
+│                                                                            │
+│  ┌─ Security Defaults ──────────────────────────────────────────────┐     │
+│  │ Default profile        [Standard ▾]                              │     │
+│  │ Default gate           [Block on Critical ▾]                     │     │
+│  │ Force audit logging    [● ON ]  (immutable, cannot disable)      │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
+│                                                                            │
+│  ┌─ NIST SSDF Practices (org-wide default) ────────────────────────┐     │
+│  │ [✓] PS.1  Protect source code                                    │     │
+│  │ [✓] PS.3  Verify integrity                                       │     │
+│  │ [✓] PW.1  Reuse secure components                                │     │
+│  │ [✓] PW.4  Review & analyze code                                  │     │
+│  │ [✓] PW.5  Test executable code                                   │     │
+│  │ [✓] RV.1  Continuous monitoring                                  │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
+│                                                                            │
+│  ┌─ AI Model ───────────────────────────────────────────────────────┐     │
+│  │ Provider       [OpenAI ▾]                                        │     │
+│  │ Model          [gpt-4o ▾]                                        │     │
+│  │ Data retention [30 days ▾]  · code diff auto-purge               │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
+│                                                                            │
+│  ┌─ Integrations ───────────────────────────────────────────────────┐     │
+│  │ GitHub     [● Connected]                                         │     │
+│  │ GitLab     [○ Connect]                                           │     │
+│  │ Slack alert[● Connected]  #security-alerts                       │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
+│                                                                            │
+│  [Save Changes]   [Reset to Defaults]                                      │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Catatan Desain:**
+- **Force audit logging** dikunci `cannot disable` = prinsip *non-repudiation*.
+- **Data retention** eksplisit = privacy by design.
+- Halaman ini hanya muncul untuk ADMIN (sesuai Route Access Map).
+
+---
+
+## 🎭 RBAC VARIATIONS
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 👑 ADMIN VIEW                                                            │
+│  • Semua view di atas (full)                                             │
+│  • + Settings tab                                                        │
+│  • + Override security gate (dengan 2FA + audit log)                     │
+│  • + View semua review lintas user                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 👨‍💻 USER VIEW                                                            │
+│  • View 1–5 (hanya proyek milik sendiri / shared)                        │
+│  • Bisa run review, apply fix, mark false positive                       │
+│  • ❌ Tidak ada Settings                                                 │
+│  • ❌ Tidak bisa override security gate                                  │
+│  • Label sidebar: "AI Code Reviewer"                                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 👁️ VIEWER VIEW                                                           │
+│  • ❌ Item "AI Code Reviewer" DISEMBUNYIKAN dari sidebar                 │
+│  • ❌ Direct URL /ai-reviewer → redirect /dashboard + toast              │
+│  • Hanya bisa lihat review hasil-shared (read-only) via /deployments     │
+│  • Footer sidebar: "👁️ Read-only mode"                                   │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 2.2 Filter & Search Bar
+## 🌗 STATE DESIGN
 
+### Empty State
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                      │
-│  🔍 [Search project, commit SHA, author, branch...              ]                    │
-│                                                                                      │
-│  Status:        Environment:    Project:           Date Range:      Branch:          │
-│  [▼ All     ]   [▼ All      ]   [▼ All Projects ]  [▼ Last 7d  ]   [▼ All     ]     │
-│   • All          • All           • my-commerce-app   • Last 24h      • main          │
-│   • ✅ Success   • 🌐 Production • admin-dashboard    • Last 7d       • develop       │
-│   • 🔄 Building  • 🔀 Staging    • api-gateway       • Last 30d      • feat/*        │
-│   • ❌ Failed    • 🔀 Preview    • mobile-app        • Custom        • hotfix/*      │
-│   • ⏪ Rolled    •                • landing-page      •                • release/*     │
-│                                                                                      │
-│  [🔄 Reset Filters]                    Showing 5 of 147        [+ New Deployment]     │
-│                                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│              ┌──────────────┐                              │
+│              │      🧠      │                              │
+│              └──────────────┘                              │
+│                                                            │
+│         No reviews yet                                     │
+│         Hubungkan repo dan jalankan review pertama         │
+│         untuk mulai mendeteksi kerentanan.                 │
+│                                                            │
+│         [+ New Review]   [Connect Repository]              │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
 ```
 
----
-
-### 2.3 Active Deployments (Live Progress)
-
+### Loading State (Skeleton)
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────┐
-│  🔄 Active Deployments (2)                                            [Auto-refresh]  │
-│                                                                                      │
-│  ┌────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                                                                                │  │
-│  │  🔄 my-commerce-app          #deploy-147          feat/payment-gateway         │  │
-│  │     ┌────────────────────────────────────────────────────────────────────┐     │  │
-│  │     │  ████████████████████████████░░░░░░░░░░░░░░░░░░░░  67%            │     │  │
-│  │     └────────────────────────────────────────────────────────────────────┘     │  │
-│  │     Target: 🌐 production    Author: dev@omnistack.dev    Started: 2m 14s ago  │  │
-│  │                                                                                │  │
-│  │     Pipeline Steps:                                                            │  │
-│  │     ✅ Clone repository          8s      ✓ Done                               │  │
-│  │     ✅ Install dependencies      42s     ✓ Done                               │  │
-│  │     🔄 Build Docker image        1m 24s  ⏳ In progress...                    │  │
-│  │        └─ Step 4/7: Running npm run build                                    │  │
-│  │        └─ ┌─────────────────────────────────────────────────────────────┐      │  │
-│  │           │ > next build                                                │      │  │
-│  │           │ ✓ Compiled successfully in 12.4s                            │      │  │
-│  │           │ ✓ Generating static pages (45/52)                           │      │  │
-│  │           │ █                                                           │      │  │
-│  │           └─────────────────────────────────────────────────────────────┘      │  │
-│  │     ⏳ Push to registry           —      ⏸ Waiting                             │  │
-│  │     ⏳ Deploy to production      —      ⏸ Waiting                             │  │
-│  │                                                                                │  │
-│  │     [📋 View Full Logs]  [❌ Cancel Deployment]                                │  │
-│  │                                                                                │  │
-│  └────────────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                      │
-│  ┌────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                                                                                │  │
-│  │  🔄 admin-dashboard          #deploy-146          hotfix/auth-error            │  │
-│  │     ┌────────────────────────────────────────────────────────────────────┐     │  │
-│  │     │  ██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  12%              │     │  │
-│  │     └────────────────────────────────────────────────────────────────────┘     │  │
-│  │     Target: 🌐 production    Author: admin@omnistack.dev    Started: 18s ago   │  │
-│  │                                                                                │  │
-│  │     Pipeline Steps:                                                            │  │
-│  │     🔄 Clone repository        18s     ⏳ In progress...                      │  │
-│  │        └─ Fetching branch hotfix/auth-error from origin                       │  │
-│  │     ⏳ Install dependencies     —      ⏸ Waiting                             │  │
-│  │     ⏳ Build Docker image       —      ⏸ Waiting                             │  │
-│  │     ⏳ Push to registry         —      ⏸ Waiting                             │  │
-│  │     ⏳ Deploy to production     —      ⏸ Waiting                             │  │
-│  │                                                                                │  │
-│  │     [📋 View Full Logs]  [❌ Cancel Deployment]                                │  │
-│  │                                                                                │  │
-│  └────────────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                      │
-└──────────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  ░░░░░░░░░░░░░░░░░░░░░░                                    │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐              │
+│  │ ░░░░░░ │ │ ░░░░░░ │ │ ░░░░░░ │ │ ░░░░░░ │              │
+│  └────────┘ └────────┘ └────────┘ └────────┘              │
+│  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░                          │
+│  ░░░░░░░░░░░░░░░░░░                                        │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Error State
+```
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│              ⚠ Review failed                               │
+│                                                            │
+│  Tidak bisa mengambil diff dari GitHub.                    │
+│  Kemungkinan: token expired atau repo private.             │
+│                                                            │
+│  [🔄 Retry]   [View logs]   [Contact support]              │
+│                                                            │
+│  Error ID: rv_8f3a2b  (sudah dicatat ke Error Tracking)   │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 2.4 Deployment History (Table View)
+## 📱 RESPONSIVE BEHAVIOR
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│  📜 Deployment History                                                                  [☰ List] [▦ Grid]    │
-│                                                                                                              │
-│  ┌─ St ─ Project ─────── Commit ── Branch ─────── Env ─────────── Author ────── Dur ─── When ──── Actions ┐│
-│  │                                                                                                          ││
-│  │ ✅  my-commerce-app  #a8f3c2d  feat/payments   🌐 production   dev@omnistack  3m 42s  12m ago           ││
-│  │     └─ "Add Stripe payment integration with webhook handling"                                            ││
-│  │     └─ Commit: a8f3c2d  →  Files changed: 23 (+1,247 / -89)  Tests: ✅ 142/142 passed                   ││
-│  │     [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                        ││
-│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
-│  │ ❌  admin-dashboard  #b7e2a1f  hotfix/auth     🌐 production   admin@omnistack 1m 23s  45m ago          ││
-│  │     └─ "Fix JWT refresh token race condition"                                                            ││
-│  │     └─ Error: Build failed at step 3 — "npm ci" exit code 1                                             ││
-│  │     └─ stderr: ERR! ERESOLVE could not resolve react@19.1.0 vs react-dom@18.3.1                         ││
-│  │     [🔍 Logs] [🔄 Retry] [🐛 AI Diagnose] [⋯ More]                                                      ││
-│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
-│  │ ✅  my-commerce-app  #c4d1e2f  main            🔀 staging      dev@omnistack  3m 18s  2h ago            ││
-│  │     └─ "Refactor checkout flow with optimistic UI updates"                                               ││
-│  │     └─ Commit: c4d1e2f  →  Files changed: 8 (+342 / -128)  Tests: ✅ 138/138 passed                     ││
-│  │     [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                        ││
-│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
-│  │ ✅  api-gateway      #d5e3f4a  main            🌐 production   dev2@omnistack 4m 02s  4h ago            ││
-│  │     └─ "Rate limiter config update: 1000 req/min per IP"                                                 ││
-│  │     └─ Commit: d5e3f4a  →  Files changed: 2 (+18 / -12)  Tests: ✅ 56/56 passed                         ││
-│  │     [🔍 Logs] [⏪ Rollback] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                        ││
-│  │  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  ││
-│  │ ⏪  mobile-app       #e6f4a5b  release/v2.4    🌐 production   dev@omnistack  5m 47s  1d ago            ││
-│  │     └─ "v2.4.0: New onboarding flow + biometric auth"                                                    ││
-│  │     └─ Rolled back to #d5e3f4a at 14:32 by admin@omnistack.dev                                          ││
-│  │     └─ Reason: Memory leak detected in production (RSS +40MB/hr)                                         ││
-│  │     [🔍 Logs] [🔄 Redeploy] [📊 Metrics] [⋯ More]                                                       ││
-│  │                                                                                                          ││
-│  └──────────────────────────────────────────────────────────────────────────────────────────────────────────┘│
-│                                                                                                              │
-│  Showing 5 of 147 deployments    [← Prev]    Page 1 of 30    [Next →]    [Items per page: 20 ▼]              │
-│                                                                                                              │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+DESKTOP (≥1280px)          TABLET (768–1279px)        MOBILE (<768px)
+┌──────────────────┐       ┌──────────────┐           ┌──────────┐
+│ Sidebar │ Content│       │ TopNav       │           │ ☰ TopNav │
+│         │ tabs   │       │ Content tabs │           │ Summary  │
+│         │ findings│      │ findings     │           │ card     │
+└──────────────────┘       └──────────────┘           │ findings │
+Finding detail = drawer     Finding = full page        └──────────┘
+                            NIST matrix = scroll-x     Finding =
+                                                       full-screen sheet
 ```
 
 ---
 
-### 2.5 Deployment Detail View (Modal / Side Panel)
+## 🎬 INTERACTION FLOW (User Journey)
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│  🚀 Deployment Detail — #deploy-145                                                    [✕ Close]          │
-│                                                                                                          │
-│  ┌── Header ──────────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                                                                                                    │  │
-│  │  ✅ Live    my-commerce-app    #deploy-145                                                         │  │
-│  │                                                                                                    │  │
-│  │  Commit:   #a8f3c2d  "Add Stripe payment integration with webhook handling"                        │  │
-│  │  Branch:   feat/payment-gateway → 🌐 production                                                    │  │
-│  │  Author:   dev@omnistack.dev                                                                       │  │
-│  │  Trigger:  Manual (via dashboard)                                                                  │  │
-│  │                                                                                                    │  │
-│  │  Started:  2026-08-24 14:28:12 WIB                                                                 │  │
-│  │  Finished: 2026-08-24 14:31:54 WIB                                                                 │  │
-│  │  Duration: 3m 42s                                                                                  │  │
-│  │                                                                                                    │  │
-│  │  [🔍 View Logs]  [⏪ Rollback]  [🔄 Redeploy]  [📊 Metrics]                                       │  │
-│  │                                                                                                    │  │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                                          │
-│  ┌── Pipeline Timeline ────────────────────────────────────────────────────────────────────────────────┐ │
-│  │                                                                                                    │ │
-│  │  ✅ Clone repository              8s       14:28:12 → 14:28:20                                    │ │
-│  │     └─ git clone origin/feat/payment-gateway                                                      │ │
-│  │                                                                                                    │ │
-│  │  ✅ Install dependencies          42s      14:28:20 → 14:29:02                                    │ │
-│  │     └─ npm ci — 1,247 packages installed                                                          │ │
-│  │                                                                                                    │ │
-│  │  ✅ Run tests                     38s      14:29:02 → 14:29:40                                    │ │
-│  │     └─ 142/142 tests passed  |  Coverage: 87.3%                                                   │ │
-│  │                                                                                                    │ │
-│  │  ✅ Build Docker image            1m 24s   14:29:40 → 14:31:04                                    │ │
-│  │     └─ next build — 52 pages generated  |  Bundle: 245 KB gzip                                   │ │
-│  │                                                                                                    │ │
-│  │  ✅ Push to registry              22s      14:31:04 → 14:31:26                                    │ │
-│  │     └─ registry.omnistack.dev/my-commerce-app:a8f3c2d                                             │ │
-│  │                                                                                                    │ │
-│  │  ✅ Deploy to production          28s      14:31:26 → 14:31:54                                    │ │
-│  │     └─ Blue/Green: switched traffic green → blue  |  3/3 instances healthy                       │ │
-│  │                                                                                                    │ │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                                          │
-│  ┌── Commit Details ───────────────────────────────────────────────────────────────────────────────────┐ │
-│  │                                                                                                    │ │
-│  │  Commit:     a8f3c2d4e5f6a7b8c9d0                                                                  │ │
-│  │  Message:    Add Stripe payment integration with webhook handling                                  │ │
-│  │  Author:     Developer <dev@omnistack.dev>                                                         │ │
-│  │  Date:       2026-08-24 14:15:00 WIB                                                               │ │
-│  │  Files:      23 changed  (+1,247 additions, -89 deletions)                                        │ │
-│  │                                                                                                    │ │
-│  │  ┌─ Files Changed ──────────────────────────────────────────────────────────────────────────┐      │ │
-│  │  │  src/services/payment.ts          +420  -12     ████████████████████░░░░                  │      │ │
-│  │  │  src/api/webhooks/stripe.ts       +180   -0     █████████░░░░░░░░░░░                      │      │ │
-│  │  │  src/components/CheckoutForm.tsx  +156  -34     ████████░░░░░░░░░░░░                      │      │ │
-│  │  │  src/lib/stripe.ts                +98    -8     █████░░░░░░░░░░░░░                        │      │ │
-│  │  │  tests/payment.test.ts            +245   -0     ████████████░░░░░░░░                      │      │ │
-│  │  │  ... 18 more files                                                                       │      │ │
-│  │  └──────────────────────────────────────────────────────────────────────────────────────────┘      │ │
-│  │                                                                                                    │ │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                                          │
-│  ┌── Environment & Resources ──────────────────────────────────────────────────────────────────────────┐ │
-│  │                                                                                                    │ │
-│  │  Environment:    🌐 production                                                                     │ │
-│  │  Region:         🇸🇬 Singapore (sgp-1)                                                             │ │
-│  │  Instances:      3 replicas                                                                        │ │
-│  │  CPU allocated:  2 vCPU / instance                                                                 │ │
-│  │  Memory:         2 GB / instance                                                                   │ │
-│  │  Docker image:   registry.omnistack.dev/my-commerce-app:a8f3c2d  (142 MB)                          │ │
-│  │  Domains:        mycommerce.example.com, www.mycommerce.example.com                                │ │
-│  │  SSL:            ✅ Valid (Let's Encrypt, expires 2026-11-22)                                      │ │
-│  │                                                                                                    │ │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                                          │
-│  ┌── Health Check (Post-Deploy) ───────────────────────────────────────────────────────────────────────┐ │
-│  │                                                                                                    │ │
-│  │  HTTP 200 check:    ✅ Passed (avg 45ms)                                                           │ │
-│  │  Error rate (5m):   ✅ 0.0% (threshold: < 1%)                                                      │ │
-│  │  Response p95:      ✅ 142ms (baseline: 150ms)                                                     │ │
-│  │  Memory usage:      ✅ 62% (threshold: < 80%)                                                      │ │
-│  │                                                                                                    │ │
-│  │  All health checks passed ✅ — Deployment considered stable                                        │ │
-│  │                                                                                                    │ │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                                          │
-│  ┌── Rollback History ─────────────────────────────────────────────────────────────────────────────────┐ │
-│  │                                                                                                    │ │
-│  │  No rollbacks for this deployment.                                                                 │ │
-│  │                                                                                                    │ │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                                          │
-│  ┌── Audit Trail ──────────────────────────────────────────────────────────────────────────────────────┐ │
-│  │                                                                                                    │ │
-│  │  14:28:12  dev@omnistack.dev  Triggered deployment #deploy-145                                     │ │
-│  │  14:31:54  system             Deployment completed successfully                                     │ │
-│  │  14:31:54  system             Health checks passed — marked as Live                                 │ │
-│  │  14:35:00  admin@omnistack.dev  Viewed deployment logs                                             │ │
-│  │                                                                                                    │ │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
-│                                                                                                          │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+USER klik "AI Code Reviewer" di sidebar
+   │
+   ├─ VIEWER? ──► item hidden / redirect (RBAC)
+   │
+   ▼
+[VIEW 1] Dashboard  ──► klik [+ New Review]
+   │
+   ▼
+[VIEW 2] Wizard Step 1 (pilih repo + PR)
+   │ Next
+   ▼
+[VIEW 2] Wizard Step 2 (pilih profile + SSDF checks + gate)
+   │ Next
+   ▼
+[VIEW 2] Wizard Step 3 (konfirmasi + data notice)
+   │ Start Review
+   ▼
+[VIEW 3] Live scan (progress + stream log)
+   │ selesai
+   ▼
+[VIEW 4] Results (tabs)
+   │
+   ├─ klik finding ──► [VIEW 5] Detail drawer
+   │                      ├─ Apply AI Fix ──► buat PR/commit
+   │                      ├─ Mark False Positive ──► audit log
+   │                      └─ Assign ──► notifikasi
+   │
+   ├─ tab NIST SSDF ──► [VIEW 6] Compliance matrix ──► export
+   │
+   └─ Security Gate BLOCKED
+         ├─ USER  ──► harus fix dulu
+         └─ ADMIN ──► bisa override (2FA + audit log)
 ```
 
 ---
 
-### 2.6 Deployment Logs Viewer
+## 🔐 NIST SSDF → UI MAPPING (Traceability)
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│  📋 Deployment Logs — #deploy-145 (my-commerce-app)                                    [✕ Close]          │
-│                                                                                                          │
-│  [▼ All Steps]  [🔍 Filter logs...]  [⬇ Download]  [📋 Copy All]  [🔴 Live: OFF (completed)]            │
-│                                                                                                          │
-│  ┌────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                                                                                                    │  │
-│  │  ═══ STEP 1/5: Clone repository (8s) ═══════════════════════════════════════════════════════════  │  │
-│  │                                                                                                    │  │
-│  │  [14:28:12] INFO   Cloning repository from origin/feat/payment-gateway...                          │  │
-│  │  [14:28:14] INFO   Resolving deltas: 100% (1847/1847), done.                                      │  │
-│  │  [14:28:18] INFO   Checked out commit a8f3c2d4e5f6a7b8c9d0                                        │  │
-│  │  [14:28:20] SUCCESS  Clone completed in 8s                                                        │  │
-│  │                                                                                                    │  │
-│  │  ═══ STEP 2/5: Install dependencies (42s) ══════════════════════════════════════════════════════  │  │
-│  │                                                                                                    │  │
-│  │  [14:28:20] INFO   Running npm ci...                                                               │  │
-│  │  [14:28:22] INFO   npm warn deprecated eslint@8.57.0: This version is no longer supported          │  │
-│  │  [14:28:35] INFO   added 1247 packages in 15s                                                      │  │
-│  │  [14:28:36] INFO   214 packages are looking for funding                                                 │  │
-│  │  [14:28:36] INFO   run `npm fund` for details                                                      │  │
-│  │  [14:29:02] SUCCESS  Dependencies installed in 42s                                                │  │
-│  │                                                                                                    │  │
-│  │  ═══ STEP 3/5: Run tests (38s) ═════════════════════════════════════════════════════════════════  │  │
-│  │                                                                                                    │  │
-│  │  [14:29:02] INFO   Running npm test...                                                             │  │
-│  │  [14:29:05] INFO   PASS  src/services/__tests__/payment.test.ts                                   │  │
-│  │  [14:29:08] INFO   PASS  src/services/__tests__/checkout.test.ts                                  │  │
-│  │  [14:29:12] INFO   PASS  src/api/__tests__/webhooks.test.ts                                       │  │
-│  │  [14:29:30] INFO   ──────────────────────────────────────────────────                              │  │
-│  │  [14:29:30] INFO   Tests:       142 passed, 142 total                                             │  │
-│  │  [14:29:30] INFO   Snapshots:   24 passed, 24 total                                               │  │
-│  │  [14:29:30] INFO   Time:        28.4s                                                             │  │
-│  │  [14:29:30] INFO   Coverage:    87.3% (threshold: 80%) ✅                                         │  │
-│  │  [14:29:40] SUCCESS  All tests passed in 38s                                                      │  │
-│  │                                                                                                    │  │
-│  │  ═══ STEP 4/5: Build Docker image (1m 24s) ═════════════════════════════════════════════════════  │  │
-│  │                                                                                                    │  │
-│  │  [14:29:40] INFO   Building Docker image from Dockerfile...                                        │  │
-│  │  [14:29:41] INFO   [1/7] FROM node:20-alpine AS base                                              │  │
-│  │  [14:29:45] INFO   [2/7] WORKDIR /app                                                             │  │
-│  │  [14:29:46] INFO   [3/7] COPY package*.json ./                                                    │  │
-│  │  [14:29:50] INFO   [4/7] RUN npm ci --production                                                  │  │
-│  │  [14:30:22] INFO   [5/7] COPY . .                                                                 │  │
-│  │  [14:30:24] INFO   [6/7] RUN npm run build                                                        │  │
-│  │  [14:30:25] INFO   > next build                                                                   │  │
-│  │  [14:30:28] INFO   ✓ Compiled successfully in 12.4s                                               │  │
-│  │  [14:30:30] INFO   ✓ Linting and checking validity of types                                       │  │
-│  │  [14:30:32] INFO   ✓ Generating static pages (52/52)                                              │  │
-│  │  [14:30:34] INFO   ✓ Finalizing page optimization                                                 │  │
-│  │  [14:30:36] INFO   Build output:                                                                  │  │
-│  │  [14:30:36] INFO   ┌──────────────────────────────────────────────────────────────┐               │  │
-│  │  [14:30:36] INFO   │ Route (app)                    Size     First Load JS        │               │  │
-│  │  [14:30:36] INFO   │ ┌ ○ /                          142 B        98.4 kB          │               │  │
-│  │  [14:30:36] INFO   │ ├ ○ /checkout                  2.1 kB       112 kB           │               │  │
-│  │  [14:30:36] INFO   │ ├ ○ /products                  1.8 kB       108 kB           │               │  │
-│  │  [14:30:36] INFO   │ └ ○ /api/webhooks/stripe       0 B          96.2 kB          │               │  │
-│  │  [14:30:36] INFO   └──────────────────────────────────────────────────────────────┘               │  │
-│  │  [14:30:36] INFO   Total bundle size: 245 KB (gzipped)                                            │  │
-│  │  [14:30:40] INFO   [7/7] CMD ["npm", "start"]                                                     │  │
-│  │  [14:31:04] SUCCESS  Docker image built in 1m 24s                                                 │  │
-│  │                                                                                                    │  │
-│  │  ═══ STEP 5/5: Deploy to production (28s) ══════════════════════════════════════════════════════  │  │
-│  │                                                                                                    │  │
-│  │  [14:31:04] INFO   Pushing image to registry...                                                    │  │
-│  │  [14:31:26] INFO   Image pushed: registry.omnistack.dev/my-commerce-app:a8f3c2d                   │  │
-│  │  [14:31:26] INFO   Starting Blue/Green deployment...                                               │  │
-│  │  [14:31:28] INFO   Spinning up 3 green instances...                                                │  │
-│  │  [14:31:38] INFO   Green instances healthy (3/3)                                                   │  │
-│  │  [14:31:40] INFO   Switching traffic: blue → green (canary 10% → 50% → 100%)                     │  │
-│  │  [14:31:48] INFO   Traffic fully routed to green                                                   │  │
-│  │  [14:31:52] INFO   Draining blue instances...                                                      │  │
-│  │  [14:31:54] SUCCESS  Deployment completed in 28s                                                   │  │
-│  │                                                                                                    │  │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                                          │
-│  Summary:  5/5 steps completed  |  Total: 3m 42s  |  Status: ✅ SUCCESS                                 │
-│                                                                                                          │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+| NIST Practice | UI Manifestation |
+|---|---|
+| **PO.1** Policies | Step 2 wizard (pilih ruleset), Settings defaults |
+| **PO.2** Tools | Profile Standard/Deep/Quick |
+| **PS.1** Protect code | Secrets scan di live pipeline |
+| **PS.3** Integrity | Dependency lockfile check |
+| **PW.1** Reuse secure | Known-vuln component detection |
+| **PW.4** Review code | Tab Security + SAST findings |
+| **PW.5** Test code | Dynamic checks di pipeline |
+| **PW.7** Secure config | Security Gate configuration |
+| **RV.1** Respond | Audit Trail + continuous monitoring toggle |
+| **RV.2** Remediate | Apply AI Fix + Assign action |
+| **RV.3** Lessons learned | Export SSDF Report + audit log |
 
 ---
 
-### 2.7 Rollback Confirmation Dialog
+## ✅ RINGKASAN PRINSIP SECURE-BY-DESIGN
 
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                                          │
-│                          ┌──────────────────────────────────────────────────────────┐                     │
-│                          │                                                          │                     │
-│                          │  ⏪ Rollback Deployment                                  │                     │
-│                          │                                                          │                     │
-│                          │  Anda akan melakukan rollback untuk:                     │                     │
-│                          │                                                          │                     │
-│                          │  Project:     my-commerce-app                            │                     │
-│                          │  Current:     #deploy-147 (feat/payment-gateway)         │                     │
-│                          │  Rollback to: #deploy-145 (main — "Add Stripe payment") │                     │
-│                          │                                                          │                     │
-│                          │  ⚠️  Perubahan yang akan terjadi:                        │                     │
-│                          │                                                          │                     │
-│                          │  • Deploy #deploy-147 akan di-rollback                   │                     │
-│                          │  • Traffic akan dialihkan ke versi #deploy-145           │                     │
-│                          │  • Durasi rollback: ~30 detik (Blue/Green switch)        │                     │
-│                          │  • Downtime: 0 detik (zero-downtime)                     │                     │
-│                          │                                                          │                     │
-│                          │  ┌────────────────────────────────────────────────────┐  │                     │
-│                          │  │  Alasan rollback (opsional):                       │  │                     │
-│                          │  │  [                                                ]│  │                     │
-│                          │  │  [                                                ]│  │                     │
-│                          │  └────────────────────────────────────────────────────┘  │                     │
-│                          │                                                          │                     │
-│                          │  ☐ Saya memahami dampak dari rollback ini                │                     │
-│                          │                                                          │                     │
-│                          │  [Cancel]                    [⏪ Confirm Rollback]        │                     │
-│                          │                                                          │                     │
-│                          └──────────────────────────────────────────────────────────┘                     │
-│                                                                                                          │
-│  (Background dimmed / overlay)                                                                           │
-│                                                                                                          │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+1. **Security posture first** — banner postur di atas, bukan tersembunyi.
+2. **Explicit control** — user pilih SSDF practice, bukan black-box.
+3. **Enforce, bukan hanya inform** — Security Gate memblokir merge.
+4. **Traceability penuh** — setiap finding → CWE + SSDF + OWASP + CVSS.
+5. **Audit immutable** — semua aksi tercatat, ADMIN-only, tidak bisa dimatikan.
+6. **Remediation terbimbing** — AI Fix suggestion, bukan hanya deteksi.
+7. **RBAC ketat** — VIEWER tidak punya akses eksekusi.
+8. **Transparansi data** — retention & privacy notice eksplisit.
 
 ---
 
-### 2.8 AI Diagnose (Failed Deployment)
-
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│  🐛 AI Diagnose — Failed Deployment #deploy-146                                          [✕ Close]        │
-│                                                                                                          │
-│  ┌── Error Summary ──────────────────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                                                    │   │
-│  │  ❌ Build failed at step 3 — "npm ci" exit code 1                                                  │   │
-│  │                                                                                                    │   │
-│  │  stderr:                                                                                           │   │
-│  │  ┌────────────────────────────────────────────────────────────────────────────────────────────┐    │   │
-│  │  │ npm ERR! ERESOLVE could not resolve                                                        │    │   │
-│  │  │ npm ERR!                                                                                   │    │   │
-│  │  │ npm ERR! While resolving: react-dom@18.3.1                                                   │    │   │
-│  │  │ npm ERR! Found: react@19.1.0                                                               │    │   │
-│  │  │ npm ERR! Could not resolve dependency:                                                     │    │   │
-│  │  │ npm ERR! peer react@"^18.0.0" from react-dom@18.3.1                                        │    │   │
-│  │  └────────────────────────────────────────────────────────────────────────────────────────────┘    │   │
-│  │                                                                                                    │   │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘   │
-│                                                                                                          │
-│  ┌── 🤖 AI Analysis ─────────────────────────────────────────────────────────────────────────────────┐   │
-│  │                                                                                                    │   │
-│  │  🔍 Root Cause:                                                                                    │   │
-│  │  Versi `react` di-upgrade ke 19.1.0 tetapi `react-dom` masih di versi 18.3.1.                    │   │
-│  │  Kedua package ini harus selalu menggunakan versi yang sama.                                     │   │
-│  │                                                                                                    │   │
-│  │  💡 Recommended Fix:                                                                               │   │
-│  │                                                                                                    │   │
-│  │  Option 1 (Recommended): Downgrade react ke 18.x                                                  │   │
-│  │  ┌────────────────────────────────────────────────────────────────────────────────────────────┐    │   │
-│  │  │  npm install react@18.3.1 react-dom@18.3.1                                                 │    │   │
-│  │  └────────────────────────────────────────────────────────────────────────────────────────────┘    │   │
-│  │                                                                                                    │   │
-│  │  Option 2: Upgrade react-dom ke 19.x (perlu testing ekstensif)                                   │   │
-│  │  ┌────────────────────────────────────────────────────────────────────────────────────────────┐    │   │
-│  │  │  npm install react-dom@19.1.0                                                              │    │   │
-│  │  └────────────────────────────────────────────────────────────────────────────────────────────┘    │   │
-│  │                                                                                                    │   │
-│  │  ⚠️  Impact Analysis:                                                                              │   │
-│  │  • React 19 memiliki breaking changes di `useRef`, `forwardRef`, dan Context API                  │   │
-│  │  • 12 komponen di project ini menggunakan `forwardRef` (perlu refactor jika upgrade)              │   │
-│  │  • Rekomendasi: gunakan Option 1 untuk quick fix, plan upgrade terpisah                           │   │
-│  │                                                                                                    │   │
-│  │  📚 References:                                                                                    │   │
-│  │  • React 19 Upgrade Guide: https://react.dev/blog/2024/04/25/react-19-upgrade-guide                │   │
-│  │  • npm ERESOLVE docs: https://docs.npmjs.com/cli/v10/commands/npm-install                          │   │
-│  │                                                                                                    │   │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘   │
-│                                                                                                          │
-│  ┌── Actions ──────────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │                                                                                                    │  │
-│  │  [📋 Copy Fix Command]  [🔗 Create Issue]  [🔄 Retry with Fix]  [💬 Ask AI Follow-up]             │  │
-│  │                                                                                                    │  │
-│  └────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                                          │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-### 2.9 New Deployment Dialog
-
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                                          │
-│                          ┌──────────────────────────────────────────────────────────┐                     │
-│                          │                                                          │                     │
-│                          │  🚀 New Deployment                                       │                     │
-│                          │                                                          │                     │
-│                          │  Project *                                               │                     │
-│                          │  [▼ Select project...                              ]     │                     │
-│                          │                                                          │                     │
-│                          │  Branch *                                                │                     │
-│                          │  [▼ main                                          ]     │                     │
-│                          │   • main                                                 │                     │
-│                          │   • develop                                              │                     │
-│                          │   • feat/payment-gateway                                 │                     │
-│                          │   • hotfix/auth-error                                    │                     │
-│                          │   • release/v2.4                                         │                     │
-│                          │                                                          │                     │
-│                          │  Environment *                                           │                     │
-│                          │  ○ 🌐 Production    ○ 🔀 Staging    ○ 🔀 Preview         │                     │
-│                          │                                                          │                     │
-│                          │  ┌── Advanced Options (collapsible) ──────────────────┐  │                     │
-│                          │  │                                                    │  │                     │
-│                          │  │  Build Command:  [npm run build               ]   │  │                     │
-│                          │  │  Start Command:  [npm start                   ]   │  │                     │
-│                          │  │  Node Version:   [▼ 20 LTS               ]        │  │                     │
-│                          │  │  Instances:      [3        ] (1-10)               │  │                     │
-│                          │  │  CPU:            [2 vCPU   ] per instance          │  │                     │
-│                          │  │  Memory:         [2 GB     ] per instance          │  │                     │
-│                          │  │                                                    │  │                     │
-│                          │  │  ☑ Skip tests (not recommended)                    │  │                     │
-│                          │  │  ☑ Enable zero-downtime (Blue/Green)               │  │                     │
-│                          │  │  ☐ Force rebuild (ignore cache)                    │  │                     │
-│                          │  │                                                    │  │                     │
-│                          │  └────────────────────────────────────────────────────┘  │                     │
-│                          │                                                          │                     │
-│                          │  ┌── Deploy Summary ───────────────────────────────────┐  │                     │
-│                          │  │                                                    │  │                     │
-│                          │  │  Project:     my-commerce-app                      │  │                     │
-│                          │  │  Branch:      main                                 │  │                     │
-│                          │  │  Environment: 🌐 Production                        │  │                     │
-│                          │  │  Strategy:    Blue/Green (zero-downtime)           │  │                     │
-│                          │  │  Resources:   3 × 2 vCPU × 2 GB                   │  │                     │
-│                          │  │                                                    │  │                     │
-│                          │  └────────────────────────────────────────────────────┘  │                     │
-│                          │                                                          │                     │
-│                          │  [Cancel]                          [🚀 Deploy Now]       │                     │
-│                          │                                                          │                     │
-│                          └──────────────────────────────────────────────────────────┘                     │
-│                                                                                                          │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-### 2.10 👁️ VIEWER Mode — Read-Only Restrictions
-
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                                          │
-│  ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐    │
-│  │  👁️ READ-ONLY MODE — Deployments                                                                │    │
-│  │                                                                                                  │    │
-│  │  Anda melihat halaman ini sebagai Viewer.                                                        │    │
-│  │  Hanya deployment dari proyek yang di-share ke Anda yang ditampilkan.                            │    │
-│  │                                                                                                  │    │
-│  │  ✅ Yang bisa dilakukan:                                                                         │    │
-│  │     • Melihat deployment history                                                                 │    │
-│  │     • Membaca deployment logs                                                                    │    │
-│  │     • Melihat pipeline steps                                                                     │    │
-│  │     • Download logs (text file)                                                                  │    │
-│  │     • Melihat commit details                                                                     │    │
-│  │                                                                                                  │    │
-│  │  ❌ Yang tidak bisa dilakukan:                                                                   │    │
-│  │     • Trigger new deployment                                                                     │    │
-│  │     • Rollback deployment                                                                        │    │
-│  │     • Cancel active deployment                                                                   │    │
-│  │     • Redeploy                                                                                   │    │
-│  │     • Retry failed deployment                                                                    │    │
-│  │                                                                                                  │    │
-│  │  Disabled buttons:                                                                               │    │
-│  │  ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐                    │    │
-│  │  │ [+ New Deployment] ✗ │  │ [⏪ Rollback] ✗      │  │ [❌ Cancel] ✗        │                    │    │
-│  │  │  (hidden/disabled)   │  │  (grayed out)        │  │  (grayed out)        │                    │    │
-│  │  └──────────────────────┘  └──────────────────────┘  └──────────────────────┘                    │    │
-│  │                                                                                                  │    │
-│  │  Note: "View Logs" dan "View Details" tetap aktif (read-only)                                    │    │
-│  │                                                                                                  │    │
-│  └──────────────────────────────────────────────────────────────────────────────────────────────────┘    │
-│                                                                                                          │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-### 2.11 📱 Mobile View
-
-```
-┌─────────────────────────────────┐
-│ 🔶 OmniStack     ☰   🔔   👨‍💻  │
-├─────────────────────────────────┤
-│ 🚀 Deployments                  │
-│                                 │
-│ ┌─────────────────────────────┐ │
-│ │ 📊 Total    147   ▲ +23    │ │
-│ │ ✅ Success  128   87.1%    │ │
-│ └─────────────────────────────┘ │
-│ ┌─────────────────────────────┐ │
-│ │ 🔄 Active   2   building   │ │
-│ │ ❌ Failed   17   ▲ +4      │ │
-│ └─────────────────────────────┘ │
-│                                 │
-│ 🔍 [Search deployments...    ] │
-│ [▼ Status] [▼ Project] [🔄]  │
-│                                 │
-│ ┌── Active ─────────────────┐  │
-│ │ 🔄 my-commerce-app #147   │  │
-│ │ ████████████░░░░░░ 67%    │  │
-│ │ Step 3/5: Building...     │  │
-│ │ [Logs] [Cancel]           │  │
-│ └───────────────────────────┘  │
-│                                 │
-│ ┌── History ────────────────┐  │
-│ │                           │  │
-│ │ ✅ my-commerce-app #147   │  │
-│ │ feat/payments → prod      │  │
-│ │ 3m 42s  •  12m ago        │  │
-│ │ [Logs] [Rollback] [More]  │  │
-│ │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │  │
-│ │                           │  │
-│ │ ❌ admin-dashboard #146   │  │
-│ │ hotfix/auth → prod        │  │
-│ │ 1m 23s  •  45m ago        │  │
-│ │ Build failed: npm ci      │  │
-│ │ [Logs] [Retry] [AI Diag]  │  │
-│ │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │  │
-│ │                           │  │
-│ │ ✅ my-commerce-app #145   │  │
-│ │ main → staging            │  │
-│ │ 3m 18s  •  2h ago         │  │
-│ │ [Logs] [Rollback] [More]  │  │
-│ │                           │  │
-│ └───────────────────────────┘  │
-│                                 │
-│ [← Prev]  Page 1/30  [Next →] │
-│                                 │
-├─────────────────────────────────┤
-│ 🏠  📦  🚀  📊  🐛  ⚙️        │
-└─────────────────────────────────┘
-```
-
----
-
-### 2.12 Grid View (Alternative Layout)
-
-```
-┌──────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│  📜 Deployment History — Grid View                                                    [☰ List] [▦ Grid]  │
-│                                                                                                          │
-│  ┌── my-commerce-app ──────────────┐  ┌── admin-dashboard ───────────────┐  ┌── api-gateway ──────────┐ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  ✅ Live    #deploy-145         │  │  ❌ Failed   #deploy-146         │  │  ✅ Live   #deploy-144  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Branch: feat/payment-gateway   │  │  Branch: hotfix/auth-error      │  │  Branch: main            │ │
-│  │  Env: 🌐 production             │  │  Env: 🌐 production              │  │  Env: 🌐 production      │ │
-│  │  Author: dev@omnistack.dev      │  │  Author: admin@omnistack.dev     │  │  Author: dev2@omnistack  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Duration: 3m 42s               │  │  Duration: 1m 23s               │  │  Duration: 4m 02s        │ │
-│  │  When: 12m ago                  │  │  When: 45m ago                  │  │  When: 4h ago            │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Commit: a8f3c2d                │  │  Commit: b7e2a1f                │  │  Commit: d5e3f4a         │ │
-│  │  "Add Stripe payment..."        │  │  "Fix JWT refresh token..."     │  │  "Rate limiter config..." │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Pipeline:                      │  │  Pipeline:                       │  │  Pipeline:               │ │
-│  │  ✅✅✅✅✅  All passed         │  │  ✅✅❌⏸⏸  Failed at build      │  │  ✅✅✅✅✅  All passed  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  [🔍 Logs] [⏪ Rollback] [⋯]   │  │  [🔍 Logs] [🔄 Retry] [🐛 AI]  │  │  [🔍 Logs] [⏪ Rollback]  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  └─────────────────────────────────┘  └──────────────────────────────────┘  └──────────────────────────┘ │
-│                                                                                                          │
-│  ┌── mobile-app ───────────────────┐  ┌── landing-page ──────────────────┐  ┌── docs-site ─────────────┐ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  ⏪ Rolled Back  #deploy-143    │  │  ✅ Live    #deploy-142          │  │  ✅ Live   #deploy-141  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Branch: release/v2.4           │  │  Branch: main                   │  │  Branch: main            │ │
-│  │  Env: 🌐 production             │  │  Env: 🌐 production              │  │  Env: 🔀 staging         │ │
-│  │  Author: dev@omnistack.dev      │  │  Author: dev@omnistack.dev      │  │  Author: dev3@omnistack  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Duration: 5m 47s               │  │  Duration: 2m 15s               │  │  Duration: 1m 48s        │ │
-│  │  When: 1d ago                   │  │  When: 2d ago                  │  │  When: 3d ago            │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Rolled back by admin@omnistack │  │  Commit: f7a5b6c                │  │  Commit: g8b6c7d         │ │
-│  │  Reason: Memory leak detected   │  │  "Update hero section..."       │  │  "Add API reference..."  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  Pipeline:                      │  │  Pipeline:                       │  │  Pipeline:               │ │
-│  │  ✅✅✅✅✅  Then rolled back   │  │  ✅✅✅✅✅  All passed         │  │  ✅✅✅✅✅  All passed  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  │  [🔍 Logs] [🔄 Redeploy] [⋯]  │  │  [🔍 Logs] [⏪ Rollback] [⋯]   │  │  [🔍 Logs] [⏪ Rollback]  │ │
-│  │                                 │  │                                  │  │                          │ │
-│  └─────────────────────────────────┘  └──────────────────────────────────┘  └──────────────────────────┘ │
-│                                                                                                          │
-│  Showing 6 of 147    [← Prev]    Page 1 of 25    [Next →]                                               │
-│                                                                                                          │
-└──────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 3. 🎯 Ringkasan Fitur & Fungsi
-
-| # | Komponen | Fungsi | ADMIN | USER | VIEWER |
-|---|----------|--------|-------|------|--------|
-| 1 | **Stats Cards** | Total, Success, Active, Failed, Avg Duration | ✅ All | ✅ Own | ✅ Shared |
-| 2 | **Filter Bar** | Search, status, project, env, date, branch | ✅ | ✅ | ✅ (limited) |
-| 3 | **Active Deployments** | Live progress dengan pipeline steps | ✅ | ✅ Own | ✅ Shared (RO) |
-| 4 | **Deployment History** | Tabel/grid semua deployment | ✅ All | ✅ Own | ✅ Shared |
-| 5 | **Deployment Detail** | Full info: pipeline, commit, env, health check | ✅ | ✅ Own | ✅ Shared |
-| 6 | **Logs Viewer** | Step-by-step build & deploy logs | ✅ | ✅ Own | ✅ Shared |
-| 7 | **New Deployment** | Trigger deploy baru | ✅ Any | ✅ Own | ❌ Hidden |
-| 8 | **Rollback** | Kembali ke versi sebelumnya | ✅ Any | ✅ Own | ❌ Disabled |
-| 9 | **Redeploy** | Deploy ulang versi yang sama | ✅ Any | ✅ Own | ❌ Disabled |
-| 10 | **Cancel** | Hentikan deployment aktif | ✅ Any | ✅ Own | ❌ Disabled |
-| 11 | **Retry** | Ulangi deployment gagal | ✅ Any | ✅ Own | ❌ Disabled |
-| 12 | **AI Diagnose** | Analisis error otomatis dengan AI | ✅ | ✅ Own | ❌ Disabled |
-| 13 | **Export Logs** | Download deployment logs | ✅ | ✅ Own | ✅ Shared |
-| 14 | **Metrics Link** | Link ke monitoring page | ✅ | ✅ Own | ✅ Shared |
-| 15 | **Audit Trail** | Siapa melakukan apa | ✅ | ✅ Own | ❌ Hidden |
-
----
-
-## 4. 📋 Data Model (Mock)
-
-```typescript
-// lib/mock-data.ts — Deployment types
-
-interface Deployment {
-  id: string                    // "deploy-147"
-  projectId: string             // "proj-001"
-  projectName: string           // "my-commerce-app"
-  commitSha: string             // "a8f3c2d"
-  commitMessage: string         // "Add Stripe payment integration..."
-  branch: string                // "feat/payment-gateway"
-  environment: "production" | "staging" | "preview"
-  status: "building" | "success" | "failed" | "cancelled" | "rolled_back"
-  author: {
-    email: string
-    name: string
-    avatar?: string
-  }
-  trigger: "manual" | "git_push" | "api" | "schedule"
-  startedAt: string             // ISO timestamp
-  finishedAt?: string           // ISO timestamp
-  duration?: number             // seconds
-  pipeline: PipelineStep[]
-  healthCheck?: HealthCheckResult
-  rollbackInfo?: {
-    rolledBackTo: string        // deployment ID
-    rolledBackAt: string
-    rolledBackBy: string
-    reason?: string
-  }
-  resources: {
-    instances: number
-    cpuPerInstance: string
-    memoryPerInstance: string
-    region: string
-  }
-}
-
-interface PipelineStep {
-  name: string                  // "Clone repository"
-  status: "pending" | "running" | "success" | "failed" | "skipped"
-  duration?: number             // seconds
-  logs: string[]
-}
-
-interface HealthCheckResult {
-  httpCheck: boolean
-  errorRate: number
-  responseP95: number
-  memoryUsage: number
-  passed: boolean
-}
-```
-
----
-
-## 5. 🔐 RBAC Implementation Notes
-
-```typescript
-// Di page component (app/(dashboard)/deployments/page.tsx)
-
-import { useAuth } from "@/lib/auth-context"
-import { getMockProjectsByUser, roleAtLeast } from "@/lib/mock-data"
-
-export default function DeploymentsPage() {
-  const { user } = useAuth()
-
-  // Helper sudah handle filtering per role:
-  // ADMIN  → semua deployment dari semua project
-  // USER   → deployment dari project milik sendiri
-  // VIEWER → deployment dari project yang di-share
-  const deployments = getMockDeploymentsByUser(user)
-
-  const isViewer = user?.role === "VIEWER"
-  const isAdmin = roleAtLeast(user?.role, "ADMIN")
-
-  return (
-    <div>
-      {/* Stats cards — semua role bisa lihat */}
-      <DeploymentStats deployments={deployments} />
-
-      {/* Filter bar — semua role */}
-      <FilterBar />
-
-      {/* New Deployment button — hidden untuk VIEWER */}
-      {!isViewer && <NewDeploymentButton />}
-
-      {/* Active deployments */}
-      <ActiveDeployments
-        deployments={activeDeployments}
-        readOnly={isViewer}  // Disable cancel button
-      />
-
-      {/* History table */}
-      <DeploymentTable
-        deployments={deployments}
-        readOnly={isViewer}  // Disable rollback/redeploy/retry
-      />
-    </div>
-  )
-}
-```
-
----
-
-> **Catatan Implementasi:**
-> - Semua data masih **mock** dari `lib/mock-data.ts`
-> - Gunakan helper RBAC (`getMockDeploymentsByUser`, `roleAtLeast`)
-> - VIEWER: semua tombol aksi di-`disabled` atau di-`hidden`
-> - Auto-refresh untuk active deployments: 10 detik
-> - Gunakan `components/ui/` (shadcn/ui) untuk Card, Badge, Dialog, Table, Progress, Tabs
-> - Status badge: gunakan `ProjectStatusBadge` atau buat `DeploymentStatusBadge`
-> - Pipeline visualization: gunakan custom component dengan progress bar
-> - Logs viewer: gunakan `<pre>` dengan syntax highlighting sederhana
+Apakah Anda ingin saya lanjutkan dengan:
+1. **Membuat struktur komponen React/Next.js** untuk blueprint ini (`_components/` breakdown), atau
+2. **Menyusun design tokens & komponen shadcn/ui** yang dibutuhkan, atau
+3. **Membuat mock data** (`lib/mock-data.ts`) untuk findings & SSDF matrix?
