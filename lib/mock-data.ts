@@ -1310,3 +1310,40 @@ export function getBudgetStatus(item: ProjectCostBreakdown): BudgetStatus | unde
   if (pct >= 0.75) return "warning"
   return "on-track"
 }
+
+export type LogLevel = "INFO" | "WARN" | "ERROR" | "DEBUG"
+
+export type LogCategory = "runtime" | "build" | "access" | "database"
+
+export interface MockLogEntry {
+  id: string
+  timestamp: string
+  level: LogLevel
+  source: string
+  message: string
+  category: LogCategory
+}
+
+const LOG_TIME_BASE = Date.UTC(2026, 7, 24, 9, 0, 0)
+const minutesAgo = (m: number) => new Date(LOG_TIME_BASE - m * 60_000).toISOString()
+
+export const MOCK_LOGS: MockLogEntry[] = [
+  { id: "log-01", timestamp: minutesAgo(60), level: "INFO", source: "app-server", message: "Application started successfully on port 3000", category: "runtime" },
+  { id: "log-02", timestamp: minutesAgo(58), level: "INFO", source: "database", message: "Connected to PostgreSQL database (pool: 5/20)", category: "database" },
+  { id: "log-03", timestamp: minutesAgo(56), level: "INFO", source: "cache", message: "Redis cache initialized - hit ratio: 94.2%", category: "runtime" },
+  { id: "log-04", timestamp: minutesAgo(54), level: "WARN", source: "app-server", message: "High memory usage detected: 892MB / 1024MB (87%)", category: "runtime" },
+  { id: "log-05", timestamp: minutesAgo(53), level: "ERROR", source: "database", message: "Connection pool exhausted - timeout after 5000ms", category: "database" },
+  { id: "log-06", timestamp: minutesAgo(51), level: "INFO", source: "app-server", message: "GET /api/users 200 OK - 45ms", category: "access" },
+  { id: "log-07", timestamp: minutesAgo(50), level: "DEBUG", source: "auth", message: "Token validation successful for user: dev@omnistack.dev", category: "access" },
+  { id: "log-08", timestamp: minutesAgo(48), level: "WARN", source: "rate-limiter", message: "Rate limit warning: 450/500 requests from IP 192.168.1.100", category: "access" },
+  { id: "log-09", timestamp: minutesAgo(46), level: "INFO", source: "scheduler", message: "Scheduled task completed: cleanup_temp_files (2.3s)", category: "runtime" },
+  { id: "log-10", timestamp: minutesAgo(45), level: "ERROR", source: "app-server", message: "Unhandled exception: TypeError: Cannot read property 'map' of undefined", category: "runtime" },
+  { id: "log-11", timestamp: minutesAgo(40), level: "INFO", source: "builder", message: "Cloning repository git@github.com:acme/store.git (branch main)", category: "build" },
+  { id: "log-12", timestamp: minutesAgo(38), level: "INFO", source: "builder", message: "Installing dependencies: npm ci (412 packages)", category: "build" },
+  { id: "log-13", timestamp: minutesAgo(35), level: "INFO", source: "builder", message: "Compiled successfully - 38 routes generated in 42s", category: "build" },
+  { id: "log-14", timestamp: minutesAgo(34), level: "WARN", source: "builder", message: "Build warning: chunk size exceeds 500kB (bundle/main-8f3a.js)", category: "build" },
+  { id: "log-15", timestamp: minutesAgo(30), level: "INFO", source: "deployer", message: "Deployment promoted to production (region sg-1)", category: "build" },
+  { id: "log-16", timestamp: minutesAgo(20), level: "DEBUG", source: "database", message: "Query executed: SELECT * FROM users WHERE email = ? (12ms)", category: "database" },
+  { id: "log-17", timestamp: minutesAgo(15), level: "WARN", source: "database", message: "Slow query detected: avg latency increased 45ms -> 230ms in 24h", category: "database" },
+  { id: "log-18", timestamp: minutesAgo(10), level: "INFO", source: "cache", message: "Cache warmed: 128 keys preloaded for tenant acme", category: "runtime" },
+]

@@ -39,6 +39,7 @@
 - [[page-projects]] — CRUD project lengkap
 - [[page-deployments]] — Deployment history + actions
 - [[page-project-ide]] — Cloud IDE mock di /projects/[id]/ide
+- [[page-project-logs]] — Logs & Observability mock di /projects/[id]/logs
 - [[page-login-register]] — login / register / forgot-password (mock auth)
 
 ## Components

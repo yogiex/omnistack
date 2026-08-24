@@ -246,13 +246,22 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
         </div>
         <div className="flex flex-col items-end gap-2">
           <ProjectStatusBadge status={project.status} />
-          <Link
-            href={`/projects/${projectId}/ide`}
-            className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-2")}
-          >
-            <Code2 className="h-4 w-4" />
-            Open IDE
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/projects/${projectId}/logs`}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}
+            >
+              <ScrollText className="h-4 w-4" />
+              Logs
+            </Link>
+            <Link
+              href={`/projects/${projectId}/ide`}
+              className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-2")}
+            >
+              <Code2 className="h-4 w-4" />
+              Open IDE
+            </Link>
+          </div>
         </div>
       </div>
 
