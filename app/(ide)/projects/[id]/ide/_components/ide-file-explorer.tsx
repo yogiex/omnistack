@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen } from "lucide-react"
+import { ChevronDown, File, Folder, FolderOpen } from "lucide-react"
 import { IDE_FILE_TREE, type IdeFileNode } from "@/lib/mock-ide-data"
 import { cn } from "@/lib/utils"
 

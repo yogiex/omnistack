@@ -10,7 +10,6 @@ interface IdeStatusBarProps {
     ramUsed: string
     region: string
   }
-  bottomOpen: boolean
   onToggleBottom: () => void
   onOpenCommand: () => void
 }
@@ -18,7 +17,6 @@ interface IdeStatusBarProps {
 export function IdeStatusBar({
   branch,
   node,
-  bottomOpen,
   onToggleBottom,
   onOpenCommand,
 }: IdeStatusBarProps) {
