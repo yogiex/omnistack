@@ -5,19 +5,12 @@ import { roleAtLeast } from "@/lib/mock-data"
 import { IdeShell } from "./_components/ide-shell"
 
 interface IdeClientProps {
-  projectId: string
   projectName: string
 }
 
-export function IdeClient({ projectId, projectName }: IdeClientProps) {
+export function IdeClient({ projectName }: IdeClientProps) {
   const { user } = useAuth()
   const canWrite = !!user && roleAtLeast(user.role, "USER")
 
-  return (
-    <IdeShell
-      projectId={projectId}
-      projectName={projectName}
-      canWrite={canWrite}
-    />
-  )
+  return <IdeShell projectName={projectName} canWrite={canWrite} />
 }

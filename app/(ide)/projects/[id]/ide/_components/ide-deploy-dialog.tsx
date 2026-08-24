@@ -36,7 +36,6 @@ import { cn } from "@/lib/utils"
 interface IdeDeployDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  projectId: string
   projectName: string
   canWrite: boolean
 }
@@ -44,7 +43,6 @@ interface IdeDeployDialogProps {
 export function IdeDeployDialog({
   open,
   onOpenChange,
-  projectId,
   projectName,
   canWrite,
 }: IdeDeployDialogProps) {

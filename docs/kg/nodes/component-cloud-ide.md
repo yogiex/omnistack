@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Class | Component |
-| Files | app/(dashboard)/projects/[id]/ide/_components/ide-shell.tsx, ide-top-bar.tsx, ide-activity-bar.tsx, ide-file-explorer.tsx, ide-editor.tsx, ide-right-panel.tsx, ide-bottom-panel.tsx, ide-status-bar.tsx, ide-command-palette.tsx, ide-deploy-dialog.tsx |
+| Files | app/(ide)/projects/[id]/ide/_components/ide-shell.tsx, ide-top-bar.tsx, ide-activity-bar.tsx, ide-file-explorer.tsx, ide-editor.tsx, ide-right-panel.tsx, ide-bottom-panel.tsx, ide-status-bar.tsx, ide-command-palette.tsx, ide-deploy-dialog.tsx |
 | Status | wip |
 
 ## Purpose

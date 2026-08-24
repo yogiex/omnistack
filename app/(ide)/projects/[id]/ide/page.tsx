@@ -18,5 +18,5 @@ export default async function ProjectIdePage({
     notFound()
   }
 
-  return <IdeClient projectId={id} projectName={project.name} />
+  return <IdeClient projectName={project.name} />
 }

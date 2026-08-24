@@ -23,12 +23,11 @@ type RightMode = "preview" | "ai" | "metrics"
 type BottomTab = "terminal" | "problems" | "output"
 
 interface IdeShellProps {
-  projectId: string
   projectName: string
   canWrite: boolean
 }
 
-export function IdeShell({ projectId, projectName, canWrite }: IdeShellProps) {
+export function IdeShell({ projectName, canWrite }: IdeShellProps) {
   const [activePath, setActivePath] = useState<string>(
     IDE_OPEN_TABS[0] ?? IDE_FILE_TREE[0]?.path ?? ""
   )
@@ -62,7 +61,7 @@ export function IdeShell({ projectId, projectName, canWrite }: IdeShellProps) {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] min-h-[520px] flex-col overflow-hidden rounded-xl border bg-background">
+    <div className="flex h-svh w-full flex-col overflow-hidden bg-background">
       <IdeTopBar
         projectName={projectName}
         branch={IDE_BRANCH}
@@ -106,7 +105,6 @@ export function IdeShell({ projectId, projectName, canWrite }: IdeShellProps) {
       <IdeStatusBar
         branch={IDE_BRANCH}
         node={IDE_NODE}
-        bottomOpen={bottomOpen}
         onToggleBottom={() => setBottomOpen((open) => !open)}
         onOpenCommand={() => setCommandOpen(true)}
       />
@@ -125,7 +123,6 @@ export function IdeShell({ projectId, projectName, canWrite }: IdeShellProps) {
       <IdeDeployDialog
         open={deployOpen}
         onOpenChange={setDeployOpen}
-        projectId={projectId}
         projectName={projectName}
         canWrite={canWrite}
       />
