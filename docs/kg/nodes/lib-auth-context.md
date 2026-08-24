@@ -19,6 +19,7 @@ Mock auth berbasis localStorage. Menyediakan user context global; belum ada back
 - [[page-login-register]]
 - [[component-route-guard]]
 - [[page-dashboard-shell]]
+- [[page-project-ide]]
 
 ### providesContext →
 - [[page-dashboard-shell]] — AuthProvider membungkus dashboard shell

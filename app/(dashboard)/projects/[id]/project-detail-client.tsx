@@ -8,6 +8,7 @@ import {
   ArrowUpDown,
   Cpu,
   Calendar,
+  Code2,
   Database,
   DollarSign,
   ExternalLink,
@@ -243,7 +244,16 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
             {project.description}
           </p>
         </div>
-        <ProjectStatusBadge status={project.status} />
+        <div className="flex flex-col items-end gap-2">
+          <ProjectStatusBadge status={project.status} />
+          <Link
+            href={`/projects/${projectId}/ide`}
+            className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-2")}
+          >
+            <Code2 className="h-4 w-4" />
+            Open IDE
+          </Link>
+        </div>
       </div>
 
       {/* Notifikasi */}

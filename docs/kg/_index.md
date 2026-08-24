@@ -38,6 +38,7 @@
 - [[page-dashboard]] — overview client dashboard
 - [[page-projects]] — CRUD project lengkap
 - [[page-deployments]] — Deployment history + actions
+- [[page-project-ide]] — Cloud IDE mock di /projects/[id]/ide
 - [[page-login-register]] — login / register / forgot-password (mock auth)
 
 ## Components
@@ -48,6 +49,8 @@
 - [[component-route-guard]]
 - [[component-deployment-dialogs]]
 - [[component-ai-reviewer-results]] — Results view (tabbed findings + overview + filters)
+- [[lib-mock-ide-data]] — data mock Cloud IDE (file tree, code, terminal, AI, problems, palette)
+- [[component-cloud-ide]] — Cloud IDE 5-zona (editor/explorer/preview/AI/terminal/status bar + palet & deploy dialog)
 
 ## Lib
 
