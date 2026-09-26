@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   Bug,
   Copy,
@@ -36,10 +36,21 @@ export function AIDiagnoseDialog({
     impact: string
   } | null>(null)
 
+  // Simulasi panggilan AI. Timer disimpan di ref dan dibersihkan saat
+  // unmount — kalau dialog ditutup sebelum 2 detik, `setAnalyzing` akan
+  // dipanggil pada komponen yang sudah tidak ada.
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+
   const handleAnalyze = () => {
     setAnalyzing(true)
-    // Simulate AI analysis
-    setTimeout(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
       setAnalyzing(false)
       setResult({
         rootCause:

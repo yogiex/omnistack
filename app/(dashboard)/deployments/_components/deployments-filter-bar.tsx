@@ -11,21 +11,29 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import type { DeployView } from "@/lib/deployment-utils"
 import type { MockProject } from "@/lib/mock-data"
 
-export type DeployView = "list" | "timeline"
+import type {
+  DateSort,
+  EnvironmentFilter,
+  ProjectFilter,
+  StatusFilter,
+} from "../_hooks/use-deployment-filters"
+
+export type { DeployView }
 
 interface DeploymentsFilterBarProps {
   searchQuery: string
   onSearchChange: (value: string) => void
-  projectFilter: string
-  onProjectFilterChange: (value: string) => void
-  statusFilter: string
-  onStatusFilterChange: (value: string) => void
-  environmentFilter: string
-  onEnvironmentFilterChange: (value: string) => void
-  dateSort: string
-  onDateSortChange: (value: string) => void
+  projectFilter: ProjectFilter
+  onProjectFilterChange: (value: ProjectFilter) => void
+  statusFilter: StatusFilter
+  onStatusFilterChange: (value: StatusFilter) => void
+  environmentFilter: EnvironmentFilter
+  onEnvironmentFilterChange: (value: EnvironmentFilter) => void
+  dateSort: DateSort
+  onDateSortChange: (value: DateSort) => void
   view: DeployView
   onViewChange: (view: DeployView) => void
   projects: MockProject[]
@@ -34,7 +42,12 @@ interface DeploymentsFilterBarProps {
   onCreateNew: () => void
 }
 
-const STATUS_OPTIONS = [
+/**
+ * Opsi Select memang `string`, jadi nilainya divalidasi ke union di
+ * `onValueChange`. Daftar opsi di bawah adalah satu-satunya sumber
+ * nilai yang valid — kalau berubah, union-nya harus ikut berubah.
+ */
+const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All Status" },
   { value: "success", label: "Success" },
   { value: "building", label: "Building" },
@@ -43,14 +56,14 @@ const STATUS_OPTIONS = [
   { value: "rolled_back", label: "Rolled Back" },
 ]
 
-const ENVIRONMENT_OPTIONS = [
+const ENVIRONMENT_OPTIONS: { value: EnvironmentFilter; label: string }[] = [
   { value: "all", label: "All Environments" },
   { value: "production", label: "Production" },
   { value: "staging", label: "Staging" },
   { value: "preview", label: "Preview" },
 ]
 
-const DATE_SORT_OPTIONS = [
+const DATE_SORT_OPTIONS: { value: DateSort; label: string }[] = [
   { value: "newest", label: "Newest first" },
   { value: "oldest", label: "Oldest first" },
 ]
@@ -85,7 +98,7 @@ export function DeploymentsFilterBar({
         />
       </div>
 
-      <Select value={projectFilter} onValueChange={(v) => onProjectFilterChange(v ?? "all")}>
+      <Select value={projectFilter} onValueChange={(v) => onProjectFilterChange((v ?? "all") as ProjectFilter)}>
         <SelectTrigger className="w-[150px]" aria-label="Filter by project">
           <SelectValue placeholder="All Projects" />
         </SelectTrigger>
@@ -99,7 +112,7 @@ export function DeploymentsFilterBar({
         </SelectContent>
       </Select>
 
-      <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v ?? "all")}>
+      <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange((v ?? "all") as StatusFilter)}>
         <SelectTrigger className="w-[130px]" aria-label="Filter by status">
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
@@ -112,7 +125,9 @@ export function DeploymentsFilterBar({
         </SelectContent>
       </Select>
 
-      <Select value={environmentFilter} onValueChange={(v) => onEnvironmentFilterChange(v ?? "all")}>
+      <Select value={environmentFilter} onValueChange={(v) =>
+            onEnvironmentFilterChange((v ?? "all") as EnvironmentFilter)
+          }>
         <SelectTrigger className="w-[150px]" aria-label="Filter by environment">
           <SelectValue placeholder="All Environments" />
         </SelectTrigger>
@@ -125,7 +140,7 @@ export function DeploymentsFilterBar({
         </SelectContent>
       </Select>
 
-      <Select value={dateSort} onValueChange={(v) => onDateSortChange(v ?? "newest")}>
+      <Select value={dateSort} onValueChange={(v) => onDateSortChange((v ?? "newest") as DateSort)}>
         <SelectTrigger className="w-[120px]" aria-label="Sort by date">
           <SelectValue />
         </SelectTrigger>
