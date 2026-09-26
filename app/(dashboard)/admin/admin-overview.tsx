@@ -24,7 +24,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { KpiSection } from "@/components/kpi/kpi-section"
 import { useAuth } from "@/lib/auth-context"
+import { adminKpis } from "@/lib/kpi/presets/admin"
 import { MOCK_PROJECTS, MOCK_USERS, getTotalDeployments } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 
@@ -100,18 +102,20 @@ export function AdminOverview() {
     { ADMIN: 0, USER: 0, VIEWER: 0 }
   )
   const totalUsers = MOCK_USERS.length
+  const activeUsers = MOCK_USERS.filter((u) => u.isActive).length
   const rolePercents = {
     ADMIN: Math.round((roleCounts.ADMIN / totalUsers) * 100),
     USER: Math.round((roleCounts.USER / totalUsers) * 100),
     VIEWER: Math.round((roleCounts.VIEWER / totalUsers) * 100),
   }
 
-  const stats = [
-    { title: "Total User", value: String(MOCK_USERS.length), note: "3 akun demo aktif", icon: Users },
-    { title: "Total Proyek", value: String(MOCK_PROJECTS.length), note: "Milik seluruh user", icon: FolderGit2 },
-    { title: "Total Deployment", value: String(totalDeployments), note: "+12 minggu ini", icon: Activity },
-    { title: "System Health", value: "99.9%", note: "Uptime bulan ini", icon: ShieldCheck },
-  ]
+  const kpiData = {
+    totalUsers,
+    activeUsers,
+    totalProjects: MOCK_PROJECTS.length,
+    totalDeployments,
+    roleCounts,
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -148,21 +152,8 @@ export function AdminOverview() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.note}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* KPI (reusable) */}
+      <KpiSection config={adminKpis} data={kpiData} role={user.role} />
 
       <div className="grid gap-4 lg:grid-cols-5">
         {/* Aktivitas terakhir */}

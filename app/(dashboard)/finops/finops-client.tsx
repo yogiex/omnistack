@@ -3,7 +3,9 @@
 import { useMemo } from "react"
 import { Download, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { KpiSection } from "@/components/kpi"
 import { useAuth } from "@/lib/auth-context"
+import { finopsKpis } from "@/lib/kpi/presets/finops"
 import {
   FINOPS_OVERVIEW,
   MOCK_BUDGET_ALERTS,
@@ -49,6 +51,11 @@ export function FinOpsClient() {
   const canManageBudget = role === "ADMIN" || role === "USER"
   const canApply = canManageBudget
 
+  const kpiData = useMemo(
+    () => ({ overview: FINOPS_OVERVIEW, trend: MOCK_FINOPS_TREND, role }),
+    [role]
+  )
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -77,6 +84,12 @@ export function FinOpsClient() {
           Export
         </Button>
       </div>
+
+      <KpiSection
+        config={finopsKpis}
+        data={kpiData}
+        role={role}
+      />
 
       {role === "VIEWER" && (
         <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">

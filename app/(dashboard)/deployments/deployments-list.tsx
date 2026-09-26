@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { Rocket } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
+import { KpiSection } from "@/components/kpi"
+import { deploymentsKpis } from "@/lib/kpi/presets/deployments"
 import {
   getMockDeploymentsForRole,
   getMockProjectsByUser,
@@ -268,6 +270,12 @@ export function DeploymentsList() {
             : `${deployments.length} deployments across ${projects.length} projects.`}
         </p>
       </div>
+
+      <KpiSection
+        config={deploymentsKpis}
+        data={{ deployments, totalInSystem: deployments.length }}
+        role={user?.role}
+      />
 
       {/* Notice */}
       {notice && (

@@ -26,9 +26,11 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { KpiSection } from "@/components/kpi/kpi-section"
 import { ProjectStatusBadge } from "@/components/project-status-badge"
 import { DeploymentStatusBadge } from "@/components/deployment-status-badge"
 import { useAuth } from "@/lib/auth-context"
+import { dashboardKpis } from "@/lib/kpi/presets/dashboard"
 import {
   getMockDeploymentsForRole,
   getMockProjectsByUser,
@@ -101,56 +103,17 @@ export function ClientDashboard() {
   const isAdmin = user.role === "ADMIN"
   const isViewer = user.role === "VIEWER"
 
-  const stats = [
-    {
-      title: isAdmin ? "Total Proyek" : isViewer ? "Proyek Di-share" : "Proyek Saya",
-      value: String(projects.length),
-      note: isViewer ? "Menunggu proyek di-share" : "+2 dari bulan lalu",
-      icon: FolderGit2,
-    },
-    {
-      title: "Deployments",
-      value: String(totalDeployments),
-      note: isViewer ? "View only" : "+12 minggu ini",
-      icon: Activity,
-    },
-    ...(isAdmin
-      ? [
-          {
-            title: "Total User",
-            value: String(MOCK_USERS.length),
-            note: "3 akun demo aktif",
-            icon: Server,
-          },
-          {
-            title: "System Health",
-            value: "99.9%",
-            note: "Uptime bulan ini",
-            icon: ShieldCheck,
-          },
-        ]
-      : []),
-    ...(!isAdmin && !isViewer
-      ? [
-          {
-            title: "Build Success",
-            value: "98.2%",
-            note: "30 hari terakhir",
-            icon: ShieldCheck,
-          },
-          {
-            title: "Avg Response",
-            value: "142ms",
-            note: "-8ms dari minggu lalu",
-            icon: Timer,
-          },
-        ]
-      : []),
-  ]
+  const kpiData = {
+    projects,
+    totalDeployments,
+    totalUsers: MOCK_USERS.length,
+    role: user.role,
+  }
 
   return (
     <div className="flex flex-col gap-6">
       {/* ================= HEADER ================= */}
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -199,21 +162,12 @@ export function ClientDashboard() {
         </div>
       )}
 
-      {/* ================= STAT CARDS ================= */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.note}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* ================= KPI (reusable) ================= */}
+      <KpiSection
+        config={dashboardKpis}
+        data={kpiData}
+        role={user.role}
+      />
 
       <div className="grid gap-4 lg:grid-cols-5">
         {/* ================= PROJECTS ================= */}
