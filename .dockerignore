@@ -44,6 +44,29 @@ docker-compose*.yml
 .DS_Store
 
 # ============================================================
+# TLS private keys — MUST NEVER enter an image layer
+# ============================================================
+# The certs are bind-mounted read-only at runtime. If they were also COPYed in,
+# the private key would be recoverable from `docker history` and from every
+# intermediate layer of the build cache, long after "docker rmi" -- which is
+# exactly how private keys leak. `docker/nginx/*.conf` is NOT ignored: the
+# runtime stage bakes those in as its default config.
+docker/certs
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# ============================================================
+# Intentionally NOT ignored:
+#   docker/nginx/nginx.conf, docker/nginx/conf.d/, docker/nginx/snippets/
+#   -> COPYed into the runtime stage as the image's default nginx config
+# ============================================================
+
+# ============================================================
 # Intentionally NOT ignored (required to build):
 #   app/ components/ lib/ hooks/ public/
 #   package.json package-lock.json

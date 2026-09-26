@@ -1,99 +1,155 @@
-# Single stateless container: static Next.js export served by unprivileged nginx.
-# Command used here is `docker-compose`, not `docker compose`, to match the
-# standalone v2 binary available on this host.
+# =============================================================================
+# OmniStack — Docker Compose
+# Next.js static export served by unprivileged nginx over TLS
+# =============================================================================
+# Design constraints that drove every value below:
+#   - 0.5 CPU / 128 MB. All tuning is sized to that, not to the 12-core host.
+#   - Root filesystem is read-only. The ONLY writable paths are three tmpfs.
+#   - uid 101, no capabilities, no privilege escalation.
+#   - Loopback-bound by default: the app has no real authentication, only a
+#     client-side route guard, so exposing it is equivalent to publishing an
+#     unauthenticated admin panel.
+#
+# Usage:
+#   ./scripts/gen-dev-certs.sh     # once, required before the first start
+#   docker-compose up -d --build
+#   docker-compose logs -f web
+# =============================================================================
+
+name: omnistack
+
+# ── Logging default, shared by every service ────────────────────────────────
+x-default-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+# ── Security default, shared by every service ───────────────────────────────
+x-security-default: &security-default
+  read_only: true
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
 
 services:
-  omnistack:
+  web:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
-        # Empty default => next.config.ts omits basePath => site served at "/".
-        # BUILD-time only: the value is inlined into asset URLs at build.
-        NEXT_PUBLIC_BASE_PATH: "${NEXT_PUBLIC_BASE_PATH:-}"
-    # Stable local tag so the built image is referenceable without the compose
-    # project name prefix. Tag availability is not verified against any registry.
+        # Build-time inlined by Next.js. Changing .env does NOT change this
+        # without a rebuild -- there is no envsubst step to re-inject it.
+        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH:-}
     image: omnistack:local
+    container_name: omni-web
+    restart: unless-stopped
 
+    # ── Published ports ─────────────────────────────────────────────────────
+    # Exactly ONE port is published: 58443. HTTPS only.
+    #
+    # Why not also publish the plain-HTTP listener? Because it would exist
+    # solely to 301-redirect to the port next to it. That is a second open port
+    # on the host buying nothing, since a self-signed HTTPS port is already
+    # non-default. The HTTP listener still exists on :8080 *inside* the
+    # container, because the healthcheck probes it over plain HTTP -- no TLS
+    # handshake, no self-signed validation, no surprise "unhealthy" when the
+    # cert expires. Set HTTP_PORT in .env to publish it as well if you want the
+    # redirect reachable from a browser.
+    #
+    # Why 58443 and not 443/8443: it is far off the automated-scanner path while
+    # keeping the 443 mnemonic.
+    #
+    # KNOWN TRADEOFF: 58443 sits INSIDE the default Linux ephemeral port range
+    # (32768-60999). An outbound browser or Node connection can be assigned 58443
+    # as its source port, after which the server fails to bind and you get a
+    # flaky "address already in use" that looks unrelated to anything you
+    # changed. In practice this is rare on a single-user machine and the window
+    # is narrow, but it is the reason 64433 was the original pick -- that one is
+    # above the range. If you ever see intermittent bind failures, try a port
+    # above 60999 (64433 is a good candidate) before debugging anything else.
+    #
+    # BIND_ADDR stays 127.0.0.1. Docker's published ports bypass ufw/firewalld
+    # because DNAT happens before the host INPUT chain -- so binding 0.0.0.0
+    # here exposes the app even when the firewall looks closed. Set
+    # BIND_ADDR=0.0.0.0 in .env only once real authentication exists.
+    #
+    # The host port MUST equal the container port (58443): the nginx redirect
+    # hardcodes it, because `$host` arrives with the port already stripped.
     ports:
-      # SECURITY (the important line in this file): loopback bind ONLY.
-      # The app has no real authentication -- components/route-guard.tsx:20
-      # says the guard is "proteksi UI (gimmick MVP), bukan keamanan sungguhan".
-      # Client-side gating can be bypassed by anyone who can load the page, so
-      # this bind is the only genuine access control we have.
-      # Worse, Docker-published ports are DNAT'd before the host's own
-      # ufw/iptables INPUT rules are consulted (the DOCKER chain bypasses them),
-      # so a published port is reachable from the LAN even if ufw says the port
-      # is closed. Changing 127.0.0.1 to 0.0.0.0 publishes an unauthenticated
-      # admin surface to the entire network. Don't.
-      - "127.0.0.1:${APP_PORT:-18080}:8080"
+      - "${BIND_ADDR:-127.0.0.1}:${HTTPS_PORT:-58443}:58443"   # the only way in
+      # - "${BIND_ADDR:-127.0.0.1}:${HTTP_PORT:-18080}:8080"   # optional, see above
 
-    # Immutable root filesystem. nginx needs to write only to /tmp, which is
-    # the sole tmpfs below -- docker/nginx.conf points pid, proxy/client/body
-    # temp paths and access_log at /tmp and /dev/stdout, so nothing else needs
-    # to be writable.
-    read_only: true
+    # ── Config & certs, all read-only ───────────────────────────────────────
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/nginx/snippets:/etc/nginx/snippets:ro
+      # Private key lands on the host. Read-only in the container, and *.pem
+      # is git-ignored.
+      - ./docker/certs:/etc/nginx/certs:ro
+
+    # ── Security hardening ──────────────────────────────────────────────────
+    <<: *security-default
+    user: "101:101"          # nginx-unprivileged default uid; no root anywhere
+
+    # ── The ONLY writable paths ─────────────────────────────────────────────
+    # mode 1777 matters: uid 101 has to create nginx.pid and the *_temp dirs
+    # here, and mode 755 would leave them unwritable -> instant [emerg] exit.
+    # noexec/nosuid: nothing in these tmpfs needs to be executed.
     tmpfs:
-      - /tmp:size=16m,mode=1777
+      - /var/cache/nginx:size=64m,mode=1777,noexec,nosuid,uid=101,gid=101
+      - /var/run:size=1m,mode=1777,noexec,nosuid,uid=101,gid=101
+      - /tmp:size=16m,mode=1777,noexec,nosuid,uid=101,gid=101
 
-    # Drop every capability, then forbid re-gaining any via setuid binaries.
-    # nginx serving static files needs none of them.
-    cap_drop: [ALL]
-    security_opt:
-      - no-new-privileges:true
-    # Explicit rather than inherited from the image, so a future base-image
-    # change can't silently widen this.
-    user: "101:101"
+    # ── Resource limits ─────────────────────────────────────────────────────
+    # Short-form keys, not `deploy.resources.*`. Compose v2 does honour the
+    # deploy form, but these are the keys Compose actually documents for
+    # single-container use, and they are what was verified on this host.
+    # nginx static serving: 0.5 CPU is far more than thousands of RPS needs,
+    # 128 MB comfortably fits one worker plus open_file_cache.
+    cpus: "0.50"
+    mem_limit: 128m
+    mem_reservation: 32m
+    mem_swappiness: 0
     pids_limit: 100
 
-    # tini reaps zombies and, more importantly, is PID 1 so SIGQUIT from
-    # `docker-compose stop` reaches nginx instead of being swallowed.
-    # ~2 MB of image, no meaningful RAM cost.
-    init: true
-
-    # nginx is pinned to worker_processes 1 in its config, so 64 MB is ample
-    # for a static file server; the reservation just keeps it off the floor
-    # under soft reclaim pressure so it isn't the first thing OOM-killed.
-    mem_limit: 64m
-    mem_reservation: 32m
-    cpus: 0.5
-
-    restart: unless-stopped
-    # SIGQUIT = graceful nginx shutdown (finish in-flight requests).
-    # SIGTERM would be "fast shutdown", dropping live connections.
-    stop_signal: SIGQUIT
-    stop_grace_period: 10s
-
-    # The json-file driver has NO size cap by default. nginx writes access logs
-    # to stdout, so an unbounded log will eventually fill the host disk and take
-    # the whole machine down. These options cap it at ~30 MB total.
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-    # Defined ONLY here, not in the Dockerfile -- defining it twice means
-    # editing it in one place and silently keeping the other. busybox wget
-    # ships in the alpine base, so no curl install is needed. `-O /dev/null`
-    # is preferred over `--spider` because -q/-O are core busybox flags, while
-    # --spider is an optional long option that a slimmed base may lack.
+    # ── Health check ────────────────────────────────────────────────────────
+    # NOTE: `restart: unless-stopped` does NOT react to an unhealthy container.
+    # Docker only restarts on process exit. An unhealthy result is a signal for
+    # you, not an auto-heal -- do not expect a crash-loop to be papered over.
+    #
+    # Probes plain HTTP :8080 on purpose: no TLS handshake, no self-signed
+    # validation, no expiry surprise turning into a false "unhealthy".
+    # -O /dev/null rather than --spider: -q and -O are core busybox flags,
+    # while --spider is an optional long option a slimmed base may lack.
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
       interval: 30s
-      timeout: 3s
+      timeout: 5s
       retries: 3
-      start_period: 5s
+      start_period: 10s
 
-    volumes:
-      # Keeps the image reusable and lets the server config be edited without
-      # a rebuild/republish. :ro because nginx only ever reads it.
-      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    # ── Logging ─────────────────────────────────────────────────────────────
+    logging: *default-logging
 
-# Deliberately absent:
-#   volumes (data)   -- no state to persist; the container is disposable.
-#   env_file         -- no runtime secrets. Every NEXT_PUBLIC_* value is
-#                       inlined at build time, so there is nothing to inject.
-#   container_name   -- unnecessary for one service and blocks `scale`.
-#   depends_on       -- nothing to order against.
-#   platform         -- assume native arch. Set it in the README/compose
-#                       override only when cross-building.
+    # ── Lifecycle ───────────────────────────────────────────────────────────
+    # SIGQUIT is nginx's graceful shutdown (finish in-flight requests, then
+    # exit). The default SIGTERM is abrupt and can cut a response mid-body.
+    stop_signal: SIGQUIT
+    stop_grace_period: 10s
+    init: true
+
+    networks:
+      - omni-net
+
+# ── Network ─────────────────────────────────────────────────────────────────
+# Single bridge. The web service publishes no upstream and receives no traffic
+# from other services, so nothing is marked `internal: true` -- that would also
+# cut off DNS and outbound access, which a static site does not need but a
+# certbot sidecar added later would.
+networks:
+  omni-net:
+    driver: bridge
+    name: omni-net
