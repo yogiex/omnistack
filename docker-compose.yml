@@ -1,0 +1,99 @@
+# Single stateless container: static Next.js export served by unprivileged nginx.
+# Command used here is `docker-compose`, not `docker compose`, to match the
+# standalone v2 binary available on this host.
+
+services:
+  omnistack:
+    build:
+      context: .
+      args:
+        # Empty default => next.config.ts omits basePath => site served at "/".
+        # BUILD-time only: the value is inlined into asset URLs at build.
+        NEXT_PUBLIC_BASE_PATH: "${NEXT_PUBLIC_BASE_PATH:-}"
+    # Stable local tag so the built image is referenceable without the compose
+    # project name prefix. Tag availability is not verified against any registry.
+    image: omnistack:local
+
+    ports:
+      # SECURITY (the important line in this file): loopback bind ONLY.
+      # The app has no real authentication -- components/route-guard.tsx:20
+      # says the guard is "proteksi UI (gimmick MVP), bukan keamanan sungguhan".
+      # Client-side gating can be bypassed by anyone who can load the page, so
+      # this bind is the only genuine access control we have.
+      # Worse, Docker-published ports are DNAT'd before the host's own
+      # ufw/iptables INPUT rules are consulted (the DOCKER chain bypasses them),
+      # so a published port is reachable from the LAN even if ufw says the port
+      # is closed. Changing 127.0.0.1 to 0.0.0.0 publishes an unauthenticated
+      # admin surface to the entire network. Don't.
+      - "127.0.0.1:${APP_PORT:-18080}:8080"
+
+    # Immutable root filesystem. nginx needs to write only to /tmp, which is
+    # the sole tmpfs below -- docker/nginx.conf points pid, proxy/client/body
+    # temp paths and access_log at /tmp and /dev/stdout, so nothing else needs
+    # to be writable.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+
+    # Drop every capability, then forbid re-gaining any via setuid binaries.
+    # nginx serving static files needs none of them.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    # Explicit rather than inherited from the image, so a future base-image
+    # change can't silently widen this.
+    user: "101:101"
+    pids_limit: 100
+
+    # tini reaps zombies and, more importantly, is PID 1 so SIGQUIT from
+    # `docker-compose stop` reaches nginx instead of being swallowed.
+    # ~2 MB of image, no meaningful RAM cost.
+    init: true
+
+    # nginx is pinned to worker_processes 1 in its config, so 64 MB is ample
+    # for a static file server; the reservation just keeps it off the floor
+    # under soft reclaim pressure so it isn't the first thing OOM-killed.
+    mem_limit: 64m
+    mem_reservation: 32m
+    cpus: 0.5
+
+    restart: unless-stopped
+    # SIGQUIT = graceful nginx shutdown (finish in-flight requests).
+    # SIGTERM would be "fast shutdown", dropping live connections.
+    stop_signal: SIGQUIT
+    stop_grace_period: 10s
+
+    # The json-file driver has NO size cap by default. nginx writes access logs
+    # to stdout, so an unbounded log will eventually fill the host disk and take
+    # the whole machine down. These options cap it at ~30 MB total.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Defined ONLY here, not in the Dockerfile -- defining it twice means
+    # editing it in one place and silently keeping the other. busybox wget
+    # ships in the alpine base, so no curl install is needed. `-O /dev/null`
+    # is preferred over `--spider` because -q/-O are core busybox flags, while
+    # --spider is an optional long option that a slimmed base may lack.
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+    volumes:
+      # Keeps the image reusable and lets the server config be edited without
+      # a rebuild/republish. :ro because nginx only ever reads it.
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+
+# Deliberately absent:
+#   volumes (data)   -- no state to persist; the container is disposable.
+#   env_file         -- no runtime secrets. Every NEXT_PUBLIC_* value is
+#                       inlined at build time, so there is nothing to inject.
+#   container_name   -- unnecessary for one service and blocks `scale`.
+#   depends_on       -- nothing to order against.
+#   platform         -- assume native arch. Set it in the README/compose
+#                       override only when cross-building.

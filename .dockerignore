@@ -1,0 +1,53 @@
+# ============================================================
+# Build dependencies & tooling
+# ============================================================
+# NOTE: no leading slash on purpose. Docker matches slash-less
+# patterns as a basename at ANY depth, so this single line also
+# drops .opencode/node_modules. Do NOT write /node_modules.
+node_modules
+
+# ============================================================
+# Next.js build artifacts (rebuilt inside the image)
+# ============================================================
+.next
+out
+next-env.d.ts.timestamp
+
+# ============================================================
+# VCS, CI, agent context & docs
+# ============================================================
+.git
+.github
+.opencode
+docs
+
+# ============================================================
+# Root-level docs & scratch files (junk, never in the image)
+# ============================================================
+*.md
+*.bak
+qwen-*.txt
+
+# ============================================================
+# Container/infra files (not inputs to the app build)
+# ============================================================
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+
+# ============================================================
+# Secrets & OS cruft
+# ============================================================
+.env*
+*.log
+.DS_Store
+
+# ============================================================
+# Intentionally NOT ignored (required to build):
+#   app/ components/ lib/ hooks/ public/
+#   package.json package-lock.json
+#   next.config.ts tsconfig.json
+#   postcss.config.mjs eslint.config.mjs
+#   next-env.d.ts components.json
+# ============================================================

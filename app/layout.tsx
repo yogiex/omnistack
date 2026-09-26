@@ -1,10 +1,14 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import localFont from "next/font/local"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth-context"
 
-const inter = Inter({ subsets: ["latin"] })
+// Vendored Inter variable font so Docker builds need no network access to Google Fonts
+const inter = localFont({
+  src: "../public/fonts/Inter-Variable.woff2",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "OmniStack - The Developer Operating System",
