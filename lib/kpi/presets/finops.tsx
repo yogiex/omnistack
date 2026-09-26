@@ -1,31 +1,25 @@
-import {
-  AlertTriangle,
-  Cpu,
-  DollarSign,
-  Gauge,
-  HardDrive,
-  Network,
-  TrendingUp,
-} from "lucide-react"
+import { BellRing, DollarSign, Gauge, HardDrive } from "lucide-react"
+
 import type { KpiGridConfig } from "@/lib/kpi/types"
-import type {
-  CostTrendPoint,
-  FinOpsOverview,
-  Role,
-} from "@/lib/mock-data"
+import type { CostTrendPoint, FinOpsOverview } from "@/lib/mock-finops"
+import type { Role } from "@/lib/mock-data"
+import { formatUSD } from "@/lib/utils"
+
+export interface FinOpsAlertSummary {
+  total: number
+  critical: number
+  warning: number
+}
 
 export interface FinOpsKpiData {
   overview: FinOpsOverview
   trend: CostTrendPoint[]
   role: Role
+  alerts: FinOpsAlertSummary
 }
 
-const currency = (n: number) =>
-  n.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  })
+const pct = (value: number, total: number): number =>
+  total === 0 ? 0 : (value / total) * 100
 
 export const finopsKpis: KpiGridConfig<FinOpsKpiData> = {
   cols: 4,
@@ -37,10 +31,13 @@ export const finopsKpis: KpiGridConfig<FinOpsKpiData> = {
       label: "Total Biaya",
       accent: "amber",
       icon: <DollarSign />,
-      value: (d) => currency(d.overview.totalCost),
+      value: (d) => formatUSD(d.overview.totalCost, 0),
       trend: (d) => (d.overview.trend < 0 ? "down" : "up"),
       trendValue: (d) => `${Math.abs(d.overview.trend).toFixed(1)}%`,
-      trendLabel: "vs periode sebelumnya",
+      trendLabel: (d) =>
+        d.role === "VIEWER"
+          ? "vs periode sebelumnya (read-only)"
+          : "vs periode sebelumnya",
       tooltip: "Total biaya compute, storage, network, dan database.",
       sparkline: (d) => d.trend.map((p) => p.total),
     },
@@ -52,68 +49,46 @@ export const finopsKpis: KpiGridConfig<FinOpsKpiData> = {
       value: (d) =>
         d.overview.budget === 0
           ? "—"
-          : `${Math.round((d.overview.totalCost / d.overview.budget) * 100)}%`,
+          : `${Math.round(pct(d.overview.totalCost, d.overview.budget))}%`,
       progress: (d) =>
+        Math.min(100, pct(d.overview.totalCost, d.overview.budget)),
+      trendValue: (d) => formatUSD(Math.max(0, d.overview.budget - d.overview.totalCost), 0),
+      trendLabel: (d) =>
         d.overview.budget === 0
-          ? 0
-          : Math.min(100, (d.overview.totalCost / d.overview.budget) * 100),
+          ? "Budget belum diatur"
+          : `Sisa dari ${formatUSD(d.overview.budget, 0)}`,
       tooltip: "Persentase budget bulanan yang sudah terpakai.",
-      href: "/finops",
     },
     {
-      id: "compute",
-      label: "Compute",
-      accent: "blue",
-      icon: <Cpu />,
-      value: (d) => currency(d.overview.computeCost),
-      tooltip: "Biaya CPU dan RAM across semua node.",
-    },
-    {
-      id: "storage",
-      label: "Storage",
-      accent: "default",
-      icon: <HardDrive />,
-      value: (d) => currency(d.overview.storageCost),
-      tooltip: "Biaya penyimpanan block dan object storage.",
-    },
-    {
-      id: "network",
-      label: "Network",
-      accent: "default",
-      icon: <Network />,
-      value: (d) => currency(d.overview.networkCost),
-      tooltip: "Biaya egress dan transfer antar node.",
+      id: "active-alerts",
+      label: "Alerts Aktif",
+      accent: "rose",
+      icon: <BellRing />,
+      value: (d) => d.alerts.total.toLocaleString("id-ID"),
+      trendLabel: (d) =>
+        d.alerts.total === 0
+          ? "Tidak ada alert aktif"
+          : [
+              d.alerts.critical > 0
+                ? `${d.alerts.critical} kritis`
+                : "tanpa alert kritis",
+              `${d.alerts.warning} peringatan`,
+            ].join(" · "),
+      tooltip:
+        "Jumlah alert anggaran yang aktif pada data yang terlihat oleh role Anda.",
+      href: "#budget-alerts",
     },
     {
       id: "storage-usage",
       label: "Storage Terpakai",
-      accent: "default",
+      accent: "blue",
       icon: <HardDrive />,
-      value: (d) => `${d.overview.storageUsedGb.toFixed(0)} GB`,
+      value: (d) => `${d.overview.storageUsedGb.toLocaleString("id-ID")} GB`,
       trend: (d) => (d.overview.storageGrowthGb < 0 ? "down" : "up"),
       trendValue: (d) =>
-        `${Math.abs(d.overview.storageGrowthGb).toFixed(1)} GB`,
+        `${d.overview.storageGrowthGb < 0 ? "" : "+"}${d.overview.storageGrowthGb.toFixed(1)} GB`,
       trendLabel: "pertumbuhan periode ini",
       tooltip: "Volume storage terpakai lintas proyek.",
-    },
-    {
-      id: "db-slow-queries",
-      label: "Slow Queries",
-      accent: "rose",
-      icon: <AlertTriangle />,
-      value: (d) => d.overview.dbSlowQueries.toLocaleString("id-ID"),
-      tooltip: "Query database yang melampaui ambang latency.",
-      visible: (d) => d.overview.dbSlowQueries > 0,
-    },
-    {
-      id: "cost-trend",
-      label: "Tren Biaya",
-      accent: "emerald",
-      icon: <TrendingUp />,
-      value: (d) => (d.overview.trend < 0 ? "Efisien" : "Naik"),
-      trend: (d) => (d.overview.trend < 0 ? "down" : "up"),
-      tooltip:
-        "Membandingkan biaya periode ini terhadap periode sebelumnya.",
     },
   ],
 }

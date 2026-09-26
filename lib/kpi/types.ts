@@ -31,7 +31,8 @@ export interface KpiItem<TData = unknown> {
    */
   trend?: KpiTrend | ((data: TData) => KpiTrend)
   trendValue?: string | ((data: TData) => string)
-  trendLabel?: string
+  /** Konteks tren — boleh statis atau fungsi bila bergantung pada data */
+  trendLabel?: string | ((data: TData) => string)
   /** Isi tooltip */
   tooltip?: string
   /** Progress 0–100 */

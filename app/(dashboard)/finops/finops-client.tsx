@@ -1,8 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import { Download, ShieldAlert } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
 import { KpiSection } from "@/components/kpi"
 import { useAuth } from "@/lib/auth-context"
 import { finopsKpis } from "@/lib/kpi/presets/finops"
@@ -13,22 +12,21 @@ import {
   MOCK_FINOPS_TREND,
   MOCK_OPTIMIZED_PROJECTS,
   MOCK_RECOMMENDATIONS,
-  getMockProjectsByUser,
-  type Role,
-} from "@/lib/mock-data"
+  summarizeAlerts,
+} from "@/lib/mock-finops"
+import { getMockProjectsByUser, type Role } from "@/lib/mock-data"
+
 import { BudgetAlerts } from "./_components/budget-alerts"
 import { BudgetSettings } from "./_components/budget-settings"
 import { CostBreakdownTable } from "./_components/cost-breakdown-table"
 import { CostTrendChart } from "./_components/cost-trend-chart"
+import { CriticalAlertBanner } from "./_components/critical-alert-banner"
 import { ExportPanel } from "./_components/export-panel"
-import { FinOpsOverviewCards } from "./_components/finops-overview"
+import { FinOpsHeader } from "./_components/finops-header"
+import { InfraBreakdownStrip } from "./_components/infra-breakdown-strip"
 import { OptimizationRecommendations } from "./_components/optimization-recommendations"
 
-const TITLE_BY_ROLE = {
-  ADMIN: "FinOps Dashboard — Seluruh Sistem",
-  USER: "FinOps Dashboard — Proyek Anda",
-  VIEWER: "FinOps Dashboard (Read-Only)",
-} as const
+const LAST_SYNC_LABEL = "1 jam lalu"
 
 export function FinOpsClient() {
   const { user, isLoading } = useAuth()
@@ -36,87 +34,123 @@ export function FinOpsClient() {
 
   const visibleBreakdown = useMemo(() => {
     if (!user) return []
-    const allowedIds = new Set(getMockProjectsByUser(user.id, role).map((p) => p.id))
+    const allowedIds = new Set(
+      getMockProjectsByUser(user.id, role).map((p) => p.id)
+    )
     return MOCK_COST_BREAKDOWN.filter((b) => allowedIds.has(b.projectId))
   }, [user, role])
 
+  /**
+   * Alert mengikuti pola RBAC yang sama dengan `visibleBreakdown`.
+   * `BudgetAlert.projectId` bersifat opsional: alert tanpa projectId
+   * dianggap alert tingkat organisasi, jadi hanya ditampilkan untuk ADMIN
+   * (bukan USER/VIEWER) agar tidak membocorkan data lintas proyek.
+   */
+  const visibleAlerts = useMemo(() => {
+    if (!user) return []
+    const allowedIds = new Set(
+      getMockProjectsByUser(user.id, role).map((p) => p.id)
+    )
+    return MOCK_BUDGET_ALERTS.filter((a) => {
+      if (!a.projectId) return role === "ADMIN"
+      return allowedIds.has(a.projectId)
+    })
+  }, [user, role])
+
   const alertsSummary = useMemo(
-    () => ({
-      critical: MOCK_BUDGET_ALERTS.filter((a) => a.severity === "critical").length,
-      warning: MOCK_BUDGET_ALERTS.filter((a) => a.severity === "warning").length,
-    }),
-    []
+    () => summarizeAlerts(visibleAlerts),
+    [visibleAlerts]
   )
 
   const canManageBudget = role === "ADMIN" || role === "USER"
-  const canApply = canManageBudget
 
-  const kpiData = useMemo(
-    () => ({ overview: FINOPS_OVERVIEW, trend: MOCK_FINOPS_TREND, role }),
-    [role]
+  const visibleRecommendations = useMemo(
+    () =>
+      MOCK_RECOMMENDATIONS.filter((r) =>
+        visibleBreakdown.some((b) => b.projectId === r.projectId)
+      ),
+    [visibleBreakdown]
   )
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-9 w-96 max-w-full animate-pulse rounded-lg bg-muted" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-40 animate-pulse rounded-xl bg-muted" />
-          ))}
-        </div>
-        <div className="h-72 animate-pulse rounded-xl bg-muted" />
-      </div>
-    )
-  }
+  const kpiData = useMemo(
+    () => ({
+      overview: FINOPS_OVERVIEW,
+      trend: MOCK_FINOPS_TREND,
+      role,
+      alerts: alertsSummary,
+    }),
+    [role, alertsSummary]
+  )
+
+  if (isLoading) return <FinOpsSkeleton />
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">{TITLE_BY_ROLE[role]}</h1>
-          <p className="text-muted-foreground text-sm">
-            Track biaya infrastruktur real-time per-aplikasi, per-tim, dan per-klien.
-          </p>
-        </div>
-        <Button variant="outline" size="sm">
-          <Download className="mr-2 h-4 w-4" />
-          Export
-        </Button>
-      </div>
-
-      <KpiSection
-        config={finopsKpis}
-        data={kpiData}
+      <FinOpsHeader
         role={role}
+        activeAlerts={alertsSummary.total}
+        criticalAlerts={alertsSummary.critical}
+        lastSyncLabel={LAST_SYNC_LABEL}
       />
 
-      {role === "VIEWER" && (
-        <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
-          <ShieldAlert className="h-4 w-4 shrink-0" />
-          Mode read-only — Anda dapat melihat dan mengekspor laporan, namun tidak dapat mengubah anggaran.
-        </div>
-      )}
+      <CriticalAlertBanner alerts={visibleAlerts} />
 
-      <FinOpsOverviewCards overview={FINOPS_OVERVIEW} alertsSummary={alertsSummary} />
+      <KpiSection config={finopsKpis} data={kpiData} role={role} />
 
-      <CostTrendChart data={MOCK_FINOPS_TREND} />
+      <InfraBreakdownStrip overview={FINOPS_OVERVIEW} />
 
-      <CostBreakdownTable items={visibleBreakdown} canManageBudget={canManageBudget} />
+      <CostTrendChart data={MOCK_FINOPS_TREND} overview={FINOPS_OVERVIEW} />
+
+      <CostBreakdownTable
+        items={visibleBreakdown}
+        canManageBudget={canManageBudget}
+        showOwner={role === "ADMIN"}
+      />
 
       <OptimizationRecommendations
-        recommendations={MOCK_RECOMMENDATIONS.filter((r) =>
-          visibleBreakdown.some((b) => b.projectId === r.projectId)
-        )}
+        recommendations={visibleRecommendations}
         optimized={MOCK_OPTIMIZED_PROJECTS}
-        canApply={canApply}
+        canApply={canManageBudget}
       />
 
-      <BudgetAlerts alerts={MOCK_BUDGET_ALERTS} canDismiss={canManageBudget} />
+      <div id="budget-alerts" className="scroll-mt-24">
+        <BudgetAlerts alerts={visibleAlerts} canDismiss={canManageBudget} />
+      </div>
 
-      <ExportPanel />
+      <ExportPanel collapsible />
 
-      <BudgetSettings isAdmin={role === "ADMIN"} />
+      <BudgetSettings isAdmin={role === "ADMIN"} collapsible />
+    </div>
+  )
+}
+
+const KPI_KEYS = ["kpi-1", "kpi-2", "kpi-3", "kpi-4"] as const
+const STRIP_KEYS = ["strip-1", "strip-2", "strip-3", "strip-4"] as const
+
+function FinOpsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          <div className="h-7 w-48 animate-pulse rounded-md bg-muted" />
+          <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
+        </div>
+        <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {KPI_KEYS.map((key) => (
+          <div key={key} className="h-32 animate-pulse rounded-xl bg-muted" />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {STRIP_KEYS.map((key) => (
+          <div key={key} className="h-24 animate-pulse rounded-xl bg-muted" />
+        ))}
+      </div>
+
+      <div className="h-80 animate-pulse rounded-xl bg-muted" />
     </div>
   )
 }

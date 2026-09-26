@@ -12,10 +12,7 @@ import {
   GitBranch,
   Plus,
   ScrollText,
-  Server,
-  ShieldCheck,
   Settings,
-  Timer,
 } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import {

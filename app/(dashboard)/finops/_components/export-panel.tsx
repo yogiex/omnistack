@@ -13,6 +13,12 @@ import {
   Trash2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
@@ -77,7 +83,7 @@ function formatIcon(name: string) {
   return <FileText className="size-4 text-muted-foreground" />
 }
 
-export function ExportPanel() {
+export function ExportPanel({ collapsible = false }: { collapsible?: boolean }) {
   const [reportType, setReportType] = useState<ReportType>("monthly")
   const [format, setFormat] = useState<Format>("pdf")
   const [includeCostBreakdown, setIncludeCostBreakdown] = useState(true)
@@ -125,162 +131,199 @@ export function ExportPanel() {
     setInlineFeedback(null)
   }
 
+  const sections = (
+    <>
+      {/* A) Generate Report */}
+      <section className="grid gap-5">
+        <h3 className="text-sm font-semibold">Generate Report</h3>
+
+        <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+          Mode simulasi: laporan belum benar-benar dibuat atau diunduh. Pilihan
+          format di menu Export halaman ini sudah dinonaktifkan karena belum
+          ada backend export.
+        </p>
+
+        <div className="grid gap-2">
+          <Label className="text-muted-foreground text-xs">Report Type</Label>
+          <div role="radiogroup" aria-label="Report Type" className="flex flex-wrap gap-2">
+            {REPORT_TYPES.map((rt) => (
+              <button
+                key={rt.value}
+                type="button"
+                role="radio"
+                aria-checked={reportType === rt.value}
+                onClick={() => setReportType(rt.value)}
+                className={cn(
+                  "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+                  reportType === rt.value
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                {rt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-2">
+          <Label className="text-muted-foreground text-xs">Format</Label>
+          <div role="radiogroup" aria-label="Format" className="flex flex-wrap gap-2">
+            {FORMATS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                role="radio"
+                aria-checked={format === f.value}
+                onClick={() => setFormat(f.value)}
+                className={cn(
+                  "min-w-16 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+                  format === f.value
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-2">
+          <Label className="text-muted-foreground text-xs">Include</Label>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={includeCostBreakdown}
+                onCheckedChange={(checked) => setIncludeCostBreakdown(checked === true)}
+              />
+              Cost breakdown
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox checked={includeTrends} onCheckedChange={(checked) => setIncludeTrends(checked === true)} />
+              Trends
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={includeRecommendations}
+                onCheckedChange={(checked) => setIncludeRecommendations(checked === true)}
+              />
+              Recommendations
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <Checkbox
+                checked={includeRawData}
+                onCheckedChange={(checked) => setIncludeRawData(checked === true)}
+              />
+              Raw data
+            </label>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Button onClick={handleGenerateReport} disabled={isGenerating}>
+            {isGenerating && <Loader2 className="animate-spin" />}
+            {isGenerating ? "Generating..." : "Generate Report"}
+          </Button>
+          <Button variant="outline" onClick={handleScheduleRecurring}>
+            <CalendarClock />
+            Schedule Recurring Report
+          </Button>
+          {scheduleConfirmed && (
+            <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="size-3.5" /> Recurring report scheduled (mock)
+            </span>
+          )}
+        </div>
+      </section>
+
+      {/* B) Recent Exports */}
+      <section className="grid gap-3">
+        <h3 className="text-sm font-semibold">Recent Exports</h3>
+
+        {inlineFeedback && (
+          <p className="text-muted-foreground text-xs" aria-live="polite">
+            {inlineFeedback}
+          </p>
+        )}
+
+        <ul className="divide-border grid divide-y rounded-lg border">
+          {visibleExports.map((entry) => (
+            <li key={entry.id} className="hover:bg-muted/50 flex items-center gap-3 px-3 py-2.5 transition-colors">
+              {formatIcon(entry.name)}
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-mono text-xs">{entry.name}</p>
+                <p className="text-muted-foreground text-[11px]">
+                  {entry.timeLabel} · {entry.size}
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-1">
+                <Button variant="ghost" size="icon-sm" onClick={() => handleAction(entry.id, "Download")}>
+                  <Download />
+                  <span className="sr-only">Download</span>
+                </Button>
+                <Button variant="ghost" size="icon-sm" onClick={() => handleAction(entry.id, "Share")}>
+                  <Share2 />
+                  <span className="sr-only">Share</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => handleDelete(entry.id)}
+                >
+                  <Trash2 />
+                  <span className="sr-only">Delete</span>
+                </Button>
+              </div>
+            </li>
+          ))}
+          {visibleExports.length === 0 && (
+            <li className="text-muted-foreground px-3 py-6 text-center text-xs">No exports yet.</li>
+          )}
+        </ul>
+
+        <p className="text-muted-foreground text-xs">
+          Showing {visibleExports.length} of {totalExports}
+        </p>
+      </section>
+    </>
+  )
+
+  if (collapsible) {
+    return (
+      <Accordion
+        id="export-reports"
+        className="scroll-mt-24 rounded-xl border border-border bg-card px-4"
+      >
+        <AccordionItem value="export-reports" className="border-b-0">
+          <AccordionTrigger className="py-4 text-left hover:no-underline">
+            <span className="flex flex-col gap-0.5">
+              <span className="text-base font-semibold text-foreground">
+                Export &amp; Reports
+              </span>
+              <span className="text-sm font-normal text-muted-foreground">
+                Generate and manage cost reports for your projects.
+              </span>
+            </span>
+          </AccordionTrigger>
+          <AccordionContent className="grid gap-8 pb-6">
+            {sections}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    )
+  }
+
   return (
-    <Card>
+    <Card id="export-reports" className="scroll-mt-24">
       <CardHeader>
         <CardTitle>Export &amp; Reports</CardTitle>
-        <CardDescription>Generate and manage cost reports for your projects.</CardDescription>
+        <CardDescription>
+          Generate and manage cost reports for your projects.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-8">
-        {/* A) Generate Report */}
-        <section className="grid gap-5">
-          <h3 className="text-sm font-semibold">Generate Report</h3>
-
-          <div className="grid gap-2">
-            <Label className="text-muted-foreground text-xs">Report Type</Label>
-            <div role="radiogroup" aria-label="Report Type" className="flex flex-wrap gap-2">
-              {REPORT_TYPES.map((rt) => (
-                <button
-                  key={rt.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={reportType === rt.value}
-                  onClick={() => setReportType(rt.value)}
-                  className={cn(
-                    "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
-                    reportType === rt.value
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  )}
-                >
-                  {rt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label className="text-muted-foreground text-xs">Format</Label>
-            <div role="radiogroup" aria-label="Format" className="flex flex-wrap gap-2">
-              {FORMATS.map((f) => (
-                <button
-                  key={f.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={format === f.value}
-                  onClick={() => setFormat(f.value)}
-                  className={cn(
-                    "min-w-16 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
-                    format === f.value
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  )}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label className="text-muted-foreground text-xs">Include</Label>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <Checkbox
-                  checked={includeCostBreakdown}
-                  onCheckedChange={(checked) => setIncludeCostBreakdown(checked === true)}
-                />
-                Cost breakdown
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <Checkbox checked={includeTrends} onCheckedChange={(checked) => setIncludeTrends(checked === true)} />
-                Trends
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <Checkbox
-                  checked={includeRecommendations}
-                  onCheckedChange={(checked) => setIncludeRecommendations(checked === true)}
-                />
-                Recommendations
-              </label>
-              <label className="flex cursor-pointer items-center gap-2 text-sm">
-                <Checkbox
-                  checked={includeRawData}
-                  onCheckedChange={(checked) => setIncludeRawData(checked === true)}
-                />
-                Raw data
-              </label>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={handleGenerateReport} disabled={isGenerating}>
-              {isGenerating && <Loader2 className="animate-spin" />}
-              {isGenerating ? "Generating..." : "Generate Report"}
-            </Button>
-            <Button variant="outline" onClick={handleScheduleRecurring}>
-              <CalendarClock />
-              Schedule Recurring Report
-            </Button>
-            {scheduleConfirmed && (
-              <span className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-                <CheckCircle2 className="size-3.5" /> Recurring report scheduled (mock)
-              </span>
-            )}
-          </div>
-        </section>
-
-        {/* B) Recent Exports */}
-        <section className="grid gap-3">
-          <h3 className="text-sm font-semibold">Recent Exports</h3>
-
-          {inlineFeedback && (
-            <p className="text-muted-foreground text-xs" aria-live="polite">
-              {inlineFeedback}
-            </p>
-          )}
-
-          <ul className="divide-border grid divide-y rounded-lg border">
-            {visibleExports.map((entry) => (
-              <li key={entry.id} className="hover:bg-muted/50 flex items-center gap-3 px-3 py-2.5 transition-colors">
-                {formatIcon(entry.name)}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-mono text-xs">{entry.name}</p>
-                  <p className="text-muted-foreground text-[11px]">
-                    {entry.timeLabel} · {entry.size}
-                  </p>
-                </div>
-                <div className="flex shrink-0 gap-1">
-                  <Button variant="ghost" size="icon-sm" onClick={() => handleAction(entry.id, "Download")}>
-                    <Download />
-                    <span className="sr-only">Download</span>
-                  </Button>
-                  <Button variant="ghost" size="icon-sm" onClick={() => handleAction(entry.id, "Share")}>
-                    <Share2 />
-                    <span className="sr-only">Share</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(entry.id)}
-                  >
-                    <Trash2 />
-                    <span className="sr-only">Delete</span>
-                  </Button>
-                </div>
-              </li>
-            ))}
-            {visibleExports.length === 0 && (
-              <li className="text-muted-foreground px-3 py-6 text-center text-xs">No exports yet.</li>
-            )}
-          </ul>
-
-          <p className="text-muted-foreground text-xs">
-            Showing {visibleExports.length} of {totalExports}
-          </p>
-        </section>
-      </CardContent>
+      <CardContent className="grid gap-8">{sections}</CardContent>
     </Card>
   )
 }

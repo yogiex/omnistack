@@ -106,7 +106,7 @@ function ResolvedKpi<TData>({
       accent={item.accent}
       trend={resolve(item.trend) ?? "flat"}
       trendValue={resolve(item.trendValue)}
-      trendLabel={item.trendLabel}
+      trendLabel={resolve(item.trendLabel)}
       tooltip={item.tooltip}
       progress={resolve(item.progress)}
       sparkline={resolve(item.sparkline)}

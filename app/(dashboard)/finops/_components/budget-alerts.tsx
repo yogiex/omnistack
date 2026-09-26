@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type { AlertSeverity, BudgetAlert } from "@/lib/mock-data"
+import type { AlertSeverity, BudgetAlert } from "@/lib/mock-finops"
 import { cn } from "@/lib/utils"
 
 interface BudgetAlertsProps {
