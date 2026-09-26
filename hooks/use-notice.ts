@@ -7,6 +7,9 @@ const AUTO_DISMISS_MS = 3000
 /**
  * Notifikasi transien untuk aksi mock. Auto-dismiss 3 detik, timer
  * dibersihkan saat unmount supaya tidak ada setState setelah unmount.
+ *
+ * Shared antar page (projects, users, dst) — hook ini murni state lokal,
+ * tidak ada dependensi ke domain tertentu.
  */
 export function useNotice() {
   const [notice, setNotice] = useState<string | null>(null)

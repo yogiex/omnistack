@@ -1,5 +1,15 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Sheet,
   SheetContent,
@@ -8,9 +18,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import type { Role } from "@/lib/mock-data"
 
 export interface UserForm {
@@ -32,31 +39,33 @@ const ROLE_HINTS: Record<Role, string> = {
 interface UserFormSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  mode: "create" | "edit"
   form: UserForm
   onFormChange: (form: UserForm) => void
   onSubmit: () => void
 }
 
+/**
+ * Edit-only. Pembuatan user baru lewat `<InviteUserDialog />` — mode
+ * "create" sebelumnya ada di sini tapi tidak pernah di-set, jadi sheet
+ * ini tidak pernah menampilkan form kosong.
+ */
 export function UserFormSheet({
   open,
   onOpenChange,
-  mode,
   form,
   onFormChange,
   onSubmit,
 }: UserFormSheetProps) {
+  const canSubmit =
+    form.name.trim().length > 0 && form.email.trim().includes("@")
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>
-            {mode === "create" ? "Tambah User Baru" : "Edit User"}
-          </SheetTitle>
+          <SheetTitle>Edit User</SheetTitle>
           <SheetDescription>
-            {mode === "create"
-              ? "Buat akun baru dan tentukan role-nya."
-              : "Ubah data user atau promote/demote role."}
+            Ubah data user atau promote/demote role-nya.
           </SheetDescription>
         </SheetHeader>
 
@@ -84,36 +93,32 @@ export function UserFormSheet({
 
           <div className="space-y-2">
             <Label htmlFor="form-role">Role</Label>
-            <select
-              id="form-role"
+            <Select
               value={form.role}
-              onChange={(e) =>
-                onFormChange({ ...form, role: e.target.value as Role })
+              onValueChange={(value) =>
+                onFormChange({ ...form, role: value as Role })
               }
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none transition-colors focus:border-ring"
             >
-              {ROLES.map((role) => (
-                <option key={role} value={role}>
-                  {role} — {ROLE_HINTS[role]}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {mode === "create" && (
+              <SelectTrigger id="form-role" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ROLES.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {role} — {ROLE_HINTS[role]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <p className="text-xs text-muted-foreground">
-              Password awal akan diset ke{" "}
-              <code className="rounded bg-muted px-1 py-0.5 font-mono">
-                demo1234
-              </code>{" "}
-              (mock).
+              {ROLE_HINTS[form.role]}
             </p>
-          )}
+          </div>
         </div>
 
         <SheetFooter>
-          <Button onClick={onSubmit}>
-            {mode === "create" ? "Buat User" : "Simpan Perubahan"}
+          <Button disabled={!canSubmit} onClick={onSubmit}>
+            Simpan Perubahan
           </Button>
         </SheetFooter>
       </SheetContent>

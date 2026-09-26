@@ -9,7 +9,7 @@ import { projectsKpis } from "@/lib/kpi/presets/projects"
 import type { MockProject } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 
-import { useNotice } from "./_hooks/use-notice"
+import { useNotice } from "@/hooks/use-notice"
 import {
   useProjectFilters,
   STATUS_FILTERS,
