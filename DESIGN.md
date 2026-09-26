@@ -77,17 +77,19 @@ Developer bekerja cepat. UI harus bisa di-scan dalam 1-2 detik untuk menemukan i
 
 OmniStack menggunakan **semantic color tokens** yang adaptif antara light & dark mode.
 
+Semua **design token** di bawah ditulis dalam format **`oklch()`** (Lightness 0–1, Chroma 0–0.4, Hue 0–360) — bukan HSL, bukan hex. Nilai ini adalah nilai aktual di `app/globals.css`.
+
 ### Primary Palette
 
 ```css
 /* Primary - Identitas utama OmniStack */
---primary: 240 5.9% 10%;        /* Light mode: Near black */
---primary-foreground: 0 0% 98%; /* White text on primary */
+--primary: oklch(0.205 0 0);        /* Light mode: Near black */
+--primary-foreground: oklch(0.985 0 0); /* White text on primary */
 
 /* Dark mode override */
 .dark {
-  --primary: 0 0% 98%;          /* White */
-  --primary-foreground: 240 5.9% 10%;
+  --primary: oklch(0.922 0 0);          /* White */
+  --primary-foreground: oklch(0.205 0 0);
 }
 ```
 
@@ -95,13 +97,13 @@ OmniStack menggunakan **semantic color tokens** yang adaptif antara light & dark
 
 | Token | Penggunaan | Light Mode | Dark Mode |
 |---|---|---|---|
-| `--background` | Background aplikasi | `0 0% 100%` | `240 10% 3.9%` |
-| `--foreground` | Text utama | `240 10% 3.9%` | `0 0% 98%` |
-| `--muted` | Konten sekunder | `240 4.8% 95.9%` | `240 3.7% 15.9%` |
-| `--accent` | Highlight interaktif | `240 4.8% 95.9%` | `240 3.7% 15.9%` |
-| `--destructive` | Error, delete | `0 84.2% 60.2%` | `0 62.8% 30.6%` |
-| `--border` | Garis pembatas | `240 5.9% 90%` | `240 3.7% 15.9%` |
-| `--ring` | Focus state | `240 5.9% 10%` | `240 4.9% 83.9%` |
+| `--background` | Background aplikasi | `oklch(1 0 0)` | `oklch(0.145 0 0)` |
+| `--foreground` | Text utama | `oklch(0.145 0 0)` | `oklch(0.985 0 0)` |
+| `--muted` | Konten sekunder | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` |
+| `--accent` | Highlight interaktif | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` |
+| `--destructive` | Error, delete | `oklch(0.577 0.245 27.325)` | `oklch(0.704 0.191 22.216)` |
+| `--border` | Garis pembatas | `oklch(0.922 0 0)` | `oklch(1 0 0 / 10%)` |
+| `--ring` | Focus state | `oklch(0.708 0 0)` | `oklch(0.556 0 0)` |
 
 ### Accent Colors (Feature-Specific)
 
@@ -143,6 +145,86 @@ Digunakan untuk membedakan fitur utama secara visual:
 - Menggunakan lebih dari 2 accent colors dalam satu view
 - Menggunakan warna saturated untuk background besar
 - Mengandalkan warna saja untuk convey information (aksesibilitas)
+
+### Color Palette (Pilihan Pengguna)
+
+Selain mode terang/gelap, pengguna bisa memilih satu dari 6 **color palette** yang menentukan warna identitas aplikasi. Palette di-override lewat atribut `data-palette` pada `<html>` — metode yang sama seperti `next-themes` memasang `class="dark"`.
+
+#### Token yang Di-Override
+
+Setiap palette **hanya** menimpa 4 token accent. Seluruh token lain (`--background`, `--foreground`, `--muted`, `--border`, `--destructive`, `--chart-*`, dll) tetap netral dan mengikuti Light Mode sehingga struktur, kontras, dan hierarki visual tidak berubah antar palette.
+
+| Token | Peran |
+|---|---|
+| `--primary` | Tombol primary, badge, ikon aktif |
+| `--ring` | Focus ring pada elemen interaktif |
+| `--sidebar-primary` | Item menu aktif di sidebar |
+| `--sidebar-ring` | Focus ring di dalam sidebar |
+
+#### Daftar Palette
+
+| ID | Nama | Deskripsi | Light | Dark |
+|---|---|---|---|---|
+| `default` | Default | Neutral monokrom | `oklch(0.205 0 0)` | `oklch(0.922 0 0)` |
+| `ocean` | Ocean | Biru tenang | `oklch(0.55 0.2 250)` | `oklch(0.7 0.16 250)` |
+| `violet` | Violet | Ungu kreatif | `oklch(0.55 0.22 290)` | `oklch(0.72 0.18 290)` |
+| `emerald` | Emerald | Hijau segar | `oklch(0.55 0.15 160)` | `oklch(0.72 0.14 160)` |
+| `sunset` | Sunset | Amber hangat | `oklch(0.65 0.17 55)` | `oklch(0.78 0.15 55)` |
+| `rose` | Rose | Merah berani | `oklch(0.6 0.22 15)` | `oklch(0.72 0.18 15)` |
+
+> Nilai dark selalu **lebih terang dan sedikit desaturated** dibanding light — konsisten dengan prinsip *Desaturated accents* di [Dark Mode Strategy](#-dark-mode-strategy).
+
+#### Mekanisme
+
+```css
+/* 1. Mode gelap tetap dikelola next-themes lewat class="dark" */
+.dark { /* ... */ }
+
+/* 2. Palette: blok light (specificity 0,1,0) */
+[data-palette="ocean"] {
+  --primary: oklch(0.55 0.2 250);
+  --ring: oklch(0.55 0.2 250);
+  --sidebar-primary: oklch(0.55 0.2 250);
+  --sidebar-ring: oklch(0.55 0.2 250);
+}
+
+/* 3. Kombinasi keduanya (specificity 0,2,0) — HARUS setelah blok light */
+.dark[data-palette="ocean"] {
+  --primary: oklch(0.7 0.16 250);
+  --ring: oklch(0.7 0.16 250);
+  --sidebar-primary: oklch(0.7 0.16 250);
+  --sidebar-ring: oklch(0.7 0.16 250);
+}
+```
+
+**Aturan specificity (jangan di-reorder di `globals.css`):**
+
+| Selector | Specificity | Menang atas |
+|---|---|---|
+| `[data-palette="x"]` | (0,1,0) | `:root` (0,1,0) — menang hanya karena ditulis lebih akhir |
+| `.dark[data-palette="x"]` | (0,2,0) | `.dark` **dan** `[data-palette="x"]` |
+
+Palette `default` **sengaja tidak punya blok CSS** — nilainya jatuh ke `:root` / `.dark` apa adanya.
+
+⚠️ **Palette TIDAK menggantikan mode.** `data-palette` orthogonal terhadap `class="dark"`: semua 6 palette valid dalam light maupun dark mode. UI untuk memilih keduanya ada di satu dropdown (`ThemeSwitcher`).
+
+#### Init Script Anti-FOUC
+
+Karena `output: "export"`, `data-palette` tidak bisa disuntik dari server. Sebuah init script membacanya dari `localStorage` **sebelum paint pertama** di `app/layout.tsx` supaya tidak ada flash dari palette default ke palette tersimpan:
+
+```tsx
+<Script id="palette-init" strategy="beforeInteractive">
+  {`try{var p=localStorage.getItem('omnistack-palette');if(p)document.documentElement.setAttribute('data-palette',p)}catch(e){}`}
+</Script>
+```
+
+`try/catch` wajib — `localStorage` bisa throw di private mode / Safari. Pembacaan palette oleh `PaletteProvider` tetap dilakukan **setelah mount** agar render server dan client menghasilkan HTML yang sama (tidak membaca `localStorage` saat render).
+
+#### Menambah Palette Baru
+
+1. **Daftarkan palette** — tambahkan id ke tipe `PaletteId` dan objeknya ke array `PALETTES` di `lib/theme/palettes.ts` (isi `name`, `description`, dan `swatch` untuk preview).
+2. **Tambahkan blok CSS** — buat `[data-palette="<id>"]` untuk light, lalu `.dark[data-palette="<id>"]` tepat setelahnya, di `app/globals.css`. Override hanya 4 token accent.
+3. **Verifikasi** — cek kontras light & dark (focus ring tetap ≥ 3:1), lalu jalankan `npm run lint` + `npm run build`.
 
 ---
 
@@ -537,14 +619,14 @@ Dark mode di OmniStack **bukan sekadar inverse**. Ia memiliki karakter dan depth
 
 ```css
 /* Light mode backgrounds */
---background: 0 0% 100%;      /* Pure white */
---card: 0 0% 100%;
+--background: oklch(1 0 0);        /* Pure white */
+--card: oklch(1 0 0);
 
 /* Dark mode backgrounds */
 .dark {
-  --background: 240 10% 3.9%; /* Very dark blue-gray */
-  --card: 240 10% 5.9%;       /* Slightly lighter for elevation */
-  --muted: 240 3.7% 15.9%;    /* Muted surfaces */
+  --background: oklch(0.145 0 0);  /* Very dark blue-gray */
+  --card: oklch(0.205 0 0);        /* Slightly lighter for elevation */
+  --muted: oklch(0.269 0 0);      /* Muted surfaces */
 }
 ```
 
@@ -698,6 +780,7 @@ OmniStack mengambil inspirasi dari produk-produk terbaik di industri:
 | Version | Date | Changes |
 |---|---|---|
 | **1.0** | 2026-08-22 | Initial design system documentation |
+| **1.1** | 2026-09-26 | Tambah sistem Color Palette (`data-palette`); konversi dokumentasi warna HSL ke `oklch()` |
 
 ---
 

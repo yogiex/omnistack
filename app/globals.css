@@ -67,11 +67,11 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --chart-1: oklch(0.66 0.14 250);
+  --chart-2: oklch(0.66 0.14 322);
+  --chart-3: oklch(0.66 0.14 34);
+  --chart-4: oklch(0.66 0.14 106);
+  --chart-5: oklch(0.66 0.14 178);
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -102,11 +102,11 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --chart-1: oklch(0.74 0.12 250);
+  --chart-2: oklch(0.74 0.12 322);
+  --chart-3: oklch(0.74 0.12 34);
+  --chart-4: oklch(0.74 0.12 106);
+  --chart-5: oklch(0.74 0.12 178);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -115,6 +115,170 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ==========================================================================
+   THEME PALETTES — `data-palette="<id>"` on <html>
+   --------------------------------------------------------------------------
+   Applied exactly like `next-themes` sets `class="dark"` on <html>.
+
+   Specificity / order rules (do not reorder):
+     1. `[data-palette="x"]`               -> (0,1,0) beats `:root` (0,1,0)
+        only because it appears LATER in the file.
+     2. `.dark[data-palette="x"]`          -> (0,2,0) beats `.dark` (0,1,0)
+        AND `[data-palette="x"]` (0,1,0).
+
+   `default` intentionally has no block: it falls through to `:root` / `.dark`.
+   ========================================================================== */
+
+/* --- Light mode ---------------------------------------------------------- */
+
+[data-palette="ocean"] {
+  --primary: oklch(0.55 0.2 250);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.55 0.2 250);
+  --sidebar-primary: oklch(0.55 0.2 250);
+  --sidebar-ring: oklch(0.55 0.2 250);
+  --chart-1: oklch(0.66 0.14 245);
+  --chart-2: oklch(0.66 0.14 317);
+  --chart-3: oklch(0.66 0.14 29);
+  --chart-4: oklch(0.66 0.14 101);
+  --chart-5: oklch(0.66 0.14 173);
+}
+
+[data-palette="violet"] {
+  --primary: oklch(0.55 0.22 290);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.55 0.22 290);
+  --sidebar-primary: oklch(0.55 0.22 290);
+  --sidebar-ring: oklch(0.55 0.22 290);
+  --chart-1: oklch(0.66 0.14 290);
+  --chart-2: oklch(0.66 0.14 2);
+  --chart-3: oklch(0.66 0.14 74);
+  --chart-4: oklch(0.66 0.14 146);
+  --chart-5: oklch(0.66 0.14 218);
+}
+
+[data-palette="emerald"] {
+  --primary: oklch(0.55 0.15 160);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.55 0.15 160);
+  --sidebar-primary: oklch(0.55 0.15 160);
+  --sidebar-ring: oklch(0.55 0.15 160);
+  --chart-1: oklch(0.66 0.14 160);
+  --chart-2: oklch(0.66 0.14 232);
+  --chart-3: oklch(0.66 0.14 304);
+  --chart-4: oklch(0.66 0.14 16);
+  --chart-5: oklch(0.66 0.14 88);
+}
+
+[data-palette="sunset"] {
+  --primary: oklch(0.65 0.17 55);
+  --primary-foreground: oklch(0.145 0 0);
+  --ring: oklch(0.65 0.17 55);
+  --sidebar-primary: oklch(0.65 0.17 55);
+  --sidebar-ring: oklch(0.65 0.17 55);
+  --chart-1: oklch(0.66 0.14 55);
+  --chart-2: oklch(0.66 0.14 127);
+  --chart-3: oklch(0.66 0.14 199);
+  --chart-4: oklch(0.66 0.14 271);
+  --chart-5: oklch(0.66 0.14 343);
+}
+
+[data-palette="rose"] {
+  --primary: oklch(0.6 0.22 15);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.6 0.22 15);
+  --sidebar-primary: oklch(0.6 0.22 15);
+  --sidebar-ring: oklch(0.6 0.22 15);
+  --chart-1: oklch(0.66 0.14 15);
+  --chart-2: oklch(0.66 0.14 87);
+  --chart-3: oklch(0.66 0.14 159);
+  --chart-4: oklch(0.66 0.14 231);
+  --chart-5: oklch(0.66 0.14 303);
+}
+
+/* --- Dark mode ------------------------------------------------------------
+   Brighter + slightly desaturated than light. Placed AFTER the light blocks
+   so `.dark[...]` (0,2,0) always wins over both `:root` and `[data-palette]`.
+   -------------------------------------------------------------------------- */
+
+.dark[data-palette="ocean"] {
+  --primary: oklch(0.7 0.16 250);
+  --primary-foreground: oklch(0.145 0 0);
+  --ring: oklch(0.7 0.16 250);
+  --sidebar-primary: oklch(0.7 0.16 250);
+  --sidebar-ring: oklch(0.7 0.16 250);
+  --chart-1: oklch(0.74 0.12 245);
+  --chart-2: oklch(0.74 0.12 317);
+  --chart-3: oklch(0.74 0.12 29);
+  --chart-4: oklch(0.74 0.12 101);
+  --chart-5: oklch(0.74 0.12 173);
+}
+
+.dark[data-palette="violet"] {
+  --primary: oklch(0.72 0.18 290);
+  --primary-foreground: oklch(0.145 0 0);
+  --ring: oklch(0.72 0.18 290);
+  --sidebar-primary: oklch(0.72 0.18 290);
+  --sidebar-ring: oklch(0.72 0.18 290);
+  --chart-1: oklch(0.74 0.12 290);
+  --chart-2: oklch(0.74 0.12 2);
+  --chart-3: oklch(0.74 0.12 74);
+  --chart-4: oklch(0.74 0.12 146);
+  --chart-5: oklch(0.74 0.12 218);
+}
+
+.dark[data-palette="emerald"] {
+  --primary: oklch(0.72 0.14 160);
+  --primary-foreground: oklch(0.145 0 0);
+  --ring: oklch(0.72 0.14 160);
+  --sidebar-primary: oklch(0.72 0.14 160);
+  --sidebar-ring: oklch(0.72 0.14 160);
+  --chart-1: oklch(0.74 0.12 160);
+  --chart-2: oklch(0.74 0.12 232);
+  --chart-3: oklch(0.74 0.12 304);
+  --chart-4: oklch(0.74 0.12 16);
+  --chart-5: oklch(0.74 0.12 88);
+}
+
+.dark[data-palette="sunset"] {
+  --primary: oklch(0.78 0.15 55);
+  --primary-foreground: oklch(0.145 0 0);
+  --ring: oklch(0.78 0.15 55);
+  --sidebar-primary: oklch(0.78 0.15 55);
+  --sidebar-ring: oklch(0.78 0.15 55);
+  --chart-1: oklch(0.74 0.12 55);
+  --chart-2: oklch(0.74 0.12 127);
+  --chart-3: oklch(0.74 0.12 199);
+  --chart-4: oklch(0.74 0.12 271);
+  --chart-5: oklch(0.74 0.12 343);
+}
+
+.dark[data-palette="rose"] {
+  --primary: oklch(0.72 0.18 15);
+  --primary-foreground: oklch(0.145 0 0);
+  --ring: oklch(0.72 0.18 15);
+  --sidebar-primary: oklch(0.72 0.18 15);
+  --sidebar-ring: oklch(0.72 0.18 15);
+  --chart-1: oklch(0.74 0.12 15);
+  --chart-2: oklch(0.74 0.12 87);
+  --chart-3: oklch(0.74 0.12 159);
+  --chart-4: oklch(0.74 0.12 231);
+  --chart-5: oklch(0.74 0.12 303);
+}
+
+/* --- Native widget rendering ---------------------------------------------
+   Keeps scrollbars / form controls / UA-rendered surfaces in sync with the
+   active mode. Additive: no existing token is touched.
+   -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
 }
 
 @layer base {
