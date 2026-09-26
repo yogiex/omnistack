@@ -56,7 +56,7 @@ export function ProjectActionsMenu({
             "h-8 w-8 p-0"
           )}
         >
-          <MoreVertical className="h-4 w-4" />
+          <MoreVertical className="size-4" />
           <span className="sr-only">Aksi untuk {project.name}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
@@ -64,7 +64,7 @@ export function ProjectActionsMenu({
             className="text-destructive focus:text-destructive"
             onClick={() => handlers.onDelete(project)}
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            <Trash2 className="size-4" />
             Konfirmasi Hapus
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handlers.onCancelDelete}>
@@ -83,18 +83,18 @@ export function ProjectActionsMenu({
           "h-8 w-8 p-0"
         )}
       >
-        <MoreVertical className="h-4 w-4" />
+        <MoreVertical className="size-4" />
         <span className="sr-only">Aksi untuk {project.name}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52">
         {showDeploy && (
           <DropdownMenuItem onClick={() => handlers.onDeploy(project)}>
-            <Rocket className="mr-2 h-4 w-4" />
+            <Rocket className="size-4" />
             Deploy
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onClick={() => handlers.onEdit(project)}>
-          <Pencil className="mr-2 h-4 w-4" />
+          <Pencil className="size-4" />
           Edit
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -102,23 +102,23 @@ export function ProjectActionsMenu({
         >
           {project.archived ? (
             <>
-              <ArchiveRestore className="mr-2 h-4 w-4" />
+              <ArchiveRestore className="size-4" />
               Unarchive
             </>
           ) : (
             <>
-              <Archive className="mr-2 h-4 w-4" />
+              <Archive className="size-4" />
               Archive
             </>
           )}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handlers.onClone(project)}>
-          <Copy className="mr-2 h-4 w-4" />
+          <Copy className="size-4" />
           Clone
         </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem onClick={() => handlers.onTransfer(project)}>
-            <UserRoundPlus className="mr-2 h-4 w-4" />
+            <UserRoundPlus className="size-4" />
             Transfer Ownership
           </DropdownMenuItem>
         )}
@@ -127,7 +127,7 @@ export function ProjectActionsMenu({
           onClick={() => handlers.onRequestDelete(project.id)}
           className="text-destructive focus:text-destructive"
         >
-          <Trash2 className="mr-2 h-4 w-4" />
+          <Trash2 className="size-4" />
           Hapus Permanen
         </DropdownMenuItem>
       </DropdownMenuContent>

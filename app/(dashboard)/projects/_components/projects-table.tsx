@@ -12,12 +12,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { ProjectStatusBadge } from "@/components/project-status-badge"
 import { ProjectActionsMenu } from "./project-actions-menu"
-import {
-  getProjectStackList,
-  MOCK_COST_BREAKDOWN,
-  MOCK_USERS,
-  type MockProject,
-} from "@/lib/mock-data"
+import { MOCK_COST_BREAKDOWN } from "@/lib/mock-finops"
+import { getProjectStackList, MOCK_USERS, type MockProject } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import type {
   ManagedProject,

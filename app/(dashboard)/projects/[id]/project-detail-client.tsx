@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import {
   Activity,
@@ -48,7 +48,6 @@ import {
   MOCK_DEPLOYMENTS,
   MOCK_USERS,
   getMockDeploymentsForRole,
-  roleAtLeast,
   type ProjectStatus,
 } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
@@ -149,7 +148,14 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
     ? MOCK_USERS.find((u) => u.id === project.userId)
     : undefined
 
-  const canWrite = !!user && roleAtLeast(user.role, "USER")
+  // Audit C2: role-at-least-USER saja tidak cukup — USER hanya boleh
+  // mengubah proyek miliknya sendiri. ADMIN bebas, VIEWER read-only.
+  const canWrite = useMemo(() => {
+    if (!user) return false
+    if (user.role === "ADMIN") return true
+    if (user.role !== "USER") return false
+    return project?.userId === user.id
+  }, [user, project?.userId])
 
   const [name, setName] = useState(project?.name ?? "")
   const [description, setDescription] = useState(project?.description ?? "")
