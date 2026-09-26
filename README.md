@@ -12,7 +12,7 @@
 [![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-latest-black)](https://ui.shadcn.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[Demo](#-demo) • [Features](#-complete-feature-matrix) • [Role System](#-role-system--access-control) • [Quick Start](#-quick-start) • [Roadmap](#️-roadmap)
+[Demo](https://yogiex.github.io/omnistack/) • [Features](#-complete-feature-matrix) • [Role System](#-role-system--access-control) • [Branching](#-branching-strategy) • [Quick Start](#-quick-start) • [Roadmap](#️-roadmap)
 
 </div>
 
@@ -863,6 +863,88 @@ omnistack/
 
 ---
 
+## 🌿 Branching Strategy
+
+Repo ini punya **4 branch**, dan mereka membentuk **satu garis lurus** — bukan
+cabang-cabang yang paralel. Pahami ini dulu sebelum mulai kontribusi.
+
+```mermaid
+graph LR
+    A["dev — legacy, MVP awal"] -->|"+17 commit: fitur UI/UX"| B["dev-1 — branch fitur AKTIF"]
+    B -->|"PR #1–#7, merge"| C["main — produksi"]
+    C -->|"push ke main, CI otomatis"| D["gh-pages — artifact static export"]
+    D --> E["Live: yogiex.github.io/omnistack"]
+```
+
+### 📌 Fungsi Masing-masing Branch
+
+| Branch | Fungsi | Ditulis oleh | Kapan berubah | Status |
+|--------|--------|--------------|---------------|--------|
+| **`dev`** | Snapshot MVP awal: landing page, auth flow, dashboard shell | — | Tidak lagi sejak 21 Agu 2026 | ☠️ **Legacy** |
+| **`dev-1`** | **Branch fitur aktif.** Semua fitur baru dikerjakan di sini | Kamu | Setiap kali selesai fitur | 🔶 **Aktif** — 1 commit di depan `main` |
+| **`main`** | Hasil integrasi seluruh PR. Ini yang dipake user | Merge PR | Setelah PR #1–#7 di-merge | ✅ **Produksi** |
+| **`gh-pages`** | Output `npm run build` (static export) | GitHub Actions | Otomatis tiap push ke `main` | 🤖 **Otomatis** — jangan edit manual |
+
+### ⚠️ Jebakan Nama: `dev` ≠ `dev-1`
+
+Ini sumber kebingungan paling sering. Keduanya **branch berbeda**, bukan alias:
+
+- **`dev`** — branch MVP paling awal, total **5 commit**, puncaknya masih
+  "edit readme.md". Berhenti develop 21 Agustus 2026.
+- **`dev-1`** — branch yang **tumbuh dari** `dev`, lalu dikasih suffix `-1`
+  karena `dev` sudah dipakai. Semua fitur setelah MVP (RBAC mock, AI Architect,
+  FinOps, AI Code Reviewer, Cloud IDE, dsb.) ada di sini.
+
+Semua isi `dev` sudah **fully merged** ke `main`, jadi `dev` tidak menyimpan
+apa pun yang belum ada di `main`. Aman dihapus:
+
+```bash
+git branch -d dev   # aman — sudah merged
+```
+
+### 🔁 Workflow Harian
+
+```bash
+# 1. Selalu mulai dari dev-1, bukan dev
+git checkout dev-1
+git pull origin dev-1
+
+# 2. ... kerjakan fitur kamu, commit seperti biasa
+git add .
+git commit -m "feat(scope): description"
+git push origin dev-1
+
+# 3. Buka Pull Request dev-1 → main di GitHub, lalu merge
+```
+
+### ⛔ Kenapa Tidak Langsung Push ke `main`?
+
+`.github/workflows/deploy.yml` memakai trigger:
+
+```yaml
+on:
+  push:
+    branches: [main]   # ← push ke main = LANGSUNG deploy
+```
+
+Artinya **setiap push ke `main` akan memicu build & deploy ke GitHub Pages.**
+Kalau kamu bypass PR dan langsung push ke `main`, kode yang belum di-review
+langsung tayang ke user. Karena itu semua perubahan harus lewat PR `dev-1` → `main`.
+
+### 🏷️ Status Commit di Masing-masing Branch
+
+| Ref | Commit | Tanggal | Isi |
+|-----|--------|---------|-----|
+| `dev` | `3029daa` | 21 Agu 2026 | "edit readme.md 2" — punta MVP |
+| `dev-1` | `7bb7714` | 24 Agu 2026 | `feat(logs)` — **belum di-merge ke `main`** |
+| `main` | `69bc6b2` | 24 Agu 2026 | Merge PR #7 — produksi |
+| `gh-pages` | `ea909d4` | 24 Agu 2026 | Build artifact dari `main` |
+
+> **Catatan:** `gh-pages` di-force-orphan oleh CI, jadi **riwayat git-nya
+> dihapus tiap deploy**. Jangan pernah commit manual ke branch ini.
+
+---
+
 ## 🗺️ Roadmap
 
 ### ✅ Phase 1: Foundation (Q3 2026) - COMPLETED
@@ -899,6 +981,10 @@ omnistack/
 
 ## 🤝 Contributing
 
+> **Sebelum mulai:** baca [🌿 Branching Strategy](#-branching-strategy) dulu.
+> Semua fitur baru dikerjakan di branch `dev-1`, lalu di-merge ke `main` via PR.
+> Jangan push langsung ke `main` — itu akan memicu deploy otomatis.
+
 Kontribusi diterima! Baca dulu:
 - [CONVENTIONS.md](./CONVENTIONS.md) — Code conventions
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — System design
@@ -919,6 +1005,7 @@ Kontribusi diterima! Baca dulu:
 | **[AGENTS.md](./AGENTS.md)** | AI agent guide |
 | **[INFRASTRUCTURE.md](./INFRASTRUCTURE.md)** | AI agent infrastructure |
 | **[CHANGELOG.md](./CHANGELOG.md)** | Version history |
+| **[docs/audits/PROJECT-AUDIT.md](./docs/audits/PROJECT-AUDIT.md)** | 🔍 Audit codebase (289 temuan) |
 
 ---
 
