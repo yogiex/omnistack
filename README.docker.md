@@ -30,6 +30,59 @@ docker-compose ps
 docker-compose down
 ```
 
+### Jangan pakai `sudo`
+
+Kamu sudah ada di group `docker`, jadi `sudo` tidak diperlukan — dan justru
+merusak:
+
+```
+sudo docker-compose ...
+```
+
+Akibatnya `~/.docker/` dibuat **root-owned**, dan semua perintah Docker
+selenjutnya (non-root) mulai mencetak:
+
+```
+WARNING: Error loading config file: open /home/mirage/.docker/config.json: permission denied
+```
+
+ itu bukan warning kosmetik: build context dan credential Docker jadi tak
+terbaca, dan artefak baru (image, volume, file hasil bind-mount) keluar
+root-owned sehingga `rm` tanpa `sudo` subsequently gagal.
+
+Perbaiki sekali saja kalau sudah terlanjur:
+
+```bash
+sudo chown -R "$USER:$USER" ~/.docker
+```
+
+Setelah itu semua perintah di dokumen ini jalan **tanpa `sudo`**.
+
+### Membersihkan sisa dari compose versi lama
+
+Kalau pernah menjalankan compose ketika nama servicenya masih `omnistack`,
+lalu diganti jadi `web`, container lama jadi **orphan**:
+
+```
+WARN[0067] Found orphan containers ([omnistack-omnistack-1]) for this project.
+```
+
+`docker-compose down` **tidak** menghapus orphan — harus eksplisit:
+
+```bash
+docker-compose down --remove-orphans
+```
+
+Lalu start ulang:
+
+```bash
+docker-compose up -d --build
+```
+
+> `-v` pada `down` tidak berguna di sini: compose ini tidak punya named volume.
+> Seluruh state ada di tmpfs (ikut hilang saat container di-stop) dan bind-mount
+> dari host.
+
 ---
 
 ## 2. File
