@@ -156,36 +156,51 @@ OmniStack adalah **Platform as a Service (PaaS)** modern yang memposisikan diri 
 
 ```
 omnistack/
-├── app/                          # Next.js App Router (pages & layouts)
-├── components/                   # React components
-│   ├── ui/                      # shadcn/ui primitives (DO NOT EDIT)
-│   └── [business components]    # Cross-page custom components
-├── lib/                          # Utilities, mock data, auth context
-├── hooks/                        # Custom React hooks
-├── public/                       # Static assets (svg, local fonts)
-├── docs/                         # Documentation
-│   └── kg/                       # Knowledge graph (ontology + nodes)
+├── app/                          # Next.js App Router (203 file)
+├── components/                   # React components lintas-page (33 file)
+│   ├── ui/                       # shadcn/ui primitives — 20 file, DO NOT EDIT
+│   ├── kpi/                      # Sistem KPI config-driven — 5 file
+│   └── [8 komponen root]
+├── lib/                          # Utilities, mock data, context (19 file)
+│   ├── kpi/                      # Types + 6 preset config
+│   ├── settings/                 # Data + konstanta halaman Settings
+│   └── theme/                    # Palette system
+├── hooks/                        # Hook lintas-halaman (2 file)
+├── public/                       # Static assets (svg, local font)
+├── scripts/                      # Build-time Node/shell scripts
+│   ├── favicon.mjs               # Generator icon set dari app/icon.svg
+│   └── gen-dev-certs.sh          # Sertifikat TLS self-signed untuk lokal
 ├── docker/                       # Runtime container config
-│   └── nginx.conf
+│   ├── nginx/
+│   │   ├── nginx.conf            # Config utama
+│   │   ├── conf.d/omnistack.conf # Server block (error_page 404 → /404.html)
+│   │   └── snippets/security-headers.conf
+│   └── certs/                    # TLS (git-ignored, isi .gitkeep saja)
+├── docs/                         # Dokumentasi tambahan
+│   ├── audits/PROJECT-AUDIT.md   # Audit codebase — 289 finding
+│   └── kg/                       # Knowledge graph (_index, _ontology, nodes/)
 ├── .github/
-│   └── workflows/deploy.yml      # CI: static export → GitHub Pages
+│   └── workflows/deploy.yml      # CI: static export → branch gh-pages
 ├── .opencode/                    # Agent context engineering
 │   ├── agent/                    # Sub-agents (mvp-implementer, code-reviewer, kg-curator)
 │   ├── command/                  # Slash commands (/mvp, /kg)
 │   ├── skills/                   # On-demand skills + scripts
 │   └── memory/                   # todo.md, decisions.md, errors.md
+│
 ├── .next/                        # Build output (git-ignored)
 ├── node_modules/                 # Dependencies (git-ignored)
+│
 ├── components.json               # shadcn/ui configuration
-├── next.config.ts                # Next.js configuration (output: "export")
+├── next.config.ts                # output: "export", trailingSlash, basePath opsional
 ├── postcss.config.mjs            # PostCSS (Tailwind v4 — no tailwind.config.ts)
 ├── eslint.config.mjs             # ESLint flat config
-├── tsconfig.json                 # TypeScript configuration
+├── tsconfig.json                 # TypeScript strict
 ├── package.json                  # Dependencies & scripts
 ├── Dockerfile                    # Multi-stage build → nginx-unprivileged
-├── docker-compose.yml            # Local container orchestration
+├── docker-compose.yml            # Local container orchestration + TLS
 ├── .dockerignore                 # Docker build context exclusions
 ├── .env.example                  # Environment variable template
+│
 ├── AGENTS.md                     # AI agent guide (wajib dibaca)
 ├── CLAUDE.md                     # Claude-specific agent notes
 ├── ARCHITECTURE.md               # This file
@@ -194,7 +209,13 @@ omnistack/
 ├── INFRASTRUCTURE.md             # Infrastruktur & deployment
 ├── CHANGELOG.md                  # Version history
 ├── README.docker.md              # Panduan menjalankan via Docker
-└── README.md                     # Project overview
+├── README.md                     # Project overview
+│
+└── [dokumen fitur — bukan dokumentasi struktur]
+    ├── next-update-fitur-competitor-v0-vercel-cyberpanel.md
+    ├── next-update-fitur-git-integration.md
+    ├── ai-code-reviewer-page.md
+    └── qwen-uiux-page-finops.md
 ```
 
 > **Catatan Tailwind v4:** tidak ada `tailwind.config.ts`. Konfigurasi Tailwind
@@ -209,156 +230,290 @@ Struktur ini mengikuti konvensi Next.js 13+ dengan App Router:
 
 ```
 app/
-├── layout.tsx                    # Root layout (ThemeProvider, PaletteProvider, TooltipProvider, font)
-├── page.tsx                      # Landing page (URL: /)
-├── globals.css                   # Global styles + Tailwind v4 @theme tokens + blok palette
-├── icon.svg                      # Favicon SVG (App Router — preferred, scalable)
-├── apple-icon.png                # Apple touch icon (180×180)
-├── favicon.ico                   # Fallback legacy ICO
+├── layout.tsx                    # Root layout — ThemeProvider, PaletteProvider, TooltipProvider,
+│                                 #   init script anti-FOUC palette, viewport.themeColor
+├── page.tsx                      # Landing page (URL: /) — marketing
+├── not-found.tsx                 # URL: */404 — file konvensi → out/404.html
+├── globals.css                   # Tailwind v4 @theme inline + 6 blok [data-palette]
+│                                 #   + token --chart-1..5 per palette
+├── icon.svg                      # Favicon utama (App Router — scalable)
+├── apple-icon.png                # Apple touch icon 180×180
+├── favicon.ico                   # Fallback ICO
+├── page.tsx.bak                  # ⚠️ leftover — bukan bagian app, slated for deletion
+│
+├── 401/
+│   └── page.tsx                  # URL: /401 — countdown 8s → /login (bisa dibatalkan)
+├── 403/
+│   └── page.tsx                  # URL: /403 — panel Request Access (mailto + copy)
+├── login/
+│   └── page.tsx                  # URL: /login
+├── register/
+│   └── page.tsx                  # URL: /register
+├── forgot-password/
+│   └── page.tsx                  # URL: /forgot-password
+├── privacy/
+│   └── page.tsx                  # URL: /privacy
+└── terms/
+    └── page.tsx                  # URL: /terms
 │
 │   # ── Route Group: Authenticated pages (AppSidebar + TopNav) ──
 ├── (dashboard)/
-│   ├── layout.tsx                # Dashboard shell (Sidebar + TopNav)
+│   ├── layout.tsx                # Dashboard shell (SidebarProvider + AppSidebar + TopNav)
 │   │
-│   ├── dashboard/                # ✅ Overview dashboard
-│   │   ├── page.tsx              # URL: /dashboard
-│   │   └── client-dashboard.tsx  # Client component utama
+│   ├── dashboard/                # URL: /dashboard
+│   │   ├── page.tsx              # Server Component shell
+│   │   └── client-dashboard.tsx  # KPI + chart + tabel deploy
 │   │
-│   ├── projects/                 # ✅ Project management (CRUD lengkap)
-│   │   ├── page.tsx              # URL: /projects (shell statis)
+│   ├── projects/                 # URL: /projects — CRUD lengkap
+│   │   ├── page.tsx              # Shell statis
 │   │   ├── project-list.tsx      # Client orchestrator (RBAC + handlers + render)
-│   │   ├── project-form-sheet.tsx
-│   │   ├── _hooks/               # ✅ Hooks page-specific
-│   │   │   ├── use-projects.ts           # State proyek + mutasi (create/clone/transfer/…)
-│   │   │   ├── use-project-filters.ts    # Search, filter, sort, pagination
-│   │   │   ├── use-project-shortcuts.ts  # Keyboard: N = buat, / = fokus search
-│   │   │   └── use-notice.ts             # Notifikasi transien + auto-dismiss
-│   │   ├── _components/          # Page-specific components (13 files)
-│   │   │   ├── project-card.tsx          # Card grid + tipe ManagedProject
-│   │   │   ├── projects-table.tsx        # Tampilan list
-│   │   │   ├── project-actions-menu.tsx
-│   │   │   ├── filter-bar.tsx            # Search, sort, owner filter, view toggle
-│   │   │   ├── projects-header.tsx       # Judul + CTA per role
-│   │   │   ├── projects-notice.tsx       # Toast in-line
+│   │   ├── project-form-sheet.tsx# Sheet create/edit proyek
+│   │   ├── _hooks/               # 3 file
+│   │   │   ├── use-projects.ts          # State + mutasi (create/clone/transfer/archive/status)
+│   │   │   ├── use-project-filters.ts   # Search, status, owner, sort, pagination
+│   │   │   └── use-project-shortcuts.ts # Keyboard: N = buat, / = fokus search
+│   │   ├── _components/          # 11 file
+│   │   │   ├── project-card.tsx           # Card grid + tipe ManagedProject
+│   │   │   ├── projects-table.tsx         # Tampilan tabel
+│   │   │   ├── filter-bar.tsx             # Search, sort, owner filter, view toggle
+│   │   │   ├── project-actions-menu.tsx   # Menu aksi per baris
+│   │   │   ├── transfer-ownership-sheet.tsx # Sheet khusus ADMIN
+│   │   │   ├── projects-header.tsx        # Judul + CTA per role
+│   │   │   ├── projects-notice.tsx        # Notifikasi in-line (dismissable)
 │   │   │   ├── projects-pagination.tsx
 │   │   │   ├── projects-skeleton.tsx
 │   │   │   ├── projects-empty-none.tsx
-│   │   │   ├── projects-empty-filtered.tsx
-│   │   │   └── transfer-ownership-sheet.tsx  # Sheet ADMIN (shadcn Select)
+│   │   │   └── projects-empty-filtered.tsx
 │   │   └── [id]/                 # URL: /projects/:id
 │   │       ├── page.tsx
-│   │       ├── project-detail-client.tsx   # canWrite = role AND owner (audit C2)
-│   │       ├── logs/              # ✅ Log streaming + AI log analyzer
-│   │       │   ├── page.tsx, loading.tsx
-│   │       │   ├── logs-client.tsx
-│   │       │   └── _components/  # log-stream, ai-log-analyzer, metrics-panel, log-filters
-│   │       └── databases/        # ✅ Database per project
-│   │           ├── page.tsx              # URL: /projects/:id/databases
-│   │           ├── databases-client.tsx
+│   │       ├── project-detail-client.tsx  # canWrite = role AND owner (audit C2)
+│   │       ├── logs/              # URL: /projects/:id/logs
+│   │       │   ├── page.tsx
+│   │       │   └── _components/   # 5 file
+│   │       │       ├── logs-client.tsx      # Orchestrator log explorer
+│   │       │       ├── log-stream.tsx       # Live stream
+│   │       │       ├── log-filters.tsx
+│   │       │       ├── metrics-panel.tsx
+│   │       │       └── ai-log-analyzer.tsx  # Analisis log by AI
+│   │       └── databases/        # URL: /projects/:id/databases
+│   │           ├── page.tsx
 │   │           ├── loading.tsx
-│   │           ├── _components/          # 8 files (5 dialogs + card/filters/stats/empty)
-│   │           └── [dbId]/                # URL: /projects/:id/databases/:dbId
-│   │               ├── page.tsx          # Database overview
-│   │               ├── _components/
+│   │           ├── databases-client.tsx    # Orchestrator
+│   │           ├── _components/   # 8 file
+│   │           │   ├── database-card.tsx
+│   │           │   ├── database-filters.tsx
+│   │           │   ├── database-stats.tsx
+│   │           │   ├── create-database-dialog.tsx
+│   │           │   ├── delete-database-dialog.tsx
+│   │           │   ├── connection-dialog.tsx
+│   │           │   ├── rotate-password-dialog.tsx
+│   │           │   └── empty-state.tsx
+│   │           └── [dbId]/        # URL: /projects/:id/databases/:dbId
+│   │               ├── page.tsx    # Database overview
+│   │               ├── _components/  # 3 file
 │   │               │   ├── backup-manager.tsx
 │   │               │   ├── database-metrics.tsx
 │   │               │   └── query-console.tsx
-│   │               ├── backups/page.tsx         # .../:dbId/backups
-│   │               ├── console/page.tsx         # .../:dbId/console
-│   │               └── metrics/page.tsx         # .../:dbId/metrics
+│   │               ├── backups/    # .../:dbId/backups
+│   │               │   ├── page.tsx
+│   │               │   └── backups-client.tsx
+│   │               ├── console/    # .../:dbId/console
+│   │               │   └── page.tsx
+│   │               └── metrics/    # .../:dbId/metrics
+│   │                   └── page.tsx
 │   │
-│   ├── admin/                    # ✅ Admin console (role-gated)
-│   │   ├── page.tsx              # URL: /admin (overview)
-│   │   ├── admin-overview.tsx    # Z-pattern shell (KPI → focal → bottom bar)
-│   │   ├── _components/          # recent-activity, role-distribution,
-│   │   │                         # system-health, alerts-panel
+│   ├── admin/                    # URL: /admin — semua role-gated ADMIN
+│   │   ├── page.tsx              # URL: /admin
+│   │   ├── admin-overview.tsx    # Z-pattern shell (KPI → focal zone → bottom bar)
+│   │   ├── _components/          # 4 file
+│   │   │   ├── recent-activity.tsx    # Timeline dot + garis vertikal
+│   │   │   ├── role-distribution.tsx  # Progress bar per role + legend
+│   │   │   ├── system-health.tsx     # Warna berbasis threshold
+│   │   │   └── alerts-panel.tsx       # Kartu alert yang bisa diklik
+│   │   │
 │   │   ├── users/                # URL: /admin/users
-│   │   │   ├── page.tsx, loading.tsx
-│   │   │   ├── users-page-client.tsx
-│   │   │   ├── user-form-sheet.tsx
-│   │   │   └── _components/      # role-badge, stats-grid, invite/delete dialog, empty-state
+│   │   │   ├── page.tsx          # RouteGuard requiredRole="ADMIN"
+│   │   │   ├── loading.tsx       # Skeleton mirror struktur final
+│   │   │   ├── users-page-client.tsx  # Orchestrator tipis
+│   │   │   ├── user-form-sheet.tsx    # Edit-only (shadcn Select)
+│   │   │   ├── _hooks/           # 2 file
+│   │   │   │   ├── use-users.ts         # State, mutasi, semua guard bisnis
+│   │   │   │   └── use-user-filters.ts  # Search, role, status, sort, pagination
+│   │   │   └── _components/      # 11 file
+│   │   │       ├── users-header.tsx
+│   │   │       ├── users-toolbar.tsx     # Search + sort dropdown
+│   │   │       ├── users-filter-pills.tsx # PillGroup generik (role + status)
+│   │   │       ├── users-list.tsx        # Container + pagination
+│   │   │       ├── user-row.tsx          # Baris + action menu
+│   │   │       ├── users-pagination.tsx
+│   │   │       ├── role-badge.tsx        # RoleBadge + InvitedBadge
+│   │   │       ├── stats-grid.tsx
+│   │   │       ├── invite-user-dialog.tsx
+│   │   │       ├── delete-user-dialog.tsx
+│   │   │       └── empty-state.tsx
+│   │   │
+│   │   ├── databases/            # URL: /admin/databases — cluster-wide
+│   │   │   ├── page.tsx
+│   │   │   ├── loading.tsx       # Re-export DatabasesSkeleton
+│   │   │   ├── admin-databases-client.tsx # Orchestrator
+│   │   │   ├── _hooks/
+│   │   │   │   └── use-database-filters.ts # Search, project, engine, status, pagination
+│   │   │   └── _components/      # 8 file
+│   │   │       ├── databases-header.tsx
+│   │   │       ├── databases-toolbar.tsx   # Search + 3 Select filter
+│   │   │       ├── databases-table.tsx     # <Link> di sel nama, bukan onClick di row
+│   │   │       ├── database-engine-badge.tsx  # Tailwind tone, tanpa hex
+│   │   │       ├── database-status-badge.tsx  # Dot + animate-ping
+│   │   │       ├── databases-empty-state.tsx # 2 varian (filter vs belum ada data)
+│   │   │       ├── databases-pagination.tsx
+│   │   │       └── databases-skeleton.tsx
+│   │   │
 │   │   ├── ai-config/            # URL: /admin/ai-config
+│   │   │   ├── page.tsx
+│   │   │   └── ai-config-client.tsx
 │   │   ├── audit/                # URL: /admin/audit
+│   │   │   ├── page.tsx
+│   │   │   └── audit-log.tsx
 │   │   ├── billing/              # URL: /admin/billing
-│   │   ├── databases/            # URL: /admin/databases (cluster-wide)
+│   │   │   ├── page.tsx
+│   │   │   └── billing-client.tsx
 │   │   ├── infrastructure/       # URL: /admin/infrastructure
+│   │   │   ├── page.tsx
+│   │   │   └── infrastructure-client.tsx
 │   │   └── settings/             # URL: /admin/settings
+│   │       ├── page.tsx
+│   │       └── system-settings.tsx
 │   │
-│   ├── ai-architect/             # ✅ AI Prompt Engineer
-│   │   ├── page.tsx              # URL: /ai-architect
-│   │   └── _components/          # ai-studio, prompt-panel, preview-panel, mock-previews.ts
+│   ├── deployments/              # URL: /deployments
+│   │   ├── page.tsx
+│   │   ├── loading.tsx           # Re-export DeploymentsSkeleton
+│   │   ├── deployments-list.tsx  # Orchestrator tipis
+│   │   ├── _hooks/               # 3 file
+│   │   │   ├── use-deployments.ts        # Seed + mutasi, guard canWrite per mutasi
+│   │   │   ├── use-deployment-filters.ts # Search, project, status, env, sort, pagination
+│   │   │   └── use-deployment-modals.ts  # Discriminated union { type, deploymentId }
+│   │   └── _components/          # 12 file
+│   │       ├── deployments-header.tsx
+│   │       ├── deployments-filter-bar.tsx
+│   │       ├── deployments-table.tsx
+│   │       ├── deployment-stats.tsx      # Turunan dari `deployments` (rates + avg duration)
+│   │       ├── active-deployments.tsx
+│   │       ├── deployments-pagination.tsx
+│   │       ├── deployments-skeleton.tsx
+│   │       ├── deployments-empty-state.tsx
+│   │       ├── new-deployment-dialog.tsx
+│   │       ├── rollback-dialog.tsx
+│   │       ├── deployment-detail-modal.tsx
+│   │       └── ai-diagnose-dialog.tsx
 │   │
-│   ├── ai-reviewer/              # ✅ AI code review + security posture
-│   │   ├── page.tsx              # URL: /ai-reviewer
-│   │   └── _components/          # review-shell, finding-detail-sheet, types.ts
-│   │       ├── mock-data-reviewer.ts
-│   │       ├── dashboard/        # dashboard-view, stats-grid, recent-reviews-table, banner
-│   │       ├── results/          # results-view/header/tabs, findings-list/filters, overview-tab
-│   │       └── shared/           # score-badge, severity-badge
-│   │
-│   ├── deployments/              # ✅ Deployment history + actions
-│   │   ├── page.tsx              # URL: /deployments
-│   │   ├── deployments-list.tsx
-│   │   └── _components/          # 8 files (table, filters, stats, new/rollback/detail/AI-diagnose)
-│   │
-│   ├── finops/                   # ✅ Cost tracking
-│   │   ├── page.tsx              # URL: /finops
-│   │   ├── finops-client.tsx     # Orchestrator (RBAC filter + Z-pattern sections)
-│   │   └── _components/          # 9 files
-│   │       ├── finops-header.tsx            # Judul, subtitle per role, link alert, export
-│   │       ├── critical-alert-banner.tsx    # Banner kritis (border-l, tanpa dismiss)
-│   │       ├── infra-breakdown-strip.tsx    # Strip kategori infrastruktur
-│   │       ├── cost-trend-chart.tsx
+│   ├── finops/                   # URL: /finops
+│   │   ├── page.tsx
+│   │   ├── finops-client.tsx     # Orchestrator — RBAC filter + Z-pattern sections
+│   │   └── _components/          # 9 file
+│   │       ├── finops-header.tsx             # Judul, subtitle per role, link alert, export
+│   │       ├── critical-alert-banner.tsx     # Border-l accent, non-dismissible
+│   │       ├── infra-breakdown-strip.tsx
+│   │       ├── cost-trend-chart.tsx          # ChartContainer + 4 stacked Area
 │   │       ├── cost-breakdown-table.tsx
 │   │       ├── optimization-recommendations.tsx
 │   │       ├── budget-alerts.tsx
 │   │       ├── budget-settings.tsx
 │   │       └── export-panel.tsx
 │   │
-│   ├── gitops/                   # ✅ GitOps / PR preview environments
-│   │   ├── page.tsx              # URL: /gitops
+│   ├── ai-architect/             # URL: /ai-architect
+│   │   ├── page.tsx
+│   │   └── _components/          # 4 file
+│   │       ├── ai-studio.tsx
+│   │       ├── prompt-panel.tsx
+│   │       ├── preview-panel.tsx
+│   │       └── mock-previews.ts  # Data mock, bukan komponen
+│   │
+│   ├── ai-reviewer/              # URL: /ai-reviewer
+│   │   ├── page.tsx
+│   │   └── _components/          # 16 file
+│   │       ├── review-shell.tsx
+│   │       ├── finding-detail-sheet.tsx
+│   │       ├── types.ts
+│   │       ├── mock-data-reviewer.ts
+│   │       ├── dashboard/
+│   │       │   ├── dashboard-view.tsx
+│   │       │   ├── stats-grid.tsx
+│   │       │   ├── recent-reviews-table.tsx
+│   │       │   └── security-posture-banner.tsx
+│   │       ├── results/
+│   │       │   ├── results-view.tsx
+│   │       │   ├── results-header.tsx
+│   │       │   ├── results-tabs.tsx
+│   │       │   ├── findings-list.tsx
+│   │       │   ├── findings-filters.tsx
+│   │       │   └── overview-tab.tsx
+│   │       └── shared/
+│   │           ├── score-badge.tsx
+│   │           └── severity-badge.tsx
+│   │
+│   ├── gitops/                   # URL: /gitops
+│   │   ├── page.tsx
 │   │   └── gitops-client.tsx
-│   │
-│   ├── monitoring/               # ✅ Metrics & uptime monitoring
-│   │   ├── page.tsx              # URL: /monitoring
+│   ├── monitoring/               # URL: /monitoring
+│   │   ├── page.tsx
 │   │   └── monitoring-client.tsx
+│   ├── error-tracking/           # URL: /error-tracking
+│   │   ├── page.tsx
+│   │   ├── loading.tsx           # Re-export ErrorTrackingSkeleton
+│   │   ├── error-tracking-client.tsx  # Orchestrator tipis
+│   │   ├── _hooks/               # 2 file
+│   │   │   ├── use-errors.ts         # State, mutasi (status/assign), stats
+│   │   │   └── use-error-filters.ts  # Search, project, status, severity
+│   │   └── _components/          # 9 file
+│   │       ├── error-header.tsx
+│   │       ├── error-stats-cards.tsx
+│   │       ├── error-filter-bar.tsx      # Search + 3 Select (semua shadcn)
+│   │       ├── error-row.tsx            # Baris expandable (aria-expanded + aria-controls)
+│   │       ├── error-empty-state.tsx
+│   │       ├── error-skeleton.tsx
+│   │       ├── error-status-badge.tsx
+│   │       ├── error-severity-badge.tsx
+│   │       └── error-assign-menu.tsx    # shadcn DropdownMenu (bukan div+button)
 │   │
-│   ├── error-tracking/           # ✅ Error tracking
-│   │   ├── page.tsx              # URL: /error-tracking
-│   │   └── error-tracking-client.tsx
-│   │
-│   └── settings/                 # ✅ User settings
-│       ├── page.tsx              # URL: /settings
-│       └── settings-client.tsx
+│   └── settings/                 # URL: /settings — 4 tab
+│       ├── page.tsx
+│       ├── settings-client.tsx   # Orchestrator: Tabs shell
+│       ├── _hooks/               # 5 file
+│       │   ├── use-profile-form.ts        # Nama + 2FA + isDirty
+│       │   ├── use-api-keys.ts            # Generate / copy / revoke (crypto, bukan Math.random)
+│       │   ├── use-notification-prefs.ts  # Toggle + dirty tracking
+│       │   ├── use-locale-prefs.ts        # Bahasa + zona waktu
+│       │   └── use-transient-flag.ts      # Flag "Tersimpan" dengan timer + cleanup
+│       └── _components/          # 8 file
+│           ├── settings-header.tsx
+│           ├── profile-tab.tsx           # Profil + 2FA + ganti password
+│           ├── api-keys-tab.tsx
+│           ├── integrations-tab.tsx      # GitHub / GitLab
+│           ├── preferences-tab.tsx       # Tema, notifikasi, bahasa
+│           └── shared/           # 3 file
+│               ├── role-permissions-card.tsx
+│               ├── active-sessions-card.tsx
+│               └── danger-zone-card.tsx
 │
 │   # ── Route Group: Cloud IDE shell (immersive, no dashboard chrome) ──
 ├── (ide)/
-│   ├── layout.tsx                # IDE shell layout (full-bleed)
+│   ├── layout.tsx                # IDE shell (full-bleed, tanpa sidebar dashboard)
 │   └── projects/
 │       └── [id]/
 │           └── ide/              # URL: /projects/:id/ide
 │               ├── page.tsx
 │               ├── ide-client.tsx
-│               └── _components/  # 10 files (shell, editor, explorer, activity-bar,
-│                                  #  top-bar, status-bar, right-panel, bottom-panel,
-│                                  #  command-palette, deploy-dialog)
-│
-│   # ── Standalone public pages (no dashboard layout) ──
-├── not-found.tsx                 # URL: */404 (file konvensi → out/404.html)
-├── 401/                          # URL: /401 (route biasa, bukan file konvensi)
-│   └── page.tsx                  # Countdown auto-redirect ke /login, bisa dibatalkan
-├── 403/                          # URL: /403 (route biasa, bukan file konvensi)
-│   └── page.tsx                  # Panel "Request Access" (mailto + copy email)
-├── login/                        # URL: /login
-│   └── page.tsx
-├── register/                     # URL: /register
-│   └── page.tsx
-├── forgot-password/              # URL: /forgot-password
-│   └── page.tsx
-├── privacy/                      # URL: /privacy
-│   └── page.tsx
-└── terms/                        # URL: /terms
-    └── page.tsx
+│               └── _components/  # 10 file
+│                   ├── ide-shell.tsx
+│                   ├── ide-editor.tsx
+│                   ├── ide-file-explorer.tsx
+│                   ├── ide-activity-bar.tsx
+│                   ├── ide-top-bar.tsx
+│                   ├── ide-status-bar.tsx
+│                   ├── ide-right-panel.tsx
+│                   ├── ide-bottom-panel.tsx
+│                   ├── ide-command-palette.tsx
+│                   └── ide-deploy-dialog.tsx
 ```
 
 > **Tidak ada `app/api/`.** Proyek berjalan sebagai static export (`output: "export"`)
@@ -386,19 +541,19 @@ app/
 
 ```
 components/
-├── ui/                           # shadcn/ui primitives (20 files)
+├── ui/                           # shadcn/ui primitives — 20 file, DO NOT EDIT
 │   ├── accordion.tsx             # npx shadcn@latest add accordion
 │   ├── avatar.tsx
 │   ├── badge.tsx
-│   ├── button.tsx
+│   ├── button.tsx                # cva variants + buttonVariants() helper
 │   ├── card.tsx
-│   ├── chart.tsx                 # ChartContainer/Tooltip/Legend wrapper (Recharts)
+│   ├── chart.tsx                 # ChartContainer/Tooltip/Legend wrapper (Recharts 3)
 │   ├── checkbox.tsx
 │   ├── dialog.tsx
-│   ├── dropdown-menu.tsx
-│   ├── input.tsx
+│   ├── dropdown-menu.tsx         # Base UI — item sudah punya gap-1.5 + [&_svg]:size-4
+│   ├── input.tsx                 # h-8 default
 │   ├── label.tsx
-│   ├── select.tsx
+│   ├── select.tsx                # Base UI — trigger punya size="sm" | "default"
 │   ├── separator.tsx
 │   ├── sheet.tsx
 │   ├── sidebar.tsx               # Base UI sidebar primitive
@@ -408,33 +563,28 @@ components/
 │   ├── textarea.tsx
 │   └── tooltip.tsx
 │
-├── kpi/                          # ✅ Sistem KPI config-driven (reusable lintas page)
+├── kpi/                          # ✅ Sistem KPI config-driven (lintas page)
 │   ├── index.ts                  # Entry point — page import dari sini
-│   ├── kpi-card.tsx
-│   ├── kpi-card-skeleton.tsx
-│   ├── kpi-grid.tsx
-│   └── kpi-section.tsx           # Config + data + role → grid (filtering per role)
+│   ├── kpi-card.tsx              # 1 kartu: label, value, tren, aksen, tooltip
+│   ├── kpi-card-skeleton.tsx     # Placeholder saat data belum ada
+│   ├── kpi-grid.tsx              # Wrapper grid (1/2/3/4 kolom responsif)
+│   └── kpi-section.tsx           # config + data + role → KpiGrid (filtering per role)
 │
-├── app-sidebar.tsx               # Main navigation sidebar
-├── top-nav.tsx                   # Top navigation bar
-├── theme-provider.tsx            # Dark/light mode wrapper (next-themes)
-├── theme-switcher.tsx            # Mode + color palette dropdown (top-nav)
-├── palette-picker-inline.tsx     # Preview palette (dipakai di settings)
+├── app-sidebar.tsx               # Navigasi utama (SidebarProvider)
+├── top-nav.tsx                   # Top bar — search, ThemeSwitcher, user menu
 ├── route-guard.tsx               # Client-side role gate (ADMIN / USER / VIEWER)
+├── theme-provider.tsx            # Dark/light mode (next-themes)
+├── theme-switcher.tsx            # Mode + palette dropdown (dipakai top-nav)
+├── palette-picker-inline.tsx     # Preview palette (dipakai settings)
 ├── project-status-badge.tsx      # Badge status proyek (Live/Building/Failed/Stopped)
-├── deployment-status-badge.tsx   # Badge status deployment
-│
-└── [future components]
-    ├── deployment-status.tsx    # Real-time deployment status
-    ├── ai-prompt-input.tsx      # AI Architect input
-    └── code-preview.tsx         # Live code preview
+└── deployment-status-badge.tsx   # Badge status deployment
 ```
 
 > **Komponen spesifik halaman TIDAK ada di `components/`.** Semua berada di
 > `_components/` di dalam folder page masing-masing (lihat `app/` breakdown di atas).
 > `components/` hanya berisi komponen yang dipakai lintas halaman.
 
-**Important:** 
+**Important:**
 - ❌ **JANGAN** edit file di `components/ui/` secara manual
 - ✅ Gunakan `npx shadcn@latest add <component>` untuk menambah/update
 - ✅ Buat wrapper component di `components/` jika perlu customization
@@ -469,15 +619,26 @@ Jangan tambah warna chart langsung di komponen — tambah blok token di `globals
 
 ```
 lib/
-├── utils.ts                     # Helper functions (cn, formatUSD, dll)
-├── auth-context.tsx             # ✅ Auth context mock (localStorage-based)
-├── mock-data.ts                 # ✅ Mock users/projects/deployments/audit + RBAC helpers
-├── mock-ide-data.ts             # ✅ Mock Cloud IDE data (file tree, code, terminal, AI, problems)
-├── mock-finops.ts               # ✅ Data biaya/budget/alert/rekomendasi + helper
+├── utils.ts                      # cn(), formatUSD, formatBytes, dll
+├── auth-context.tsx              # ✅ AuthProvider mock — hydrate dari localStorage
+│                                 #   Exports: useAuth(), roleAtLeast()
+├── mock-data.ts                  # ✅ Mock users/projects/deployments/audit/databases/logs
+│                                 #   + helper RBAC (getMockProjectsByUser, getMockDatabasesForRole)
+├── mock-finops.ts                # ✅ Data biaya/budget/alert/rekomendasi
+│                                 #   + getCategoryShares, getTrendStats, summarizeAlerts, getBudgetStatus
+├── mock-ide-data.ts              # ✅ Data Cloud IDE (file tree, code, terminal, AI, problems)
+├── mock-errors.ts                # ✅ Data + tipe Error Tracking (TrackedError, MOCK_ERRORS)
+├── error-tracking-utils.ts       # ✅ Peta tone status/severity (Tailwind, bukan hex)
+├── deployment-utils.ts           # ✅ Helper deployment: getEffectiveStatus,
+│                                 #   timeLabelToSecondsAgo, tipe EffectiveDeploymentStatus
 │
-├── kpi/                         # ✅ Sistem KPI config-driven
-│   ├── types.ts                 # KpiItem, KpiGridConfig, KpiTrend, KpiAccent
-│   └── presets/                 # 6 config per halaman
+├── settings/                     # ✅ Data + konstanta halaman Settings
+│   ├── constants.ts              # PERMISSION_SUMMARY, ROLE_META, opsi bahasa/timezone/tema
+│   └── mock-settings.ts          # INITIAL_API_KEYS, MOCK_SESSIONS, NotifPrefs, maskKey()
+│
+├── kpi/
+│   ├── types.ts                  # KpiItem, KpiGridConfig, KpiTrend, KpiAccent
+│   └── presets/                  # 6 config, satu per halaman
 │       ├── admin.tsx
 │       ├── dashboard.tsx
 │       ├── deployments.tsx
@@ -485,47 +646,65 @@ lib/
 │       ├── monitoring.tsx
 │       └── projects.tsx
 │
-├── theme/                       # ✅ Color palette system
-│   ├── palettes.ts              # Definisi palette + storage key
-│   └── palette-provider.tsx     # Context, persistence, atribut data-palette
-│
-├── constants.ts                 # (planned — belum ada)
-├── types/                       # TypeScript type definitions (future)
-│
-├── validators/                  # Zod schemas (future)
-│   ├── auth.ts
-│   └── project.ts
-│
-└── services/                    # API clients (future)
-    ├── api.ts                   # Base API client
-    ├── projects.ts              # Project service
-    └── auth.ts                  # Auth service
+└── theme/                        # ✅ Color palette system
+    ├── palettes.ts               # Definisi 6 palette + storage key
+    └── palette-provider.tsx      # Context, persistence, atribut data-palette
 ```
+
+> **Pola pemecahan `lib/`.** `mock-data.ts` sudah melewati 1100 baris dan
+> menanggung users/projects/deployments/databases/logs. Modul yang punya domain
+> sendiri dipisah ke fileNya sendiri, dan **tidak di-re-export** dari
+> `mock-data.ts` — supaya tidak ada dua jalur import ke simbol yang sama.
+> Contoh: `lib/mock-finops.ts`, `lib/mock-errors.ts`, `lib/settings/`.
+> Tipe lokal (`ErrorStatus`, `EffectiveDeploymentStatus`, `DeployView`) import
+> langsung dari modul pemiliknya, bukan lewat barrel.
+
+> **Folder yang sengaja tidak ada di `lib/`:** `types/`, `validators/`, dan `services/`
+> pernah dicantumkan sebagai rencana tapi tidak pernah dibuat, jadi tidak didokumentasikan
+> sebagai file yang ada. `services/` baru relevan setelah ada backend. Constant yang dulu
+> direncanakan di `lib/constants.ts` sekarang hidup berdampingan dengan domain-nya,
+> di `lib/settings/constants.ts`.
 
 **Catatan:** Saat ini belum ada backend. Semua data berasal dari `mock-data.ts` dengan helper role (`getMockProjectsByUser`, `roleAtLeast`) untuk data isolation per role (ADMIN/USER/VIEWER). Saat backend siap, ganti sumber data di level halaman tanpa mengubah komponen.
 
 > **RBACOwnership:** RBAC berbasis role saja tidak cukup. Aksi tulis pada data milik user
 > (edit, hapus, arsip, deploy, clone) wajib dicek `role` **dan** `userId === resource.userId`.
-> Contoh implementasi: `canManageProject` di `projects/project-list.tsx` dan `canWrite`
-> di `projects/[id]/project-detail-client.tsx` (audit C2).
+> Contoh implementasi: `canManageProject` di
+> `app/(dashboard)/projects/project-list.tsx` dan `canWrite` di
+> `app/(dashboard)/projects/[id]/project-detail-client.tsx` (audit C2).
 
 #### 📂 `hooks/` — Custom React Hooks
 
 ```
 hooks/
-├── use-mobile.ts                # ✅ Media query breakpoint helper
-│
-├── use-debounce.ts              # (future) Debounce input values
-├── use-media-query.ts           # (future) Responsive breakpoints
-├── use-click-outside.ts         # (future) Click outside detection
-├── use-auth.ts                  # (future) Authentication
-└── use-deployment.ts            # (future) Deployment state
+├── use-mobile.ts                 # ✅ Media query breakpoint helper
+└── use-notice.ts                 # ✅ Notifikasi transien + auto-dismiss 3 detik
 ```
 
 > **Hook page-specific TIDAK ada di `hooks/`.** Hook yang hanya dipakai satu page
-> diletakkan di `app/(group)/page/_hooks/` — contoh: `projects/_hooks/`
-> (`use-projects`, `use-project-filters`, `use-project-shortcuts`, `use-notice`).
-> `hooks/` hanya berisi hook yang dipakai lintas halaman.
+> diletakkan di `app/(group)/page/_hooks/`. Saat ini ada enam folder:
+> - `projects/_hooks/` — `use-projects`, `use-project-filters`, `use-project-shortcuts`
+> - `admin/users/_hooks/` — `use-users`, `use-user-filters`
+> - `admin/databases/_hooks/` — `use-database-filters`
+> - `deployments/_hooks/` — `use-deployments`, `use-deployment-filters`, `use-deployment-modals`
+> - `error-tracking/_hooks/` — `use-errors`, `use-error-filters`
+> - `settings/_hooks/` — `use-profile-form`, `use-api-keys`, `use-notification-prefs`,
+>   `use-locale-prefs`, `use-transient-flag`
+>
+> `useNotice` pernah ada di `projects/_hooks/` lalu dipromosi ke sini setelah dipakai
+> dua page. Indikator pemindahan yang sama: kalau sebuah hook dipakai lintas page,
+> naik ke `hooks/`.
+>
+> Hook filter yang punya pagination (`projects`, `admin/users`, `admin/databases`,
+> `deployments`) semuanya mereset `page` **di dalam setter**, bukan lewat
+> `useEffect(() => setPage(1), [deps])` — pola ini menghindari render berantai dan
+> lolos rule `react-hooks/set-state-in-effect`.
+>
+> **Pola `useTransientFlag`.** Flag "Tersimpan"/"Tersalin" yang muncul sesaat lalu
+> hilang memakai hook ini: timer disimpan di ref dan dibersihkan saat unmount.
+> Pola lama `setX(true); setTimeout(() => setX(false), 2000)` memanggil `setState`
+> pada komponen yang sudah tidak ada kalau user pindah halaman sebelum timer habis —
+> bug yang sama berulang di `settings`, `deployments`, dan `admin/users`.
 
 #### 📂 `public/` — Static Assets
 
@@ -543,6 +722,37 @@ public/
 
 > **Favicon** berada di `app/` (App Router), bukan di `public/`: `icon.svg` (utama),
 > `apple-icon.png` (touch icon iOS), `favicon.ico` (fallback legacy).
+
+#### 📂 `docker/` & `scripts/` — Runtime & Build Tooling
+
+```
+docker/
+├── nginx/
+│   ├── nginx.conf                        # Config utama (user nginx, PID, temp path)
+│   ├── conf.d/
+│   │   └── omnistack.conf                # Server block: 404 → /404.html, TLS,
+│   │                                     #   security headers, cache-control per aset
+│   └── snippets/
+│       └── security-headers.conf         # CSP, X-Frame-Options, HSTS, dll
+└── certs/                                # TLS — git-ignored, hanya .gitkeep yang di-commit
+    ├── .gitkeep
+    ├── openssl.cnf                       # Config untuk gen-dev-certs.sh
+    ├── fullchain.pem                     # ⚠️ hasil generate — JANGAN di-commit
+    └── privkey.pem                       # ⚠️ hasil generate — JANGAN di-commit
+
+scripts/
+├── favicon.mjs                           # Baca app/icon.svg → tulis apple-icon.png + favicon.ico
+└── gen-dev-certs.sh                      # Buat sertifikat self-signed untuk TLS lokal
+```
+
+> **Sertifikat tidak boleh masuk image.** `docker/certs/` di-bind-mount read-only saat
+> runtime, tapi kalau ikut ter-`COPY` saat build, private key bisa dipulihkan dari
+> `docker history` dan dari setiap layer build cache jauh setelah `docker rmi`.
+> Karena itu `docker/certs`, `*.pem`, `*.key`, dan `*.crt` ada di `.dockerignore`
+> **dan** `.gitignore` — sementara `docker/nginx/*.conf` sengaja tidak di-ignore
+> karena runtime stage membacanya sebagai config default.
+>
+> Lihat `INFRASTRUCTURE.md` dan `README.docker.md` untuk detail deployment.
 
 ---
 
@@ -620,6 +830,15 @@ app/layout.tsx (Root)
 │   ├── app/(dashboard)/{ai-architect,ai-reviewer}/page.tsx
 │   ├── app/(dashboard)/{deployments,finops,gitops,monitoring,error-tracking}/page.tsx
 │   └── app/(dashboard)/settings/page.tsx         → /settings
+│
+│   Route yang punya `loading.tsx` (skeleton mirror struktur akhir):
+│   ├── admin/users, admin/databases
+│   ├── deployments, error-tracking
+│   └── projects/[id]/databases
+│
+│   `/settings` = satu route dengan 4 tab di dalamnya (profil / api-keys /
+│   integrasi / preferensi). Tab bukan route terpisah, jadi tidak punya URL
+│   sendiri dan tidak bisa di-share.
 │
 ├── app/(ide)/layout.tsx
 │   └── app/(ide)/projects/[id]/ide/page.tsx      → /projects/:id/ide
@@ -798,7 +1017,7 @@ export default async function ProjectsPage() {
 ### Client Components
 
 ```tsx
-// components/project-card.tsx
+// app/(dashboard)/projects/_components/project-card.tsx
 // ✅ Client Component - runs on browser
 
 "use client"
@@ -841,7 +1060,7 @@ import { ProjectCard } from "@/components/project-card" // Client Component
 
 export default async function ProjectsPage() {
   const projects = await db.projects.findMany() // Server-side fetch
-  
+
   return (
     <div>
       {projects.map(project => (
@@ -950,9 +1169,9 @@ export function useProjects() {
 
 export function useCreateProject() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: (data: CreateProjectInput) => 
+    mutationFn: (data: CreateProjectInput) =>
       fetch("/api/projects", {
         method: "POST",
         body: JSON.stringify(data),
@@ -1085,10 +1304,10 @@ Next.js secara otomatis split code per-route. User hanya download JavaScript unt
 ```tsx
 import Image from "next/image"
 
-<Image 
-  src="/hero.jpg" 
-  alt="Hero" 
-  width={1200} 
+<Image
+  src="/hero.jpg"
+  alt="Hero"
+  width={1200}
   height={600}
   priority // Preload for LCP
 />
@@ -1128,13 +1347,13 @@ ANALYZE=true npm run build
 
 ### ADR-001: Next.js App Router over Pages Router
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-08-21
 
-**Context:**  
+**Context:**
 Next.js menyediakan dua routing systems: Pages Router (legacy) dan App Router (modern).
 
-**Decision:**  
+**Decision:**
 Menggunakan **App Router** karena:
 - Server Components by default
 - Layout yang lebih flexible (nested layouts)
@@ -1151,13 +1370,13 @@ Menggunakan **App Router** karena:
 
 ### ADR-002: shadcn/ui with Base UI over Radix UI
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-08-21
 
-**Context:**  
+**Context:**
 shadcn/ui support multiple primitive libraries: Radix UI (mature), Base UI (new, RSC-friendly).
 
-**Decision:**  
+**Decision:**
 Memilih **Base UI** karena:
 - Lebih kompatibel dengan React Server Components
 - Bundle size lebih kecil
@@ -1174,13 +1393,13 @@ Memilih **Base UI** karena:
 
 ### ADR-003: Route Groups untuk Layout Separation
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-08-21
 
-**Context:**  
+**Context:**
 Butuh cara untuk memisahkan halaman yang butuh authentication (dashboard) vs halaman publik (landing, login) tanpa mempengaruhi URL.
 
-**Decision:**  
+**Decision:**
 Menggunakan **Route Groups** dengan naming convention:
 - `(dashboard)` untuk authenticated pages
 - `(marketing)` untuk public marketing pages
@@ -1196,13 +1415,13 @@ Menggunakan **Route Groups** dengan naming convention:
 
 ### ADR-004: BYOC (Bring Your Own Cloud) Architecture
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-08-20
 
-**Context:**  
+**Context:**
 Model deployment untuk PaaS: managed infrastructure (Vercel/Heroku) vs self-hosted.
 
-**Decision:**  
+**Decision:**
 Menggunakan **BYOC model** di mana:
 - Frontend (OmniStack UI) di-host sebagai SaaS
 - User menyediakan VPS sendiri (Hetzner, AWS, DigitalOcean)
@@ -1219,13 +1438,13 @@ Menggunakan **BYOC model** di mana:
 
 ### ADR-005: TypeScript Strict Mode
 
-**Status:** Accepted  
+**Status:** Accepted
 **Date:** 2026-08-20
 
-**Context:**  
+**Context:**
 TypeScript menyediakan berbagai strictness levels.
 
-**Decision:**  
+**Decision:**
 Mengaktifkan **strict mode** di `tsconfig.json`:
 ```json
 {
@@ -1416,6 +1635,7 @@ ARCHITECTURE.md ini adalah **living document**. Update saat:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.3.0 | 2026-09-26 | OmniStack Team | Struktur detail setelah 5 refactor: `deployments/_hooks` (3) + `_components` (12), `error-tracking/_hooks` (2) + `_components` (9), `settings/_hooks` (5) + `_components` (8,incl. `shared/`), `lib/settings/`, `lib/mock-errors.ts`, `lib/deployment-utils.ts`, `lib/error-tracking-utils.ts`; pola `useTransientFlag`; daftar route yang punya `loading.tsx` |
 | 1.2.0 | 2026-09-26 | OmniStack Team | Sinkronisasi struktur file: route group `(ide)`, `admin/*`, `ai-reviewer`, `databases` nested, `gitops`/`monitoring`/`error-tracking`, `docs/kg/`, `.opencode/`, `docker/`, `.github/`; hapus entri yang tidak ada (`app/api/`, `(marketing)/`, `tailwind.config.ts`); koreksi route `/` → landing, `/dashboard` → dashboard; update Phase 1 |
 | 1.1.0 | 2026-08-23 | OmniStack Team | Update struktur projects (`_components/`), mock data & RBAC helpers, status Phase 1 |
 | 1.0.0 | 2026-08-22 | OmniStack Team | Initial architecture documentation |
