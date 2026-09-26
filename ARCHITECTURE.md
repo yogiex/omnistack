@@ -209,10 +209,12 @@ Struktur ini mengikuti konvensi Next.js 13+ dengan App Router:
 
 ```
 app/
-├── layout.tsx                    # Root layout (ThemeProvider, TooltipProvider, font)
+├── layout.tsx                    # Root layout (ThemeProvider, PaletteProvider, TooltipProvider, font)
 ├── page.tsx                      # Landing page (URL: /)
-├── globals.css                   # Global styles + Tailwind v4 @theme tokens
-├── favicon.ico
+├── globals.css                   # Global styles + Tailwind v4 @theme tokens + blok palette
+├── icon.svg                      # Favicon SVG (App Router — preferred, scalable)
+├── apple-icon.png                # Apple touch icon (180×180)
+├── favicon.ico                   # Fallback legacy ICO
 │
 │   # ── Route Group: Authenticated pages (AppSidebar + TopNav) ──
 ├── (dashboard)/
@@ -223,18 +225,33 @@ app/
 │   │   └── client-dashboard.tsx  # Client component utama
 │   │
 │   ├── projects/                 # ✅ Project management (CRUD lengkap)
-│   │   ├── page.tsx              # URL: /projects
-│   │   ├── project-list.tsx      # Client component utama (grid/list/filter)
+│   │   ├── page.tsx              # URL: /projects (shell statis)
+│   │   ├── project-list.tsx      # Client orchestrator (RBAC + handlers + render)
 │   │   ├── project-form-sheet.tsx
-│   │   ├── _components/          # Page-specific components
-│   │   │   ├── project-card.tsx
-│   │   │   ├── projects-table.tsx
-│   │   │   ├── projects-stats.tsx
+│   │   ├── _hooks/               # ✅ Hooks page-specific
+│   │   │   ├── use-projects.ts           # State proyek + mutasi (create/clone/transfer/…)
+│   │   │   ├── use-project-filters.ts    # Search, filter, sort, pagination
+│   │   │   ├── use-project-shortcuts.ts  # Keyboard: N = buat, / = fokus search
+│   │   │   └── use-notice.ts             # Notifikasi transien + auto-dismiss
+│   │   ├── _components/          # Page-specific components (13 files)
+│   │   │   ├── project-card.tsx          # Card grid + tipe ManagedProject
+│   │   │   ├── projects-table.tsx        # Tampilan list
 │   │   │   ├── project-actions-menu.tsx
-│   │   │   └── filter-bar.tsx
+│   │   │   ├── filter-bar.tsx            # Search, sort, owner filter, view toggle
+│   │   │   ├── projects-header.tsx       # Judul + CTA per role
+│   │   │   ├── projects-notice.tsx       # Toast in-line
+│   │   │   ├── projects-pagination.tsx
+│   │   │   ├── projects-skeleton.tsx
+│   │   │   ├── projects-empty-none.tsx
+│   │   │   ├── projects-empty-filtered.tsx
+│   │   │   └── transfer-ownership-sheet.tsx  # Sheet ADMIN (shadcn Select)
 │   │   └── [id]/                 # URL: /projects/:id
 │   │       ├── page.tsx
-│   │       ├── project-detail-client.tsx
+│   │       ├── project-detail-client.tsx   # canWrite = role AND owner (audit C2)
+│   │       ├── logs/              # ✅ Log streaming + AI log analyzer
+│   │       │   ├── page.tsx, loading.tsx
+│   │       │   ├── logs-client.tsx
+│   │       │   └── _components/  # log-stream, ai-log-analyzer, metrics-panel, log-filters
 │   │       └── databases/        # ✅ Database per project
 │   │           ├── page.tsx              # URL: /projects/:id/databases
 │   │           ├── databases-client.tsx
@@ -252,7 +269,9 @@ app/
 │   │
 │   ├── admin/                    # ✅ Admin console (role-gated)
 │   │   ├── page.tsx              # URL: /admin (overview)
-│   │   ├── admin-overview.tsx
+│   │   ├── admin-overview.tsx    # Z-pattern shell (KPI → focal → bottom bar)
+│   │   ├── _components/          # recent-activity, role-distribution,
+│   │   │                         # system-health, alerts-panel
 │   │   ├── users/                # URL: /admin/users
 │   │   │   ├── page.tsx, loading.tsx
 │   │   │   ├── users-page-client.tsx
@@ -284,8 +303,17 @@ app/
 │   │
 │   ├── finops/                   # ✅ Cost tracking
 │   │   ├── page.tsx              # URL: /finops
-│   │   ├── finops-client.tsx
-│   │   └── _components/          # overview, cost-trend-chart, breakdown-table, budget, export, recommendations
+│   │   ├── finops-client.tsx     # Orchestrator (RBAC filter + Z-pattern sections)
+│   │   └── _components/          # 9 files
+│   │       ├── finops-header.tsx            # Judul, subtitle per role, link alert, export
+│   │       ├── critical-alert-banner.tsx    # Banner kritis (border-l, tanpa dismiss)
+│   │       ├── infra-breakdown-strip.tsx    # Strip kategori infrastruktur
+│   │       ├── cost-trend-chart.tsx
+│   │       ├── cost-breakdown-table.tsx
+│   │       ├── optimization-recommendations.tsx
+│   │       ├── budget-alerts.tsx
+│   │       ├── budget-settings.tsx
+│   │       └── export-panel.tsx
 │   │
 │   ├── gitops/                   # ✅ GitOps / PR preview environments
 │   │   ├── page.tsx              # URL: /gitops
@@ -316,6 +344,11 @@ app/
 │                                  #  command-palette, deploy-dialog)
 │
 │   # ── Standalone public pages (no dashboard layout) ──
+├── not-found.tsx                 # URL: */404 (file konvensi → out/404.html)
+├── 401/                          # URL: /401 (route biasa, bukan file konvensi)
+│   └── page.tsx                  # Countdown auto-redirect ke /login, bisa dibatalkan
+├── 403/                          # URL: /403 (route biasa, bukan file konvensi)
+│   └── page.tsx                  # Panel "Request Access" (mailto + copy email)
 ├── login/                        # URL: /login
 │   └── page.tsx
 ├── register/                     # URL: /register
@@ -332,11 +365,17 @@ app/
 > per `next.config.ts`, sehingga Route Handlers / Server Actions tidak tersedia.
 > Lihat `INFRASTRUCTURE.md` untuk detail deployment.
 >
+> **Error pages.** Hanya `not-found.tsx` yang file konvensi Next.js — diprerender
+> jadi `out/404.html` dan dipakai nginx lewat `error_page 404 /404.html`
+> (`docker/nginx/conf.d/omnistack.conf`). `app/401/` dan `app/403/` hanyalah route
+> biasa (`/401`, `/403`): static export tidak punya server yang mengembalikan status
+> 401/403, jadi keduanya harus dipanggil secara eksplisit. `RouteGuard` saat ini
+> mengarahkan role kurang ke `/dashboard`, bukan `/403`.
+>
 > **Tidak ada `(marketing)/` route group.** Landing page berada di root `app/page.tsx`,
 > sedangkan `/privacy` & `/terms` adalah folder standalone.
 >
-> **Tidak ada `not-found.tsx` / `error.tsx` / `sitemap.ts` di root** saat ini;
-> `loading.tsx` hanya ada di `projects/[id]/databases/` dan `admin/users/`.
+
 
 **Route Groups Explained:**
 - `(dashboard)` — Pages yang membutuhkan authentication & layout dashboard (Sidebar + TopNav)
@@ -347,12 +386,13 @@ app/
 
 ```
 components/
-├── ui/                           # shadcn/ui primitives (18 files)
+├── ui/                           # shadcn/ui primitives (20 files)
 │   ├── accordion.tsx             # npx shadcn@latest add accordion
 │   ├── avatar.tsx
 │   ├── badge.tsx
 │   ├── button.tsx
 │   ├── card.tsx
+│   ├── chart.tsx                 # ChartContainer/Tooltip/Legend wrapper (Recharts)
 │   ├── checkbox.tsx
 │   ├── dialog.tsx
 │   ├── dropdown-menu.tsx
@@ -368,15 +408,23 @@ components/
 │   ├── textarea.tsx
 │   └── tooltip.tsx
 │
+├── kpi/                          # ✅ Sistem KPI config-driven (reusable lintas page)
+│   ├── index.ts                  # Entry point — page import dari sini
+│   ├── kpi-card.tsx
+│   ├── kpi-card-skeleton.tsx
+│   ├── kpi-grid.tsx
+│   └── kpi-section.tsx           # Config + data + role → grid (filtering per role)
+│
 ├── app-sidebar.tsx               # Main navigation sidebar
 ├── top-nav.tsx                   # Top navigation bar
 ├── theme-provider.tsx            # Dark/light mode wrapper (next-themes)
+├── theme-switcher.tsx            # Mode + color palette dropdown (top-nav)
+├── palette-picker-inline.tsx     # Preview palette (dipakai di settings)
 ├── route-guard.tsx               # Client-side role gate (ADMIN / USER / VIEWER)
 ├── project-status-badge.tsx      # Badge status proyek (Live/Building/Failed/Stopped)
 ├── deployment-status-badge.tsx   # Badge status deployment
 │
 └── [future components]
-    ├── project-card.tsx         # Currently di app/(dashboard)/projects/_components/
     ├── deployment-status.tsx    # Real-time deployment status
     ├── ai-prompt-input.tsx      # AI Architect input
     └── code-preview.tsx         # Live code preview
@@ -391,14 +439,55 @@ components/
 - ✅ Gunakan `npx shadcn@latest add <component>` untuk menambah/update
 - ✅ Buat wrapper component di `components/` jika perlu customization
 
+#### 📂 `components/ui/chart.tsx` — Chart Wrappers
+
+Chart memakai **shadcn/ui Charts** (`npx shadcn@latest add chart`), yaitu wrapper
+di atas **Recharts 3**. Wrapper ini meng centralised tiga hal:
+
+- `ChartContainer` — `ResponsiveContainer` + `<style>` yang memaparkan
+  `--color-<key>` dari `ChartConfig` ke CSS
+- `ChartTooltip` / `ChartTooltipContent` — tooltip yang konsisten dengan tema
+- `ChartLegend` / `ChartLegendContent` — legend yang membaca label dari config
+
+Warna chart **tidak boleh ditulis hex di komponen**. Pakai token:
+
+```tsx
+const chartConfig = {
+  compute: { label: "Compute", color: "var(--color-chart-1)" },
+} satisfies ChartConfig
+
+// di JSX
+<Area dataKey="compute" fill="var(--color-chart-1)" stroke="var(--color-chart-1)" />
+```
+
+`--chart-1..5` adalah 5 warna kategorikal berjarak 72° pada hue wheel, di-anchor ke
+hue palette aktif. Nilainya didefinisikan di `app/globals.css` untuk `:root`, `.dark`,
+dan setiap blok `[data-palette]`, jadi mengganti palette ikut mengganti warna chart.
+Jangan tambah warna chart langsung di komponen — tambah blok token di `globals.css`.
+
 #### 📂 `lib/` — Utilities & Shared Code
 
 ```
 lib/
-├── utils.ts                     # Helper functions (cn, dll)
+├── utils.ts                     # Helper functions (cn, formatUSD, dll)
 ├── auth-context.tsx             # ✅ Auth context mock (localStorage-based)
 ├── mock-data.ts                 # ✅ Mock users/projects/deployments/audit + RBAC helpers
 ├── mock-ide-data.ts             # ✅ Mock Cloud IDE data (file tree, code, terminal, AI, problems)
+├── mock-finops.ts               # ✅ Data biaya/budget/alert/rekomendasi + helper
+│
+├── kpi/                         # ✅ Sistem KPI config-driven
+│   ├── types.ts                 # KpiItem, KpiGridConfig, KpiTrend, KpiAccent
+│   └── presets/                 # 6 config per halaman
+│       ├── admin.tsx
+│       ├── dashboard.tsx
+│       ├── deployments.tsx
+│       ├── finops.tsx
+│       ├── monitoring.tsx
+│       └── projects.tsx
+│
+├── theme/                       # ✅ Color palette system
+│   ├── palettes.ts              # Definisi palette + storage key
+│   └── palette-provider.tsx     # Context, persistence, atribut data-palette
 │
 ├── constants.ts                 # (planned — belum ada)
 ├── types/                       # TypeScript type definitions (future)
@@ -415,6 +504,11 @@ lib/
 
 **Catatan:** Saat ini belum ada backend. Semua data berasal dari `mock-data.ts` dengan helper role (`getMockProjectsByUser`, `roleAtLeast`) untuk data isolation per role (ADMIN/USER/VIEWER). Saat backend siap, ganti sumber data di level halaman tanpa mengubah komponen.
 
+> **RBACOwnership:** RBAC berbasis role saja tidak cukup. Aksi tulis pada data milik user
+> (edit, hapus, arsip, deploy, clone) wajib dicek `role` **dan** `userId === resource.userId`.
+> Contoh implementasi: `canManageProject` di `projects/project-list.tsx` dan `canWrite`
+> di `projects/[id]/project-detail-client.tsx` (audit C2).
+
 #### 📂 `hooks/` — Custom React Hooks
 
 ```
@@ -427,6 +521,11 @@ hooks/
 ├── use-auth.ts                  # (future) Authentication
 └── use-deployment.ts            # (future) Deployment state
 ```
+
+> **Hook page-specific TIDAK ada di `hooks/`.** Hook yang hanya dipakai satu page
+> diletakkan di `app/(group)/page/_hooks/` — contoh: `projects/_hooks/`
+> (`use-projects`, `use-project-filters`, `use-project-shortcuts`, `use-notice`).
+> `hooks/` hanya berisi hook yang dipakai lintas halaman.
 
 #### 📂 `public/` — Static Assets
 
@@ -442,7 +541,8 @@ public/
     └── Inter-Variable.woff2     # Local variable font (self-hosted, no next/font fetch)
 ```
 
-> **Favicon** berada di `app/favicon.ico` (App Router), bukan di `public/`.
+> **Favicon** berada di `app/` (App Router), bukan di `public/`: `icon.svg` (utama),
+> `apple-icon.png` (touch icon iOS), `favicon.ico` (fallback legacy).
 
 ---
 
@@ -479,6 +579,9 @@ URL Structure:
 /monitoring                    → app/(dashboard)/monitoring/page.tsx
 /error-tracking                → app/(dashboard)/error-tracking/page.tsx
 /settings                      → app/(dashboard)/settings/page.tsx
+/401                           → app/401/page.tsx (route, bukan file konvensi)
+/403                           → app/403/page.tsx (route, bukan file konvensi)
+*tak ditemukan*               → app/not-found.tsx (file konvensi)
 
 /admin                         → app/(dashboard)/admin/page.tsx
 /admin/users                   → app/(dashboard)/admin/users/page.tsx
@@ -521,6 +624,9 @@ app/layout.tsx (Root)
 ├── app/(ide)/layout.tsx
 │   └── app/(ide)/projects/[id]/ide/page.tsx      → /projects/:id/ide
 │
+├── app/not-found.tsx (semua route, tanpa dashboard layout)
+├── app/401/page.tsx (Standalone, no dashboard layout)
+├── app/403/page.tsx (Standalone, no dashboard layout)
 ├── app/login/page.tsx (Standalone, no dashboard layout)
 ├── app/register/page.tsx (Standalone)
 ├── app/forgot-password/page.tsx (Standalone)
@@ -645,8 +751,8 @@ Does it exist in shadcn/ui?
                     │
                     └── NO ───► Is it page-specific?
                                     │
-                                    ├── YES ──► Create inside page folder
-                                    │           Or in `app/(group)/_components/`
+                                    ├── YES ──► UI → `app/(group)/page/_components/`
+                                    │           State/hook → `app/(group)/page/_hooks/`
                                     │
                                     └── NO ───► Reconsider: it should be reusable
 ```
