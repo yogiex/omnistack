@@ -29,8 +29,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getBudgetStatus, type ProjectCostBreakdown } from "@/lib/mock-data"
-import { cn } from "@/lib/utils"
+import {
+  getBudgetStatus,
+  type ProjectCostBreakdown,
+} from "@/lib/mock-finops"
+import { MOCK_PROJECTS, MOCK_USERS } from "@/lib/mock-data"
+import { cn, formatUSD } from "@/lib/utils"
 
 type SortKey = "biaya" | "tren" | "nama"
 
@@ -58,21 +62,31 @@ const BUDGET_BADGE: Record<
   },
 }
 
-function formatUSD(value: number): string {
-  return `$${value.toLocaleString("en-US", { maximumFractionDigits: 2 })}`
+interface CostBreakdownTableProps {
+  items: ProjectCostBreakdown[]
+  canManageBudget: boolean
+  /** Tampilkan kolom "Pemilik" (berguna untuk ADMIN lintas proyek) */
+  showOwner?: boolean
 }
 
 export function CostBreakdownTable({
   items,
   canManageBudget,
-}: {
-  items: ProjectCostBreakdown[]
-  canManageBudget: boolean
-}) {
+  showOwner = false,
+}: CostBreakdownTableProps) {
   const [query, setQuery] = useState("")
   const [sortKey, setSortKey] = useState<SortKey>("biaya")
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [exportedId, setExportedId] = useState<string | null>(null)
+
+  const ownerNames = useMemo(() => {
+    const map = new Map<string, string>()
+    MOCK_PROJECTS.forEach((project) => {
+      const owner = MOCK_USERS.find((u) => u.id === project.userId)
+      if (owner) map.set(project.id, owner.name)
+    })
+    return map
+  }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -80,7 +94,10 @@ export function CostBreakdownTable({
       ? items.filter(
           (item) =>
             item.projectName.toLowerCase().includes(q) ||
-            item.team.toLowerCase().includes(q)
+            item.team.toLowerCase().includes(q) ||
+            (ownerNames.get(item.projectId) ?? "")
+              .toLowerCase()
+              .includes(q)
         )
       : [...items]
 
@@ -98,7 +115,7 @@ export function CostBreakdownTable({
     })
 
     return result
-  }, [items, query, sortKey])
+  }, [items, query, sortKey, ownerNames])
 
   const maxThisMonth = useMemo(
     () => Math.max(...items.map((item) => item.thisMonth), 1),
@@ -113,6 +130,8 @@ export function CostBreakdownTable({
     setExportedId(item.projectId)
     window.setTimeout(() => setExportedId(null), 2000)
   }
+
+  const columnCount = showOwner ? 7 : 6
 
   return (
     <Card>
@@ -161,6 +180,7 @@ export function CostBreakdownTable({
               <TableRow>
                 <TableHead className="w-8" aria-label="Expand" />
                 <TableHead>Proyek</TableHead>
+                {showOwner && <TableHead>Pemilik</TableHead>}
                 <TableHead className="text-right">Bulan Ini</TableHead>
                 <TableHead className="text-right">Bulan Lalu</TableHead>
                 <TableHead>Tren</TableHead>
@@ -170,7 +190,7 @@ export function CostBreakdownTable({
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={columnCount} className="text-center text-muted-foreground">
                     Tidak ada proyek yang cocok dengan pencarian.
                   </TableCell>
                 </TableRow>
@@ -223,6 +243,11 @@ export function CostBreakdownTable({
                             {item.team}
                           </p>
                         </TableCell>
+                        {showOwner && (
+                          <TableCell className="text-sm text-muted-foreground">
+                            {ownerNames.get(item.projectId) ?? "—"}
+                          </TableCell>
+                        )}
                         <TableCell className="text-right font-mono tabular-nums">
                           {formatUSD(item.thisMonth)}
                         </TableCell>
@@ -267,7 +292,7 @@ export function CostBreakdownTable({
                       </TableRow>
                       {isExpanded && (
                         <TableRow>
-                          <TableCell colSpan={6} className="bg-muted/40">
+                          <TableCell colSpan={columnCount} className="bg-muted/40">
                             <div className="flex flex-col gap-4 py-1 lg:flex-row lg:items-start lg:justify-between">
                               <dl className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-4">
                                 {(

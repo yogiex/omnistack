@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OmniStack">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="layerTop" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="layerMid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="layerBot" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+
+  <path d="M32 32 L52 41 L32 50 L12 41 Z" fill="url(#layerBot)" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M32 23 L52 32 L32 41 L12 32 Z" fill="url(#layerMid)" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M32 14 L52 23 L32 32 L12 23 Z" fill="url(#layerTop)" stroke="#0f172a" stroke-width="1.5" stroke-linejoin="round"/>
+</svg>

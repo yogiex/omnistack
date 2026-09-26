@@ -13,10 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import type {
-  OptimizationRecommendation,
-  OptimizedProject,
-} from "@/lib/mock-data"
+import type { OptimizationRecommendation, OptimizedProject } from "@/lib/mock-finops"
 import { cn } from "@/lib/utils"
 
 interface OptimizationRecommendationsProps {

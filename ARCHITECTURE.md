@@ -159,22 +159,47 @@ omnistack/
 ├── app/                          # Next.js App Router (pages & layouts)
 ├── components/                   # React components
 │   ├── ui/                      # shadcn/ui primitives (DO NOT EDIT)
-│   └── [business components]    # Custom components
-├── lib/                          # Utilities, types, constants
+│   └── [business components]    # Cross-page custom components
+├── lib/                          # Utilities, mock data, auth context
 ├── hooks/                        # Custom React hooks
-├── public/                       # Static assets (images, fonts)
+├── public/                       # Static assets (svg, local fonts)
+├── docs/                         # Documentation
+│   └── kg/                       # Knowledge graph (ontology + nodes)
+├── docker/                       # Runtime container config
+│   └── nginx.conf
+├── .github/
+│   └── workflows/deploy.yml      # CI: static export → GitHub Pages
+├── .opencode/                    # Agent context engineering
+│   ├── agent/                    # Sub-agents (mvp-implementer, code-reviewer, kg-curator)
+│   ├── command/                  # Slash commands (/mvp, /kg)
+│   ├── skills/                   # On-demand skills + scripts
+│   └── memory/                   # todo.md, decisions.md, errors.md
 ├── .next/                        # Build output (git-ignored)
 ├── node_modules/                 # Dependencies (git-ignored)
 ├── components.json               # shadcn/ui configuration
-├── next.config.ts                # Next.js configuration
-├── tailwind.config.ts            # Tailwind CSS configuration
+├── next.config.ts                # Next.js configuration (output: "export")
+├── postcss.config.mjs            # PostCSS (Tailwind v4 — no tailwind.config.ts)
+├── eslint.config.mjs             # ESLint flat config
 ├── tsconfig.json                 # TypeScript configuration
 ├── package.json                  # Dependencies & scripts
+├── Dockerfile                    # Multi-stage build → nginx-unprivileged
+├── docker-compose.yml            # Local container orchestration
+├── .dockerignore                 # Docker build context exclusions
+├── .env.example                  # Environment variable template
+├── AGENTS.md                     # AI agent guide (wajib dibaca)
+├── CLAUDE.md                     # Claude-specific agent notes
 ├── ARCHITECTURE.md               # This file
 ├── CONVENTIONS.md                # Code conventions
 ├── DESIGN.md                     # Design system
+├── INFRASTRUCTURE.md             # Infrastruktur & deployment
+├── CHANGELOG.md                  # Version history
+├── README.docker.md              # Panduan menjalankan via Docker
 └── README.md                     # Project overview
 ```
+
+> **Catatan Tailwind v4:** tidak ada `tailwind.config.ts`. Konfigurasi Tailwind
+> (theme tokens, plugin, `@source`) ditulis inline di `app/globals.css` melalui
+> directive `@theme` / `@plugin` / `@source`.
 
 ### Detailed Breakdown
 
@@ -184,96 +209,287 @@ Struktur ini mengikuti konvensi Next.js 13+ dengan App Router:
 
 ```
 app/
-├── layout.tsx                    # Root layout (global)
+├── layout.tsx                    # Root layout (ThemeProvider, PaletteProvider, TooltipProvider, font)
 ├── page.tsx                      # Landing page (URL: /)
-├── globals.css                   # Global styles + Tailwind directives
+├── globals.css                   # Global styles + Tailwind v4 @theme tokens + blok palette
+├── icon.svg                      # Favicon SVG (App Router — preferred, scalable)
+├── apple-icon.png                # Apple touch icon (180×180)
+├── favicon.ico                   # Fallback legacy ICO
 │
-├── (dashboard)/                  # Route Group: Authenticated pages
-│   ├── layout.tsx               # Dashboard shell (Sidebar + TopNav)
-│   ├── page.tsx                 # Dashboard overview (URL: /)
-│   ├── dashboard/               # Overview dashboard (client dashboard)
-│   ├── projects/                # ✅ Project management (CRUD lengkap)
-│   │   ├── page.tsx             # URL: /projects
-│   │   ├── project-list.tsx     # Client component utama (grid/list/filter)
+│   # ── Route Group: Authenticated pages (AppSidebar + TopNav) ──
+├── (dashboard)/
+│   ├── layout.tsx                # Dashboard shell (Sidebar + TopNav)
+│   │
+│   ├── dashboard/                # ✅ Overview dashboard
+│   │   ├── page.tsx              # URL: /dashboard
+│   │   └── client-dashboard.tsx  # Client component utama
+│   │
+│   ├── projects/                 # ✅ Project management (CRUD lengkap)
+│   │   ├── page.tsx              # URL: /projects (shell statis)
+│   │   ├── project-list.tsx      # Client orchestrator (RBAC + handlers + render)
 │   │   ├── project-form-sheet.tsx
-│   │   ├── _components/         # Page-specific components
-│   │   │   ├── project-card.tsx    # Card 4 state + actions
-│   │   │   ├── projects-table.tsx  # List view (tabel)
-│   │   │   ├── projects-stats.tsx  # Stats cards
-│   │   │   └── filter-bar.tsx      # Search/sort/view toggle
-│   │   └── [id]/                # URL: /projects/:id
-│   ├── ai-architect/            # AI Prompt Engineer (WIP)
-│   │   ├── page.tsx             # URL: /ai-architect
-│   │   └── _components/
-│   ├── deployments/             # Deployment history
-│   ├── finops/                  # Cost tracking
-│   └── settings/                # User settings
-│       └── page.tsx             # URL: /settings
+│   │   ├── _hooks/               # ✅ Hooks page-specific
+│   │   │   ├── use-projects.ts           # State proyek + mutasi (create/clone/transfer/…)
+│   │   │   ├── use-project-filters.ts    # Search, filter, sort, pagination
+│   │   │   ├── use-project-shortcuts.ts  # Keyboard: N = buat, / = fokus search
+│   │   │   └── use-notice.ts             # Notifikasi transien + auto-dismiss
+│   │   ├── _components/          # Page-specific components (13 files)
+│   │   │   ├── project-card.tsx          # Card grid + tipe ManagedProject
+│   │   │   ├── projects-table.tsx        # Tampilan list
+│   │   │   ├── project-actions-menu.tsx
+│   │   │   ├── filter-bar.tsx            # Search, sort, owner filter, view toggle
+│   │   │   ├── projects-header.tsx       # Judul + CTA per role
+│   │   │   ├── projects-notice.tsx       # Toast in-line
+│   │   │   ├── projects-pagination.tsx
+│   │   │   ├── projects-skeleton.tsx
+│   │   │   ├── projects-empty-none.tsx
+│   │   │   ├── projects-empty-filtered.tsx
+│   │   │   └── transfer-ownership-sheet.tsx  # Sheet ADMIN (shadcn Select)
+│   │   └── [id]/                 # URL: /projects/:id
+│   │       ├── page.tsx
+│   │       ├── project-detail-client.tsx   # canWrite = role AND owner (audit C2)
+│   │       ├── logs/              # ✅ Log streaming + AI log analyzer
+│   │       │   ├── page.tsx, loading.tsx
+│   │       │   ├── logs-client.tsx
+│   │       │   └── _components/  # log-stream, ai-log-analyzer, metrics-panel, log-filters
+│   │       └── databases/        # ✅ Database per project
+│   │           ├── page.tsx              # URL: /projects/:id/databases
+│   │           ├── databases-client.tsx
+│   │           ├── loading.tsx
+│   │           ├── _components/          # 8 files (5 dialogs + card/filters/stats/empty)
+│   │           └── [dbId]/                # URL: /projects/:id/databases/:dbId
+│   │               ├── page.tsx          # Database overview
+│   │               ├── _components/
+│   │               │   ├── backup-manager.tsx
+│   │               │   ├── database-metrics.tsx
+│   │               │   └── query-console.tsx
+│   │               ├── backups/page.tsx         # .../:dbId/backups
+│   │               ├── console/page.tsx         # .../:dbId/console
+│   │               └── metrics/page.tsx         # .../:dbId/metrics
+│   │
+│   ├── admin/                    # ✅ Admin console (role-gated)
+│   │   ├── page.tsx              # URL: /admin (overview)
+│   │   ├── admin-overview.tsx    # Z-pattern shell (KPI → focal → bottom bar)
+│   │   ├── _components/          # recent-activity, role-distribution,
+│   │   │                         # system-health, alerts-panel
+│   │   ├── users/                # URL: /admin/users
+│   │   │   ├── page.tsx, loading.tsx
+│   │   │   ├── users-page-client.tsx
+│   │   │   ├── user-form-sheet.tsx
+│   │   │   └── _components/      # role-badge, stats-grid, invite/delete dialog, empty-state
+│   │   ├── ai-config/            # URL: /admin/ai-config
+│   │   ├── audit/                # URL: /admin/audit
+│   │   ├── billing/              # URL: /admin/billing
+│   │   ├── databases/            # URL: /admin/databases (cluster-wide)
+│   │   ├── infrastructure/       # URL: /admin/infrastructure
+│   │   └── settings/             # URL: /admin/settings
+│   │
+│   ├── ai-architect/             # ✅ AI Prompt Engineer
+│   │   ├── page.tsx              # URL: /ai-architect
+│   │   └── _components/          # ai-studio, prompt-panel, preview-panel, mock-previews.ts
+│   │
+│   ├── ai-reviewer/              # ✅ AI code review + security posture
+│   │   ├── page.tsx              # URL: /ai-reviewer
+│   │   └── _components/          # review-shell, finding-detail-sheet, types.ts
+│   │       ├── mock-data-reviewer.ts
+│   │       ├── dashboard/        # dashboard-view, stats-grid, recent-reviews-table, banner
+│   │       ├── results/          # results-view/header/tabs, findings-list/filters, overview-tab
+│   │       └── shared/           # score-badge, severity-badge
+│   │
+│   ├── deployments/              # ✅ Deployment history + actions
+│   │   ├── page.tsx              # URL: /deployments
+│   │   ├── deployments-list.tsx
+│   │   └── _components/          # 8 files (table, filters, stats, new/rollback/detail/AI-diagnose)
+│   │
+│   ├── finops/                   # ✅ Cost tracking
+│   │   ├── page.tsx              # URL: /finops
+│   │   ├── finops-client.tsx     # Orchestrator (RBAC filter + Z-pattern sections)
+│   │   └── _components/          # 9 files
+│   │       ├── finops-header.tsx            # Judul, subtitle per role, link alert, export
+│   │       ├── critical-alert-banner.tsx    # Banner kritis (border-l, tanpa dismiss)
+│   │       ├── infra-breakdown-strip.tsx    # Strip kategori infrastruktur
+│   │       ├── cost-trend-chart.tsx
+│   │       ├── cost-breakdown-table.tsx
+│   │       ├── optimization-recommendations.tsx
+│   │       ├── budget-alerts.tsx
+│   │       ├── budget-settings.tsx
+│   │       └── export-panel.tsx
+│   │
+│   ├── gitops/                   # ✅ GitOps / PR preview environments
+│   │   ├── page.tsx              # URL: /gitops
+│   │   └── gitops-client.tsx
+│   │
+│   ├── monitoring/               # ✅ Metrics & uptime monitoring
+│   │   ├── page.tsx              # URL: /monitoring
+│   │   └── monitoring-client.tsx
+│   │
+│   ├── error-tracking/           # ✅ Error tracking
+│   │   ├── page.tsx              # URL: /error-tracking
+│   │   └── error-tracking-client.tsx
+│   │
+│   └── settings/                 # ✅ User settings
+│       ├── page.tsx              # URL: /settings
+│       └── settings-client.tsx
 │
-├── (marketing)/                  # Route Group: Public pages (future)
-│   ├── about/page.tsx           # URL: /about
-│   └── pricing/page.tsx         # URL: /pricing
+│   # ── Route Group: Cloud IDE shell (immersive, no dashboard chrome) ──
+├── (ide)/
+│   ├── layout.tsx                # IDE shell layout (full-bleed)
+│   └── projects/
+│       └── [id]/
+│           └── ide/              # URL: /projects/:id/ide
+│               ├── page.tsx
+│               ├── ide-client.tsx
+│               └── _components/  # 10 files (shell, editor, explorer, activity-bar,
+│                                  #  top-bar, status-bar, right-panel, bottom-panel,
+│                                  #  command-palette, deploy-dialog)
 │
-├── login/                        # Authentication
-│   └── page.tsx                 # URL: /login (no dashboard layout)
-│
-├── register/                     # Future: Registration
+│   # ── Standalone public pages (no dashboard layout) ──
+├── not-found.tsx                 # URL: */404 (file konvensi → out/404.html)
+├── 401/                          # URL: /401 (route biasa, bukan file konvensi)
+│   └── page.tsx                  # Countdown auto-redirect ke /login, bisa dibatalkan
+├── 403/                          # URL: /403 (route biasa, bukan file konvensi)
+│   └── page.tsx                  # Panel "Request Access" (mailto + copy email)
+├── login/                        # URL: /login
 │   └── page.tsx
-│
-├── api/                          # API Routes (Route Handlers)
-│   ├── auth/                    # Auth endpoints
-│   ├── projects/                # Project CRUD
-│   └── deploy/                  # Deployment triggers
-│
-├── not-found.tsx                 # Custom 404 page
-├── error.tsx                     # Global error boundary
-├── loading.tsx                   # Global loading UI
-└── sitemap.ts                    # SEO sitemap (future)
+├── register/                     # URL: /register
+│   └── page.tsx
+├── forgot-password/              # URL: /forgot-password
+│   └── page.tsx
+├── privacy/                      # URL: /privacy
+│   └── page.tsx
+└── terms/                        # URL: /terms
+    └── page.tsx
 ```
 
+> **Tidak ada `app/api/`.** Proyek berjalan sebagai static export (`output: "export"`)
+> per `next.config.ts`, sehingga Route Handlers / Server Actions tidak tersedia.
+> Lihat `INFRASTRUCTURE.md` untuk detail deployment.
+>
+> **Error pages.** Hanya `not-found.tsx` yang file konvensi Next.js — diprerender
+> jadi `out/404.html` dan dipakai nginx lewat `error_page 404 /404.html`
+> (`docker/nginx/conf.d/omnistack.conf`). `app/401/` dan `app/403/` hanyalah route
+> biasa (`/401`, `/403`): static export tidak punya server yang mengembalikan status
+> 401/403, jadi keduanya harus dipanggil secara eksplisit. `RouteGuard` saat ini
+> mengarahkan role kurang ke `/dashboard`, bukan `/403`.
+>
+> **Tidak ada `(marketing)/` route group.** Landing page berada di root `app/page.tsx`,
+> sedangkan `/privacy` & `/terms` adalah folder standalone.
+>
+
+
 **Route Groups Explained:**
-- `(dashboard)` — Pages yang membutuhkan authentication & layout dashboard
-- `(marketing)` — Pages publik dengan layout marketing
+- `(dashboard)` — Pages yang membutuhkan authentication & layout dashboard (Sidebar + TopNav)
+- `(ide)` — Cloud IDE: layout full-bleed **tanpa** sidebar dashboard, untuk immersive editing
 - Tanda kurung `()` membuat nama folder **tidak muncul di URL**
 
 #### 📂 `components/` — React Components
 
 ```
 components/
-├── ui/                           # shadcn/ui primitives
-│   ├── button.tsx               # Generated by `npx shadcn add button`
+├── ui/                           # shadcn/ui primitives (20 files)
+│   ├── accordion.tsx             # npx shadcn@latest add accordion
+│   ├── avatar.tsx
+│   ├── badge.tsx
+│   ├── button.tsx
 │   ├── card.tsx
+│   ├── chart.tsx                 # ChartContainer/Tooltip/Legend wrapper (Recharts)
+│   ├── checkbox.tsx
 │   ├── dialog.tsx
 │   ├── dropdown-menu.tsx
 │   ├── input.tsx
+│   ├── label.tsx
+│   ├── select.tsx
+│   ├── separator.tsx
+│   ├── sheet.tsx
+│   ├── sidebar.tsx               # Base UI sidebar primitive
+│   ├── skeleton.tsx
+│   ├── table.tsx
 │   ├── tabs.tsx
-│   ├── sidebar.tsx
-│   └── ... (other primitives)
+│   ├── textarea.tsx
+│   └── tooltip.tsx
 │
-├── app-sidebar.tsx              # Main navigation sidebar
-├── top-nav.tsx                  # Top navigation bar
-├── theme-provider.tsx           # Dark/light mode wrapper
+├── kpi/                          # ✅ Sistem KPI config-driven (reusable lintas page)
+│   ├── index.ts                  # Entry point — page import dari sini
+│   ├── kpi-card.tsx
+│   ├── kpi-card-skeleton.tsx
+│   ├── kpi-grid.tsx
+│   └── kpi-section.tsx           # Config + data + role → grid (filtering per role)
+│
+├── app-sidebar.tsx               # Main navigation sidebar
+├── top-nav.tsx                   # Top navigation bar
+├── theme-provider.tsx            # Dark/light mode wrapper (next-themes)
+├── theme-switcher.tsx            # Mode + color palette dropdown (top-nav)
+├── palette-picker-inline.tsx     # Preview palette (dipakai di settings)
+├── route-guard.tsx               # Client-side role gate (ADMIN / USER / VIEWER)
+├── project-status-badge.tsx      # Badge status proyek (Live/Building/Failed/Stopped)
+├── deployment-status-badge.tsx   # Badge status deployment
 │
 └── [future components]
-    ├── project-card.tsx         # Project display card
     ├── deployment-status.tsx    # Real-time deployment status
     ├── ai-prompt-input.tsx      # AI Architect input
     └── code-preview.tsx         # Live code preview
 ```
+
+> **Komponen spesifik halaman TIDAK ada di `components/`.** Semua berada di
+> `_components/` di dalam folder page masing-masing (lihat `app/` breakdown di atas).
+> `components/` hanya berisi komponen yang dipakai lintas halaman.
 
 **Important:** 
 - ❌ **JANGAN** edit file di `components/ui/` secara manual
 - ✅ Gunakan `npx shadcn@latest add <component>` untuk menambah/update
 - ✅ Buat wrapper component di `components/` jika perlu customization
 
+#### 📂 `components/ui/chart.tsx` — Chart Wrappers
+
+Chart memakai **shadcn/ui Charts** (`npx shadcn@latest add chart`), yaitu wrapper
+di atas **Recharts 3**. Wrapper ini meng centralised tiga hal:
+
+- `ChartContainer` — `ResponsiveContainer` + `<style>` yang memaparkan
+  `--color-<key>` dari `ChartConfig` ke CSS
+- `ChartTooltip` / `ChartTooltipContent` — tooltip yang konsisten dengan tema
+- `ChartLegend` / `ChartLegendContent` — legend yang membaca label dari config
+
+Warna chart **tidak boleh ditulis hex di komponen**. Pakai token:
+
+```tsx
+const chartConfig = {
+  compute: { label: "Compute", color: "var(--color-chart-1)" },
+} satisfies ChartConfig
+
+// di JSX
+<Area dataKey="compute" fill="var(--color-chart-1)" stroke="var(--color-chart-1)" />
+```
+
+`--chart-1..5` adalah 5 warna kategorikal berjarak 72° pada hue wheel, di-anchor ke
+hue palette aktif. Nilainya didefinisikan di `app/globals.css` untuk `:root`, `.dark`,
+dan setiap blok `[data-palette]`, jadi mengganti palette ikut mengganti warna chart.
+Jangan tambah warna chart langsung di komponen — tambah blok token di `globals.css`.
+
 #### 📂 `lib/` — Utilities & Shared Code
 
 ```
 lib/
-├── utils.ts                     # Helper functions (cn, dll)
-├── mock-data.ts                 # ✅ Mock users/projects/deployments/audit + RBAC helpers
+├── utils.ts                     # Helper functions (cn, formatUSD, dll)
 ├── auth-context.tsx             # ✅ Auth context mock (localStorage-based)
+├── mock-data.ts                 # ✅ Mock users/projects/deployments/audit + RBAC helpers
+├── mock-ide-data.ts             # ✅ Mock Cloud IDE data (file tree, code, terminal, AI, problems)
+├── mock-finops.ts               # ✅ Data biaya/budget/alert/rekomendasi + helper
 │
+├── kpi/                         # ✅ Sistem KPI config-driven
+│   ├── types.ts                 # KpiItem, KpiGridConfig, KpiTrend, KpiAccent
+│   └── presets/                 # 6 config per halaman
+│       ├── admin.tsx
+│       ├── dashboard.tsx
+│       ├── deployments.tsx
+│       ├── finops.tsx
+│       ├── monitoring.tsx
+│       └── projects.tsx
+│
+├── theme/                       # ✅ Color palette system
+│   ├── palettes.ts              # Definisi palette + storage key
+│   └── palette-provider.tsx     # Context, persistence, atribut data-palette
+│
+├── constants.ts                 # (planned — belum ada)
 ├── types/                       # TypeScript type definitions (future)
 │
 ├── validators/                  # Zod schemas (future)
@@ -288,27 +504,45 @@ lib/
 
 **Catatan:** Saat ini belum ada backend. Semua data berasal dari `mock-data.ts` dengan helper role (`getMockProjectsByUser`, `roleAtLeast`) untuk data isolation per role (ADMIN/USER/VIEWER). Saat backend siap, ganti sumber data di level halaman tanpa mengubah komponen.
 
+> **RBACOwnership:** RBAC berbasis role saja tidak cukup. Aksi tulis pada data milik user
+> (edit, hapus, arsip, deploy, clone) wajib dicek `role` **dan** `userId === resource.userId`.
+> Contoh implementasi: `canManageProject` di `projects/project-list.tsx` dan `canWrite`
+> di `projects/[id]/project-detail-client.tsx` (audit C2).
+
 #### 📂 `hooks/` — Custom React Hooks
 
 ```
 hooks/
-├── use-debounce.ts              # Debounce input values
-├── use-media-query.ts           # Responsive breakpoints
-├── use-click-outside.ts         # Click outside detection
-├── use-auth.ts                  # Authentication (future)
-└── use-deployment.ts            # Deployment state (future)
+├── use-mobile.ts                # ✅ Media query breakpoint helper
+│
+├── use-debounce.ts              # (future) Debounce input values
+├── use-media-query.ts           # (future) Responsive breakpoints
+├── use-click-outside.ts         # (future) Click outside detection
+├── use-auth.ts                  # (future) Authentication
+└── use-deployment.ts            # (future) Deployment state
 ```
+
+> **Hook page-specific TIDAK ada di `hooks/`.** Hook yang hanya dipakai satu page
+> diletakkan di `app/(group)/page/_hooks/` — contoh: `projects/_hooks/`
+> (`use-projects`, `use-project-filters`, `use-project-shortcuts`, `use-notice`).
+> `hooks/` hanya berisi hook yang dipakai lintas halaman.
 
 #### 📂 `public/` — Static Assets
 
 ```
 public/
-├── favicon.ico                  # Site favicon
-├── og-image.png                 # Open Graph image
-├── logo.svg                     # Company logo
-└── avatars/                     # User avatar placeholders
-    └── 01.png
+├── noise.svg                    # Grain/noise texture overlay
+├── globe.svg
+├── file.svg
+├── window.svg
+├── next.svg
+├── vercel.svg
+└── fonts/
+    └── Inter-Variable.woff2     # Local variable font (self-hosted, no next/font fetch)
 ```
+
+> **Favicon** berada di `app/` (App Router), bukan di `public/`: `icon.svg` (utama),
+> `apple-icon.png` (touch icon iOS), `favicon.ico` (fallback legacy).
 
 ---
 
@@ -320,13 +554,51 @@ Kami menggunakan **Route Groups** untuk mengelompokkan halaman berdasarkan konte
 
 ```
 URL Structure:
-/                              → app/(dashboard)/page.tsx
-/projects                      → app/(dashboard)/projects/page.tsx
-/projects/123                  → app/(dashboard)/projects/[id]/page.tsx
-/ai-architect                  → app/(dashboard)/ai-architect/page.tsx
-/settings                      → app/(dashboard)/settings/page.tsx
+/                              → app/page.tsx
 /login                         → app/login/page.tsx
+/register                      → app/register/page.tsx
+/forgot-password               → app/forgot-password/page.tsx
+/privacy                       → app/privacy/page.tsx
+/terms                         → app/terms/page.tsx
+
+/dashboard                     → app/(dashboard)/dashboard/page.tsx
+/projects                      → app/(dashboard)/projects/page.tsx
+/projects/:id                  → app/(dashboard)/projects/[id]/page.tsx
+/projects/:id/databases        → app/(dashboard)/projects/[id]/databases/page.tsx
+/projects/:id/databases/:dbId  → app/(dashboard)/projects/[id]/databases/[dbId]/page.tsx
+/projects/:id/databases/:dbId/backups   → .../[dbId]/backups/page.tsx
+/projects/:id/databases/:dbId/console   → .../[dbId]/console/page.tsx
+/projects/:id/databases/:dbId/metrics   → .../[dbId]/metrics/page.tsx
+/projects/:id/ide              → app/(ide)/projects/[id]/ide/page.tsx
+
+/ai-architect                  → app/(dashboard)/ai-architect/page.tsx
+/ai-reviewer                   → app/(dashboard)/ai-reviewer/page.tsx
+/deployments                   → app/(dashboard)/deployments/page.tsx
+/finops                        → app/(dashboard)/finops/page.tsx
+/gitops                        → app/(dashboard)/gitops/page.tsx
+/monitoring                    → app/(dashboard)/monitoring/page.tsx
+/error-tracking                → app/(dashboard)/error-tracking/page.tsx
+/settings                      → app/(dashboard)/settings/page.tsx
+/401                           → app/401/page.tsx (route, bukan file konvensi)
+/403                           → app/403/page.tsx (route, bukan file konvensi)
+*tak ditemukan*               → app/not-found.tsx (file konvensi)
+
+/admin                         → app/(dashboard)/admin/page.tsx
+/admin/users                   → app/(dashboard)/admin/users/page.tsx
+/admin/ai-config               → app/(dashboard)/admin/ai-config/page.tsx
+/admin/audit                   → app/(dashboard)/admin/audit/page.tsx
+/admin/billing                 → app/(dashboard)/admin/billing/page.tsx
+/admin/databases               → app/(dashboard)/admin/databases/page.tsx
+/admin/infrastructure          → app/(dashboard)/admin/infrastructure/page.tsx
+/admin/settings                → app/(dashboard)/admin/settings/page.tsx
 ```
+
+> **Penting:** `/` hanya dilayani oleh `app/page.tsx` (landing). Dashboard overview
+> berada di `/dashboard`, bukan di root — `app/(dashboard)/page.tsx` tidak ada.
+>
+> **Route group `(ide)`** mewarisi `app/(ide)/layout.tsx`, bukan layout dashboard,
+> sehingga `/projects/:id/ide` bisa full-bleed tanpa sidebar. Route `/projects/*`
+> lainnya dilayani oleh `(dashboard)/layout.tsx`.
 
 ### Layout Hierarchy
 
@@ -334,18 +606,32 @@ URL Structure:
 app/layout.tsx (Root)
 │   ├── ThemeProvider (dark/light mode)
 │   ├── TooltipProvider (tooltips)
-│   └── Font setup (Geist)
+│   └── Font setup
 │
 ├── app/(dashboard)/layout.tsx
 │   │   ├── SidebarProvider
 │   │   ├── AppSidebar
 │   │   └── TopNav
 │   │
-│   ├── app/(dashboard)/page.tsx (Dashboard Overview)
-│   ├── app/(dashboard)/projects/page.tsx
-│   └── app/(dashboard)/settings/page.tsx
+│   ├── app/(dashboard)/dashboard/page.tsx        → /dashboard
+│   ├── app/(dashboard)/projects/page.tsx         → /projects
+│   ├── app/(dashboard)/projects/[id]/page.tsx    → /projects/:id
+│   ├── app/(dashboard)/admin/**                  → /admin/*
+│   ├── app/(dashboard)/{ai-architect,ai-reviewer}/page.tsx
+│   ├── app/(dashboard)/{deployments,finops,gitops,monitoring,error-tracking}/page.tsx
+│   └── app/(dashboard)/settings/page.tsx         → /settings
 │
+├── app/(ide)/layout.tsx
+│   └── app/(ide)/projects/[id]/ide/page.tsx      → /projects/:id/ide
+│
+├── app/not-found.tsx (semua route, tanpa dashboard layout)
+├── app/401/page.tsx (Standalone, no dashboard layout)
+├── app/403/page.tsx (Standalone, no dashboard layout)
 ├── app/login/page.tsx (Standalone, no dashboard layout)
+├── app/register/page.tsx (Standalone)
+├── app/forgot-password/page.tsx (Standalone)
+├── app/privacy/page.tsx (Standalone)
+├── app/terms/page.tsx (Standalone)
 └── app/page.tsx (Landing page)
 ```
 
@@ -465,8 +751,8 @@ Does it exist in shadcn/ui?
                     │
                     └── NO ───► Is it page-specific?
                                     │
-                                    ├── YES ──► Create inside page folder
-                                    │           Or in `app/(group)/_components/`
+                                    ├── YES ──► UI → `app/(group)/page/_components/`
+                                    │           State/hook → `app/(group)/page/_hooks/`
                                     │
                                     └── NO ───► Reconsider: it should be reusable
 ```
@@ -965,27 +1251,36 @@ Mengaktifkan **strict mode** di `tsconfig.json`:
 ### Phase 1: Foundation (Current)
 - ✅ Landing page
 - ✅ Authentication flow (mock, localStorage-based)
-- ✅ Dashboard shell
+- ✅ Dashboard shell + overview dashboard
 - ✅ Project management (CRUD + RBAC mock)
-- 🔄 AI Architect page
+- ✅ AI Architect (WIP — prompt panel + preview panel)
+- ✅ Cloud IDE di `/projects/:id/ide`
+- ✅ Database management per project (backups, query console, metrics)
+- ✅ Deployments + rollback + AI diagnose
+- ✅ FinOps dashboard (cost trend, breakdown, budget, recommendations)
+- ✅ GitOps / preview environments
+- ✅ Monitoring & Error tracking
+- ✅ AI Reviewer (code review + security posture)
+- ✅ Admin console (users, billing, audit, AI config, infrastructure, settings)
 
 ### Phase 2: Core Features
-- [ ] Freedom Stack Builder
-- [ ] Cloud IDE integration
-- [ ] Git integration (GitHub, GitLab)
-- [ ] Deployment pipelines
-- [ ] Logs & monitoring dashboard
+- [ ] Freedom Stack Builder (production-grade, bukan mock)
+- [ ] Backend service API (saat ini `output: "export"` — belum ada Route Handlers)
+- [ ] Cloud IDE: real remote execution (terminal, file persistence)
+- [ ] Git integration (GitHub, GitLab) — real webhook
+- [ ] Deployment pipelines (real, bukan mock)
+- [ ] Auth production (ganti `lib/auth-context.tsx` mock)
 
 ### Phase 3: Advanced Features
-- [ ] Multi-node cluster management
+- [ ] Multi-node cluster management (agent-side, via SSH)
 - [ ] Auto-scaling containers
-- [ ] Preview environments per PR
-- [ ] FinOps cost tracking
-- [ ] Team collaboration (RBAC)
+- [ ] Preview environments per PR (real)
+- [ ] Team collaboration (RBAC real, database-backed)
+- [ ] Observability stack (Sentry, Vercel Analytics)
 
 ### Phase 4: Enterprise
 - [ ] SSO (SAML / OIDC)
-- [ ] Audit logs
+- [ ] Audit logs (persistent, bukan mock)
 - [ ] On-premise deployment
 - [ ] White-label for agencies
 - [ ] API publik & SDK
@@ -1092,8 +1387,13 @@ ARCHITECTURE.md ini adalah **living document**. Update saat:
 ## 📚 References
 
 ### Internal Documentation
+- [AGENTS.md](./AGENTS.md) — AI agent guide (wajib dibaca sebelum coding)
 - [DESIGN.md](./DESIGN.md) — Design system & visual language
 - [CONVENTIONS.md](./CONVENTIONS.md) — Code conventions & best practices
+- [INFRASTRUCTURE.md](./INFRASTRUCTURE.md) — Infrastruktur, container, & deployment
+- [README.docker.md](./README.docker.md) — Panduan menjalankan via Docker
+- [CHANGELOG.md](./CHANGELOG.md) — Version history
+- [Knowledge Graph](./docs/kg/_index.md) — Graf entitas project (`docs/kg/`)
 - [README.md](./README.md) — Project overview & quick start
 
 ### External Resources
@@ -1116,6 +1416,7 @@ ARCHITECTURE.md ini adalah **living document**. Update saat:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.2.0 | 2026-09-26 | OmniStack Team | Sinkronisasi struktur file: route group `(ide)`, `admin/*`, `ai-reviewer`, `databases` nested, `gitops`/`monitoring`/`error-tracking`, `docs/kg/`, `.opencode/`, `docker/`, `.github/`; hapus entri yang tidak ada (`app/api/`, `(marketing)/`, `tailwind.config.ts`); koreksi route `/` → landing, `/dashboard` → dashboard; update Phase 1 |
 | 1.1.0 | 2026-08-23 | OmniStack Team | Update struktur projects (`_components/`), mock data & RBAC helpers, status Phase 1 |
 | 1.0.0 | 2026-08-22 | OmniStack Team | Initial architecture documentation |
 

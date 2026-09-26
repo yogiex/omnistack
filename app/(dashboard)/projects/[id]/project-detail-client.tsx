@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import Link from "next/link"
 import {
   Activity,
@@ -48,7 +48,6 @@ import {
   MOCK_DEPLOYMENTS,
   MOCK_USERS,
   getMockDeploymentsForRole,
-  roleAtLeast,
   type ProjectStatus,
 } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
@@ -149,7 +148,14 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
     ? MOCK_USERS.find((u) => u.id === project.userId)
     : undefined
 
-  const canWrite = !!user && roleAtLeast(user.role, "USER")
+  // Audit C2: role-at-least-USER saja tidak cukup — USER hanya boleh
+  // mengubah proyek miliknya sendiri. ADMIN bebas, VIEWER read-only.
+  const canWrite = useMemo(() => {
+    if (!user) return false
+    if (user.role === "ADMIN") return true
+    if (user.role !== "USER") return false
+    return project?.userId === user.id
+  }, [user, project?.userId])
 
   const [name, setName] = useState(project?.name ?? "")
   const [description, setDescription] = useState(project?.description ?? "")
@@ -246,13 +252,22 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
         </div>
         <div className="flex flex-col items-end gap-2">
           <ProjectStatusBadge status={project.status} />
-          <Link
-            href={`/projects/${projectId}/ide`}
-            className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-2")}
-          >
-            <Code2 className="h-4 w-4" />
-            Open IDE
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/projects/${projectId}/logs`}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}
+            >
+              <ScrollText className="h-4 w-4" />
+              Logs
+            </Link>
+            <Link
+              href={`/projects/${projectId}/ide`}
+              className={cn(buttonVariants({ variant: "default", size: "sm" }), "gap-2")}
+            >
+              <Code2 className="h-4 w-4" />
+              Open IDE
+            </Link>
+          </div>
         </div>
       </div>
 
