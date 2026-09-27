@@ -1,0 +1,4 @@
+:HL["/omnistack/_next/static/chunks/02ni3llwz76rb.css","style"]
+:HL["/omnistack/_next/static/chunks/2g65viw-xtb9e.css","style"]
+:HL["/omnistack/_next/static/media/Inter_Variable-s.p.0gsaq8ukbf34m.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"(dashboard)","param":null,"prefetchHints":4192,"slots":{"children":{"name":"projects","param":null,"prefetchHints":4192,"slots":{"children":{"name":"id","param":{"type":"d","key":"proj-003","siblings":[]},"prefetchHints":4192,"slots":{"children":{"name":"logs","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}}}}}},"staleTime":300,"buildId":"LaL9EGpOC2JrzCTjm0lX0"}
