@@ -16,10 +16,18 @@ Menampilkan log stream 4 kategori (Runtime/Build/Access/Database), filter level
 
 ## Relations
 
-- uses: lib-mock-data (MOCK_LOGS, MockLogEntry, LogCategory, roleAtLeast)
-- uses: lib-auth-context (useAuth)
-- linked-from: page-project-detail (tombol "Logs" di header)
-- sibling: page-project-ide
+### dependsOn →
+- [[lib-mock-data]] — `MOCK_LOGS`, `MockLogEntry`, `LogCategory`, `roleAtLeast`
+- [[lib-auth-context]] — `useAuth()`
+- [[lib-utils]] — `cn()` di `_components`
+
+### governedBy ←
+- [[concept-server-first]] — `page.tsx` server + `logs-client.tsx` client
+
+## Cross-references
+
+- linked-from: page-project-detail (tombol "Logs" di header) — belum ada node
+- sibling: [[page-project-ide]]
 
 ## Gotchas
 

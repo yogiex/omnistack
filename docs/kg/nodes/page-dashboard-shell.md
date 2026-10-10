@@ -13,7 +13,9 @@ Layout shell untuk seluruh area terautentikasi: Sidebar + TopNav + route guard.
 ## Relations
 
 ### dependsOn →
+- [[page-root-layout]] — fragment: root layout membungkus shell dashboard
 - [[lib-auth-context]]
+- [[lib-utils]] — `cn()` di komponen shell/page di dalamnya
 
 ### renders →
 - [[component-app-sidebar]]
@@ -23,9 +25,16 @@ Layout shell untuk seluruh area terautentikasi: Sidebar + TopNav + route guard.
 ### guardedBy ←
 - [[component-route-guard]]
 
+### consumesContext ←
+- [[lib-auth-context]] — AuthProvider membungkus dashboard shell
+
+### governedBy ←
+- [[concept-color-tokens]]
+
 ### usedBy ←
 - [[page-dashboard]]
 - [[page-projects]]
+- [[page-deployments]]
 
 ## Gotchas
 

@@ -16,12 +16,21 @@ Mock auth berbasis localStorage. Menyediakan user context global; belum ada back
 - [[lib-mock-data]] — data user mock & helper RBAC
 
 ### usedBy ←
-- [[page-login-register]]
+- [[page-dashboard]] — `useAuth()` di client-dashboard
 - [[component-route-guard]]
+- [[component-app-sidebar]] — `useAuth()` untuk role/identitas
+- [[component-top-nav]] — `useAuth()` (user, logout)
 - [[page-dashboard-shell]]
 - [[page-project-ide]]
+- [[page-deployments]]
+- [[page-project-logs]] — `useAuth()` di logs-client
+- [[page-login-register]]
+
+### governedBy ←
+- [[concept-server-first]] — ContextModule client (localStorage)
 
 ### providesContext →
+- [[page-root-layout]] — AuthProvider membungkus seluruh app
 - [[page-dashboard-shell]] — AuthProvider membungkus dashboard shell
 
 ## Gotchas

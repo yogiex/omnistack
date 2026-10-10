@@ -17,6 +17,7 @@ Kumpulan dialog/modal page-specific untuk halaman deployments: detail deployment
 
 ### dependsOn →
 - [[lib-mock-data]]
+- [[lib-utils]] — `cn()` di dialog
 
 ## Gotchas
 

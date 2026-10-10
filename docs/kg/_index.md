@@ -36,7 +36,7 @@
 - [[page-landing]] — app/page.tsx, marketing page
 - [[page-dashboard-shell]] — app/(dashboard)/layout.tsx, Sidebar + TopNav
 - [[page-dashboard]] — overview client dashboard
-- [[page-projects]] — CRUD project lengkap
+- [[page-projects]] — CRUD project lengkap + wizard impor (upload/Git)
 - [[page-deployments]] — Deployment history + actions
 - [[page-project-ide]] — Cloud IDE mock di /projects/[id]/ide
 - [[page-project-logs]] — Logs & Observability mock di /projects/[id]/logs
@@ -52,11 +52,13 @@
 - [[component-ai-reviewer-results]] — Results view (tabbed findings + overview + filters)
 - [[lib-mock-ide-data]] — data mock Cloud IDE (file tree, code, terminal, AI, problems, palette)
 - [[component-cloud-ide]] — Cloud IDE 5-zona (editor/explorer/preview/AI/terminal/status bar + palet & deploy dialog)
+- [[component-project-import-wizard]] — wizard impor proyek (Manual/Upload/Git URL)
 
 ## Lib
 
 - [[lib-auth-context]] — mock auth via localStorage
 - [[lib-mock-data]] — mock users/projects/deployments + RBAC helpers
+- [[lib-source-utils]] — util import source (deteksi provider, validasi URL/branch, analisis stack)
 - [[lib-utils]] — cn() helper
 
 ## Concepts

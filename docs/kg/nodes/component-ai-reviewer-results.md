@@ -14,6 +14,7 @@ Tabbed results view for AI Code Reviewer — displays review findings organized 
 
 ### dependsOn →
 - [[concept-base-ui-not-radix]] (Tabs, Select from Base UI)
+- [[lib-utils]] — `cn()` di results-header/overview-tab/findings-list
 
 ### usedBy ←
 - (rendered by review-shell.tsx in the ai-reviewer page)
