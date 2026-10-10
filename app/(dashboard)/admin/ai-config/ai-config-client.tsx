@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 
@@ -113,24 +114,19 @@ export function AiConfigClient() {
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <StatGrid cols={3}>
         {USAGE_STATS.map((stat) => {
           const Icon = stat.icon
           return (
-            <Card key={stat.label}>
-              <CardContent className="flex items-center gap-4 p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                  <Icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <StatCard
+              key={stat.label}
+              title={stat.label}
+              value={stat.value}
+              icon={<Icon className={stat.color} />}
+            />
           )
         })}
-      </div>
+      </StatGrid>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>

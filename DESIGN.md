@@ -410,6 +410,31 @@ OmniStack dibangun di atas **shadcn/ui** dengan preset **Nova** dan **Base UI** 
 - Shadow subtle di hover untuk interactivity feedback
 - Padding konsisten: `p-6` atau `p-8`
 
+##### Stat Card (kartu metrik)
+
+Kartu yang menampilkan **satu angka metrik** (uptime, jumlah user, error rate)
+mengikuti pola baku: judul kecil di kiri header, ikon muted kecil di kanan,
+nilai `text-2xl font-bold tabular-nums`, keterangan `text-xs`. Gunakan
+`StatCard`/`StatGrid` dari `@/components/stat-card`, atau `KpiCard` bila butuh
+tren/tooltip/sparkline.
+
+```tsx
+import { StatCard, StatGrid } from "@/components/stat-card"
+
+<StatGrid cols={4}>
+  <StatCard
+    title="Uptime"
+    value="99.9%"
+    hint="30 hari terakhir"
+    icon={<Activity />}
+  />
+</StatGrid>
+```
+
+> **Dokumentasi lengkap (anatomi, token, varian, anti-pattern, checklist):
+> [`docs/DESIGN-CARDS.md`](docs/DESIGN-CARDS.md). Dokumen itu adalah sumber
+> kebenaran desain stat card — baca sebelum menambah kartu metrik baru.
+
 #### 3. **Badges**
 
 ```tsx

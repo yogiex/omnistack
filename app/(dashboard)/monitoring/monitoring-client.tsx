@@ -26,6 +26,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/lib/auth-context"
@@ -300,20 +301,17 @@ export function MonitoringClient() {
         {/* ==================== OVERVIEW ==================== */}
         <TabsContent value="overview" className="flex flex-col gap-6">
           {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatGrid cols={4}>
             {AP_STATS.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  <stat.icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.note}</p>
-                </CardContent>
-              </Card>
+              <StatCard
+                key={stat.title}
+                title={stat.title}
+                value={stat.value}
+                hint={stat.note}
+                icon={<stat.icon />}
+              />
             ))}
-          </div>
+          </StatGrid>
 
           {/* Time Range Selector */}
           <div className="flex items-center gap-2">
@@ -791,20 +789,17 @@ export function MonitoringClient() {
         {/* ==================== APM ==================== */}
         <TabsContent value="apm" className="flex flex-col gap-6">
           {/* APM Stats */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <StatGrid cols={3}>
             {APM_STATS.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  <stat.icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.note}</p>
-                </CardContent>
-              </Card>
+              <StatCard
+                key={stat.title}
+                title={stat.title}
+                value={stat.value}
+                hint={stat.note}
+                icon={<stat.icon />}
+              />
             ))}
-          </div>
+          </StatGrid>
 
           {/* Response Time Chart */}
           <Card>

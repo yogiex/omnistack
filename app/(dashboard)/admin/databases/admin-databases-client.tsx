@@ -2,7 +2,8 @@
 
 import { useMemo } from "react"
 
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import { useAuth } from "@/lib/auth-context"
 import { getMockDatabasesForRole, type MockDatabase } from "@/lib/mock-data"
 
@@ -34,23 +35,23 @@ export function AdminDatabasesClient() {
     <div className="flex flex-col gap-6">
       <DatabasesHeader />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <SummaryCard label="Total Database" value={filters.filtered.length} />
-        <SummaryCard
-          label="Total Storage"
+      <StatGrid cols={3}>
+        <StatCard title="Total Database" value={filters.filtered.length} />
+        <StatCard
+          title="Total Storage"
           value={`${filters.totalStorageGb.toFixed(1)} GB`}
         />
-        <SummaryCard
-          label="Butuh Perhatian"
+        <StatCard
+          title="Butuh Perhatian"
           value={needsAttention}
-          tone={needsAttention > 0 ? "destructive" : "default"}
+          valueClassName={needsAttention > 0 ? "text-destructive" : undefined}
           hint={
             needsAttention > 0
               ? "Database non-sehat di hasil filter ini"
               : "Semua sehat"
           }
         />
-      </div>
+      </StatGrid>
 
       <DatabasesToolbar
         search={filters.search}
@@ -87,37 +88,5 @@ export function AdminDatabasesClient() {
         )}
       </Card>
     </div>
-  )
-}
-
-interface SummaryCardProps {
-  label: string
-  value: string | number
-  tone?: "default" | "destructive"
-  hint?: string
-}
-
-function SummaryCard({
-  label,
-  value,
-  tone = "default",
-  hint,
-}: SummaryCardProps) {
-  return (
-    <Card>
-      <CardContent className="space-y-1 py-5">
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p
-          className={
-            tone === "destructive"
-              ? "text-2xl font-bold text-destructive tabular-nums"
-              : "text-2xl font-bold tabular-nums"
-          }
-        >
-          {value}
-        </p>
-        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-      </CardContent>
-    </Card>
   )
 }

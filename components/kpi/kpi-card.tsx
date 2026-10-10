@@ -4,7 +4,7 @@ import type { ReactNode } from "react"
 import Link from "next/link"
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Tooltip,
   TooltipContent,
@@ -13,17 +13,21 @@ import {
 import type { KpiAccent, KpiTrend } from "@/lib/kpi/types"
 
 /* -------------------------------------------------------------------------- */
-/*  Accent map — Tailwind palette pada opacity rendah, BUKAN hex.             */
-/*  Dipusatkan di sini agar tidak ada duplikasiaksen di seluruh app.          */
+/*  Accent map — warna ikon per accent, Tailwind palette, BUKAN hex.            */
+/*  Dipusatkan di sini agar tidak ada duplikasi aksen di seluruh app.         */
 /* -------------------------------------------------------------------------- */
 
-const accentMap: Record<KpiAccent, string> = {
-  default: "bg-muted text-foreground",
-  blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  rose: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-  violet: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+/**
+ * Warna foreground ikon (accent meresap ke warna ikon, bukan ke kotak
+ * background). Ikon stat-card mengikuti pola `size-4`.
+ */
+const iconAccentMap: Record<KpiAccent, string> = {
+  default: "text-muted-foreground",
+  blue: "text-blue-600 dark:text-blue-400",
+  emerald: "text-emerald-600 dark:text-emerald-400",
+  amber: "text-amber-600 dark:text-amber-400",
+  rose: "text-rose-600 dark:text-rose-400",
+  violet: "text-violet-600 dark:text-violet-400",
 }
 
 export interface KpiCardProps {
@@ -77,53 +81,45 @@ export function KpiCard({
         className
       )}
     >
-      <CardContent className="flex h-full flex-col p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-              <span className="truncate">{label}</span>
-              {tooltip && (
-                <Tooltip>
-                  <TooltipTrigger
-                    type="button"
-                    aria-label={`Info tentang ${label}`}
-                    className="inline-flex size-3.5 shrink-0 items-center justify-center rounded-full border border-border text-[10px] leading-none text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    ?
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs text-xs">{tooltip}</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </p>
-
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-semibold tracking-tight tabular-nums">
-                {value}
-              </span>
-              <TrendBadge trend={trend} value={trendValue} />
-            </div>
-
-            {(trendLabel || disabled) && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                {disabled ? disabled.reason : trendLabel}
-              </p>
-            )}
-          </div>
-
-          {icon && (
-            <div
-              className={cn(
-                "flex size-10 shrink-0 items-center justify-center rounded-lg [&_svg]:size-5",
-                accentMap[accent]
-              )}
-              aria-hidden="true"
-            >
-              {icon}
-            </div>
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <CardTitle className="truncate text-sm font-medium">{label}</CardTitle>
+          {tooltip && (
+            <Tooltip>
+              <TooltipTrigger
+                type="button"
+                aria-label={`Info tentang ${label}`}
+                className="inline-flex size-3.5 shrink-0 items-center justify-center rounded-full border border-border text-[10px] leading-none text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                ?
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
+
+        {icon && (
+          <span
+            className={cn("shrink-0 [&_svg]:size-4", iconAccentMap[accent])}
+            aria-hidden="true"
+          >
+            {icon}
+          </span>
+        )}
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold tabular-nums">{value}</span>
+          <TrendBadge trend={trend} value={trendValue} />
+        </div>
+
+        {(trendLabel || disabled) && (
+          <p className="mt-1 text-xs text-muted-foreground">
+            {disabled ? disabled.reason : trendLabel}
+          </p>
+        )}
 
         {typeof progress === "number" && (
           <div
@@ -131,7 +127,7 @@ export function KpiCard({
             aria-valuenow={Math.round(Math.min(100, Math.max(0, progress)))}
             aria-valuemin={0}
             aria-valuemax={100}
-            className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+            className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted"
           >
             <div
               className="h-full rounded-full bg-primary transition-all"
@@ -141,7 +137,7 @@ export function KpiCard({
         )}
 
         {sparkline && sparkline.length > 1 && (
-          <div className="mt-4 text-primary/70">
+          <div className="mt-3 text-primary/70">
             <Sparkline data={sparkline} />
           </div>
         )}

@@ -8,6 +8,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -220,30 +221,23 @@ export function BillingClient() {
       )}
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <StatGrid cols={4}>
         {BILLING_STATS.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.note}</p>
-            </CardContent>
-          </Card>
+          <StatCard
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            hint={stat.note}
+            icon={<stat.icon />}
+          />
         ))}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue YTD</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$642</div>
-            <p className="text-xs text-muted-foreground">Januari - Agustus 2026</p>
-          </CardContent>
-        </Card>
-      </div>
+        <StatCard
+          title="Revenue YTD"
+          value="$642"
+          hint="Januari - Agustus 2026"
+          icon={<Receipt />}
+        />
+      </StatGrid>
 
       {/* Revenue Bar Chart */}
       <Card>
