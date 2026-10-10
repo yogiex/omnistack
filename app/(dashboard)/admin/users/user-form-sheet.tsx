@@ -1,5 +1,7 @@
 "use client"
 
+import { TriangleAlert } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -42,6 +44,7 @@ interface UserFormSheetProps {
   form: UserForm
   onFormChange: (form: UserForm) => void
   onSubmit: () => void
+  isLastActiveAdmin: boolean
 }
 
 /**
@@ -55,6 +58,7 @@ export function UserFormSheet({
   form,
   onFormChange,
   onSubmit,
+  isLastActiveAdmin,
 }: UserFormSheetProps) {
   const canSubmit =
     form.name.trim().length > 0 && form.email.trim().includes("@")
@@ -70,6 +74,22 @@ export function UserFormSheet({
         </SheetHeader>
 
         <div className="flex flex-col gap-4 px-4">
+          {isLastActiveAdmin && (
+            <div
+              className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+              role="alert"
+            >
+              <TriangleAlert
+                className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
+                aria-hidden="true"
+              />
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                Ini Administrator terakhir di sistem. Tidak bisa di-demote atau
+                dihapus.
+              </p>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="form-name">Nama Lengkap</Label>
             <Input
@@ -104,7 +124,13 @@ export function UserFormSheet({
               </SelectTrigger>
               <SelectContent>
                 {ROLES.map((role) => (
-                  <SelectItem key={role} value={role}>
+                  <SelectItem
+                    key={role}
+                    value={role}
+                    disabled={
+                      isLastActiveAdmin && form.role === "ADMIN" && role !== "ADMIN"
+                    }
+                  >
                     {role} — {ROLE_HINTS[role]}
                   </SelectItem>
                 ))}

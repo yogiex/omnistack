@@ -1,22 +1,24 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { useNotice } from "@/hooks/use-notice"
+import { useDebounce } from "@/hooks/use-debounce"
 import { useAuth } from "@/lib/auth-context"
 import type { MockUser, Role } from "@/lib/mock-data"
 
 import { useUserFilters } from "./_hooks/use-user-filters"
 import { useUsers } from "./_hooks/use-users"
+import { useUserShortcuts } from "./_hooks/use-user-shortcuts"
+import { BulkDeleteDialog } from "./_components/bulk-delete-dialog"
+import { BulkRoleDialog } from "./_components/bulk-role-dialog"
 import { DeleteUserDialog } from "./_components/delete-user-dialog"
 import { InviteUserDialog } from "./_components/invite-user-dialog"
 import { StatsGrid } from "./_components/stats-grid"
 import type { UserRowHandlers } from "./_components/user-row"
-import { UsersFilterPills } from "./_components/users-filter-pills"
 import { UsersHeader } from "./_components/users-header"
 import { UsersList } from "./_components/users-list"
-import { UsersToolbar } from "./_components/users-toolbar"
+import { UsersToolbar, type StatusFilterValue } from "./_components/users-toolbar"
 import {
   EMPTY_USER_FORM,
   UserFormSheet,
@@ -34,6 +36,7 @@ export function UsersPageClient() {
     canSuspend,
     canDelete,
     canChangeRole,
+    isLastActiveAdmin,
     emailExists,
     updateUser,
     invite,
@@ -42,18 +45,35 @@ export function UsersPageClient() {
     toggleSuspend,
     toggle2FA,
     remove,
+    bulkRemove,
+    bulkUpdateRole,
   } = useUsers({ currentUserId: currentUser?.email })
 
+  const [searchInput, setSearchInput] = useState("")
+  const debouncedSearch = useDebounce(searchInput, 300)
   const filters = useUserFilters({ users })
 
+  useEffect(() => {
+    filters.setSearch(debouncedSearch)
+  }, [debouncedSearch, filters])
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [editId, setEditId] = useState<string | null>(null)
   const [form, setForm] = useState<UserForm>(EMPTY_USER_FORM)
   const [inviteOpen, setInviteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<MockUser | null>(null)
+  const [bulkRoleOpen, setBulkRoleOpen] = useState(false)
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false)
+  const [bulkRole, setBulkRole] = useState<Role>("USER")
 
-  /* ------------------------------------------------------------------ */
-  /*  Handlers                                                            */
-  /* ------------------------------------------------------------------ */
+  const searchInputRef = useRef<HTMLInputElement | null>(null)
+
+  useUserShortcuts({
+    onFocusSearch: () => searchInputRef.current?.focus(),
+    onOpenInvite: () => setInviteOpen(true),
+    onClearSearch: () => setSearchInput(""),
+    searchInputRef,
+  })
 
   const openEdit = (target: MockUser) => {
     setEditId(target.id)
@@ -122,6 +142,37 @@ export function UsersPageClient() {
     setDeleteTarget(null)
   }
 
+  const handleBulkDelete = () => {
+    const targets = users.filter((u) => selectedIds.has(u.id))
+    const deletable = targets.filter((u) => canDelete(u))
+    if (deletable.length === 0) {
+      showNotice("Gagal: tidak ada user yang bisa dipilih untuk dihapus.")
+      return
+    }
+    bulkRemove(deletable.map((u) => u.id))
+    setSelectedIds(new Set())
+    setBulkDeleteOpen(false)
+    showNotice(`${deletable.length} user dihapus permanen.`)
+  }
+
+  const handleBulkRole = () => {
+    const targets = users.filter((u) => selectedIds.has(u.id))
+    const changed = targets.map((u) => {
+      if (canChangeRole(u, bulkRole)) return u.id
+      return null
+    }).filter((id): id is string => id !== null)
+
+    if (changed.length === 0) {
+      showNotice("Gagal: minimal harus ada 1 ADMIN aktif di sistem.")
+      return
+    }
+
+    bulkUpdateRole(changed, bulkRole)
+    setSelectedIds(new Set())
+    setBulkRoleOpen(false)
+    showNotice(`${changed.length} user diubah ke role ${bulkRole}.`)
+  }
+
   const handlers: UserRowHandlers = {
     onEdit: openEdit,
     onResendInvite: (target) => {
@@ -155,10 +206,6 @@ export function UsersPageClient() {
     },
   }
 
-  /* ------------------------------------------------------------------ */
-  /*  Render                                                              */
-  /* ------------------------------------------------------------------ */
-
   return (
     <div className="flex flex-col gap-6">
       <UsersHeader onInvite={() => setInviteOpen(true)} />
@@ -175,25 +222,24 @@ export function UsersPageClient() {
 
       <StatsGrid users={users} />
 
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col gap-4">
-            <UsersToolbar
-              search={filters.search}
-              onSearchChange={filters.setSearch}
-              sortField={filters.sortField}
-              sortDir={filters.sortDir}
-              onToggleSort={filters.toggleSort}
-            />
-            <UsersFilterPills
-              roleFilter={filters.roleFilter}
-              onRoleChange={filters.setRoleFilter}
-              statusFilter={filters.statusFilter}
-              onStatusChange={filters.setStatusFilter}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <UsersToolbar
+        search={searchInput}
+        onSearchChange={setSearchInput}
+        roleFilter={filters.roleFilter}
+        onRoleFilterChange={filters.setRoleFilter}
+        statusFilter={filters.statusFilter as StatusFilterValue}
+        onStatusFilterChange={(v) => filters.setStatusFilter(v as typeof filters.statusFilter)}
+        onResetFilters={filters.clearFilters}
+        hasActiveFilters={filters.hasFilters}
+        sortField={filters.sortField}
+        sortDir={filters.sortDir}
+        onToggleSort={filters.toggleSort}
+        selectedCount={selectedIds.size}
+        onBulkChangeRole={() => setBulkRoleOpen(true)}
+        onBulkDelete={() => setBulkDeleteOpen(true)}
+        onClearSelection={() => setSelectedIds(new Set())}
+        searchInputRef={searchInputRef}
+      />
 
       <UsersList
         users={filters.paged}
@@ -203,12 +249,14 @@ export function UsersPageClient() {
         rangeStart={filters.rangeStart}
         rangeEnd={filters.rangeEnd}
         hasFilters={filters.hasFilters}
-        searchQuery={filters.search.trim() || undefined}
+        searchQuery={searchInput.trim() || undefined}
         isSelf={isSelf}
         has2FA={has2FA}
         canSuspend={canSuspend}
         canDelete={canDelete}
         handlers={handlers}
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
         onClearFilters={filters.clearFilters}
         onPrev={() => filters.setPage((p) => Math.max(1, p - 1))}
         onNext={() =>
@@ -220,6 +268,7 @@ export function UsersPageClient() {
         open={inviteOpen}
         onOpenChange={setInviteOpen}
         onInvite={handleInvite}
+        isEmailTaken={emailExists}
       />
 
       <DeleteUserDialog
@@ -231,6 +280,23 @@ export function UsersPageClient() {
         onConfirm={confirmDelete}
       />
 
+      <BulkRoleDialog
+        open={bulkRoleOpen}
+        onOpenChange={setBulkRoleOpen}
+        selectedCount={selectedIds.size}
+        currentRole={bulkRole}
+        onRoleChange={setBulkRole}
+        onConfirm={handleBulkRole}
+        isLastActiveAdmin={isLastActiveAdmin(users[0])}
+      />
+
+      <BulkDeleteDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        selectedCount={selectedIds.size}
+        onConfirm={handleBulkDelete}
+      />
+
       <UserFormSheet
         open={editId !== null}
         onOpenChange={(open) => {
@@ -239,6 +305,11 @@ export function UsersPageClient() {
         form={form}
         onFormChange={setForm}
         onSubmit={submitEdit}
+        isLastActiveAdmin={
+          editId
+            ? isLastActiveAdmin(users.find((u) => u.id === editId) ?? users[0])
+            : false
+        }
       />
     </div>
   )

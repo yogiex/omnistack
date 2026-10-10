@@ -13,15 +13,17 @@ export function StatsGrid({ users }: StatsGridProps) {
   ).length
 
   const nonInvited = users.filter((u) => getUserStatus(u) !== "invited")
-  const admins = nonInvited.filter((u) => u.role === "ADMIN").length
-  const developers = nonInvited.filter((u) => u.role === "USER").length
-  const viewers = nonInvited.filter((u) => u.role === "VIEWER").length
-
-  const activeDevs = nonInvited.filter(
-    (u) => u.role === "USER" && getUserStatus(u) === "active"
+  const admins = nonInvited.filter((u) => u.role === "ADMIN")
+  const activeAdmins = admins.filter(
+    (u) => getUserStatus(u) === "active"
   ).length
-  const activeViewers = nonInvited.filter(
-    (u) => u.role === "VIEWER" && getUserStatus(u) === "active"
+  const developers = nonInvited.filter((u) => u.role === "USER")
+  const activeDevs = developers.filter(
+    (u) => getUserStatus(u) === "active"
+  ).length
+  const viewers = nonInvited.filter((u) => u.role === "VIEWER")
+  const activeViewers = viewers.filter(
+    (u) => getUserStatus(u) === "active"
   ).length
 
   const stats: {
@@ -29,6 +31,7 @@ export function StatsGrid({ users }: StatsGridProps) {
     value: number
     label: string
     hint: string
+    valueClassName?: string
   }[] = [
     {
       icon: Users,
@@ -38,33 +41,37 @@ export function StatsGrid({ users }: StatsGridProps) {
     },
     {
       icon: Crown,
-      value: admins,
+      value: admins.length,
       label: "Administrator",
-      hint: "Min. 1 wajib aktif",
+      hint: `${activeAdmins} aktif · min. 1 wajib`,
+      valueClassName: "text-amber-600 dark:text-amber-400",
     },
     {
       icon: Code2,
-      value: developers,
+      value: developers.length,
       label: "Developer",
       hint: `${activeDevs} aktif`,
+      valueClassName: "text-blue-600 dark:text-blue-400",
     },
     {
       icon: Eye,
-      value: viewers,
+      value: viewers.length,
       label: "Viewer",
       hint: `${activeViewers} aktif`,
+      valueClassName: "text-emerald-600 dark:text-emerald-400",
     },
   ]
 
   return (
     <StatGrid cols={4}>
-      {stats.map(({ icon: Icon, value, label, hint }) => (
+      {stats.map(({ icon: Icon, value, label, hint, valueClassName }) => (
         <StatCard
           key={label}
           title={label}
           value={value}
           hint={hint}
           icon={<Icon />}
+          valueClassName={valueClassName}
         />
       ))}
     </StatGrid>
