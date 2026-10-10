@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { KpiSection } from "@/components/kpi/kpi-section"
+import { gitOpsKpis } from "@/lib/kpi/presets/gitops"
 import { cn } from "@/lib/utils"
 
 type PreviewStatus = "LIVE" | "BUILDING" | "SLEEPING"
@@ -139,6 +141,9 @@ export function GitOpsClient() {
           Buat Preview Env
         </Button>
       </div>
+
+      {/* KPI ringkasan preview — nilainya diturunkan dari `envs` */}
+      <KpiSection config={gitOpsKpis} data={{ envs }} />
 
       {/* Daftar preview environments */}
       <Card>

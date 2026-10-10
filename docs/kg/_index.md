@@ -37,6 +37,7 @@
 - [[page-dashboard-shell]] — app/(dashboard)/layout.tsx, Sidebar + TopNav
 - [[page-dashboard]] — overview client dashboard
 - [[page-projects]] — CRUD project lengkap + wizard impor (upload/Git)
+- [[page-gitops]] — Preview Environments per PR + KPI ringkasan preview
 - [[page-deployments]] — Deployment history + actions
 - [[page-project-ide]] — Cloud IDE mock di /projects/[id]/ide
 - [[page-project-logs]] — Logs & Observability mock di /projects/[id]/logs
@@ -66,3 +67,4 @@
 - [[concept-base-ui-not-radix]] — Base UI primitives, TIDAK ada asChild
 - [[concept-server-first]] — Server Components default, "use client" hanya bila perlu
 - [[concept-color-tokens]] — semantic tokens, dilarang hardcode hex
+- [[concept-kpi-grid]] — pola KPI config-driven (`KpiSection` + preset per halaman)
