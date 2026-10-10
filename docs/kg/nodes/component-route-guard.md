@@ -26,6 +26,7 @@ dan layout `(ide)` serta dibungkus per-halaman admin (ADMIN-only).
 - [[page-dashboard]] — transitive: halaman di dalam shell
 - [[page-project-ide]] — melindungi layout `(ide)`
 - [[page-projects]] — transitive: halaman di dalam shell
+- [[page-gitops]] — `requiredRole="USER"`
 
 ### renderedBy ←
 - [[page-dashboard-shell]] — dirender di layout dashboard

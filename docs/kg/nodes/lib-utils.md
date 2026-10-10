@@ -24,6 +24,7 @@ nominal USD di tabel/chart/KPI. Dipakai hampir semua komponen dan halaman.
 - [[component-route-guard]]
 - [[page-dashboard-shell]]
 - [[page-projects]]
+- [[page-gitops]]
 - [[page-deployments]]
 - [[page-project-ide]]
 - [[page-project-logs]]
