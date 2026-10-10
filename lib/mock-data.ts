@@ -15,6 +15,10 @@ export interface MockUser {
   status?: UserStatus
   /** Timestamp undangan terakhir dikirim (untuk user berstatus "invited") */
   invitedAt?: string
+  /** Timestamp kedaluwarsa undangan (untuk user berstatus "invited") */
+  inviteExpiresAt?: string
+  /** Timestamp terakhir aktif (untuk user berstatus "active") */
+  lastActiveAt?: string
 }
 
 export type UserStatus = "active" | "suspended" | "invited"
@@ -178,6 +182,17 @@ export const MOCK_USERS: MockUser[] = [
     status: "invited",
     invitedAt: "2026-08-22T16:10:00Z",
     createdAt: "2026-08-22T16:10:00Z",
+  },
+  {
+    id: "user-suspended-007",
+    email: "suspended@omnistack.dev",
+    password: "suspended123",
+    name: "Suspended User",
+    role: "USER",
+    isActive: false,
+    status: "suspended",
+    createdAt: "2026-04-01T10:00:00Z",
+    lastActiveAt: "2026-08-15T09:30:00Z",
   },
 ]
 
@@ -712,6 +727,30 @@ export function roleAtLeast(role: Role, required: Role): boolean {
 
 export function getMockUserByEmail(email: string): MockUser | undefined {
   return MOCK_USERS.find((u) => u.email === email)
+}
+
+export function getMockUsersByRole(role: Role): MockUser[] {
+  return MOCK_USERS.filter((u) => u.role === role)
+}
+
+/** Label waktu relatif deterministik, mis. "5 menit lalu", "2 jam lalu", "3 hari lalu". */
+export function formatRelativeTime(iso?: string): string {
+  if (!iso) return "Belum pernah aktif"
+  const then = new Date(iso).getTime()
+  const diffMs = Date.now() - then
+  const minutes = Math.floor(diffMs / 60_000)
+  if (minutes < 1) return "baru saja"
+  if (minutes < 60) return `${minutes} menit lalu`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} jam lalu`
+  const days = Math.floor(hours / 24)
+  return `${days} hari lalu`
+}
+
+/** Jumlah hari sampai `iso` (negatif jika sudah lewat). */
+export function daysUntil(iso?: string): number | undefined {
+  if (!iso) return undefined
+  return Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000)
 }
 
 /**

@@ -168,6 +168,22 @@ export function useUsers({ currentUserId }: UseUsersArgs) {
 
   const has2FA = useCallback((id: string) => twofaIds.has(id), [twofaIds])
 
+  const bulkRemove = useCallback(
+    (ids: string[]) => {
+      setUsers((prev) => prev.filter((u) => !ids.includes(u.id)))
+    },
+    [],
+  )
+
+  const bulkUpdateRole = useCallback(
+    (ids: string[], role: Role) => {
+      setUsers((prev) =>
+        prev.map((u) => (ids.includes(u.id) ? { ...u, role } : u)),
+      )
+    },
+    [],
+  )
+
   return {
     users,
     activeAdminCount,
@@ -185,5 +201,7 @@ export function useUsers({ currentUserId }: UseUsersArgs) {
     toggleSuspend,
     toggle2FA,
     remove,
+    bulkRemove,
+    bulkUpdateRole,
   }
 }

@@ -42,6 +42,7 @@
 - [[page-project-ide]] — Cloud IDE mock di /projects/[id]/ide
 - [[page-project-logs]] — Logs & Observability mock di /projects/[id]/logs
 - [[page-login-register]] — login / register / forgot-password (mock auth)
+- [[page-admin-users]] — User Management /admin/users (invite, role, suspend, bulk, delete 2-step)
 
 ## Components
 
@@ -54,6 +55,7 @@
 - [[lib-mock-ide-data]] — data mock Cloud IDE (file tree, code, terminal, AI, problems, palette)
 - [[component-cloud-ide]] — Cloud IDE 5-zona (editor/explorer/preview/AI/terminal/status bar + palet & deploy dialog)
 - [[component-project-import-wizard]] — wizard impor proyek (Manual/Upload/Git URL)
+- [[component-stat-card]] — StatCard/StatGrid: kartu metrik dengan anatomi kanonis
 
 ## Lib
 
@@ -61,6 +63,7 @@
 - [[lib-mock-data]] — mock users/projects/deployments + RBAC helpers
 - [[lib-source-utils]] — util import source (deteksi provider, validasi URL/branch, analisis stack)
 - [[lib-utils]] — cn() helper
+- [[lib-use-debounce]] — useDebounce<T> untuk debounce search/filter
 
 ## Concepts
 
