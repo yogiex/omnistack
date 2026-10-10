@@ -50,15 +50,15 @@ interface RoleLimit {
 }
 
 const INITIAL_LIMITS: RoleLimit[] = [
-  { role: "ADMIN", label: "Administrator", dailyLimit: -1, icon: ShieldCheck, color: "text-amber-500" },
-  { role: "USER", label: "Developer", dailyLimit: 100, icon: Users, color: "text-blue-500" },
-  { role: "VIEWER", label: "Viewer", dailyLimit: 0, icon: Eye, color: "text-emerald-500" },
+  { role: "ADMIN", label: "Administrator", dailyLimit: -1, icon: ShieldCheck, color: "text-amber-600 dark:text-amber-400" },
+  { role: "USER", label: "Developer", dailyLimit: 100, icon: Users, color: "text-blue-600 dark:text-blue-400" },
+  { role: "VIEWER", label: "Viewer", dailyLimit: 0, icon: Eye, color: "text-emerald-600 dark:text-emerald-400" },
 ]
 
 const USAGE_STATS = [
   { label: "Token Hari Ini", value: "12,450", icon: Coins, color: "text-primary" },
-  { label: "Request Hari Ini", value: "84", icon: Loader2, color: "text-blue-500" },
-  { label: "Estimasi Biaya", value: "$0.47", icon: Coins, color: "text-green-500" },
+  { label: "Request Hari Ini", value: "84", icon: Loader2, color: "text-blue-600 dark:text-blue-400" },
+  { label: "Estimasi Biaya", value: "$0.47", icon: Coins, color: "text-emerald-600 dark:text-emerald-400" },
 ]
 
 const AI_HISTORY = [
@@ -185,7 +185,9 @@ export function AiConfigClient() {
                       )}
                     </button>
                   </div>
-                  <Badge variant="outline" className={provider.enabled ? "text-green-500" : "text-muted-foreground"}>
+                  <Badge variant="outline" className={provider.enabled
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-muted-foreground"}>
                     {provider.enabled ? "Aktif" : "Nonaktif"}
                   </Badge>
                 </div>

@@ -120,6 +120,8 @@ export function useDatabaseFilters({ databases }: UseDatabaseFiltersArgs) {
     rangeEnd: Math.min(startIdx + PAGE_SIZE, filtered.length),
     totalStorageGb,
     needsAttention,
+    /** Jumlah seluruh database sebelum filter — hanya untuk label/hint kartu. */
+    totalCount: databases.length,
     hasFilters:
       search.trim() !== "" ||
       projectFilter !== "ALL" ||

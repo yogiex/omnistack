@@ -99,7 +99,7 @@ const ACTION_META: Record<
   user_login: {
     icon: ShieldCheck,
     label: "Login",
-    className: "text-green-500",
+    className: "text-emerald-600 dark:text-emerald-400",
     bg: "bg-green-500/10",
   },
   deploy: {
@@ -394,24 +394,36 @@ export function AuditLogList() {
                             meta.bg
                           )}
                         >
-                          <Icon className={cn("h-3.5 w-3.5", meta.className)} />
+                          <Icon
+                              className={cn("h-3.5 w-3.5", meta.className)}
+                              aria-hidden="true"
+                            />
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm">{meta.label}</span>
                           {log.actionType === "deploy" && !failed && (
-                            <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                            <CheckCircle
+                              className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
+                              aria-hidden="true"
+                            />
                           )}
                           {log.actionType === "deploy" && failed && (
-                            <XCircle className="h-3.5 w-3.5 text-red-500" />
+                            <XCircle className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
                           )}
                           {log.actionType === "user_login" && (
-                            <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                            <CheckCircle
+                              className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
+                              aria-hidden="true"
+                            />
                           )}
                           {log.actionType === "project_created" && deleted && (
-                            <FolderMinus className="h-3.5 w-3.5 text-red-500" />
+                            <FolderMinus className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
                           )}
                           {log.actionType === "user_login" && log.detail.includes("Logout") && (
-                            <LogOut className="h-3.5 w-3.5 text-amber-500" />
+                            <LogOut
+                              className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400"
+                              aria-hidden="true"
+                            />
                           )}
                         </div>
                       </div>

@@ -57,6 +57,7 @@ export function DatabaseStatusBadge({ status }: DatabaseStatusBadgeProps) {
         )}
         <span
           className={cn("relative inline-flex size-2 rounded-full", meta.dot)}
+          aria-hidden="true"
         />
       </span>
       {meta.label}
