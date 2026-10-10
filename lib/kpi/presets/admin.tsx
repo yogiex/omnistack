@@ -40,7 +40,7 @@ export const adminKpis: KpiGridConfig<AdminKpiData> = {
     {
       id: "total-projects",
       label: "Total Proyek",
-      accent: "violet",
+      accent: "default",
       icon: <FolderGit2 />,
       value: (d) => d.totalProjects,
       tooltip: "Proyek milik seluruh user, lintas role.",
@@ -49,7 +49,7 @@ export const adminKpis: KpiGridConfig<AdminKpiData> = {
     {
       id: "total-deployments",
       label: "Total Deployment",
-      accent: "amber",
+      accent: "default",
       icon: <Rocket />,
       value: (d) => d.totalDeployments,
       tooltip: "Akumulasi deployment dari seluruh proyek dalam sistem.",

@@ -54,7 +54,7 @@ export const dashboardKpis: KpiGridConfig<DashboardKpiData> = {
     {
       id: "deployments",
       label: "Total Deployments",
-      accent: "violet",
+      accent: "default",
       icon: <Rocket />,
       value: (d) => d.totalDeployments,
       tooltip: "Akumulasi jumlah deployment dari seluruh proyek dalam cakupan role.",
@@ -63,7 +63,7 @@ export const dashboardKpis: KpiGridConfig<DashboardKpiData> = {
     {
       id: "failed-projects",
       label: "Proyek Gagal",
-      accent: "rose",
+      accent: "default",
       icon: <CircleAlert />,
       value: (d) => d.projects.filter((p) => p.status === "failed").length,
       tooltip: "Proyek dengan status \"failed\" — perlu investigasi.",

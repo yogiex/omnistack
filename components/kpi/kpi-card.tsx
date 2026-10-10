@@ -49,7 +49,7 @@ export interface KpiCardProps {
 /**
  * KPI card presentasional.
  *
- * Catatan: komponen inipzcial memakai `Tooltip` tanpa `TooltipProvider` —
+ * Catatan: komponen ini memakai `Tooltip` tanpa `TooltipProvider` —
  * provider dipasang satu kali di `KpiSection` (prinsip single source of truth).
  * Jika memakai `KpiCard` secara langsung, bungkus dengan `TooltipProvider`.
  */
@@ -81,7 +81,7 @@ export function KpiCard({
         className
       )}
     >
-      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0 pb-2">
         <div className="flex min-w-0 items-center gap-1.5">
           <CardTitle className="truncate text-sm font-medium">{label}</CardTitle>
           {tooltip && (
@@ -176,17 +176,17 @@ function TrendBadge({
   const config = {
     up: {
       icon: <ArrowUpRight className="size-3.5" />,
-      className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+      className: "text-emerald-600 dark:text-emerald-400",
       label: "naik",
     },
     down: {
       icon: <ArrowDownRight className="size-3.5" />,
-      className: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+      className: "text-rose-600 dark:text-rose-400",
       label: "turun",
     },
     flat: {
       icon: <Minus className="size-3.5" />,
-      className: "bg-muted text-muted-foreground",
+      className: "text-muted-foreground",
       label: "stabil",
     },
   }[trend]
@@ -194,7 +194,7 @@ function TrendBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums",
+        "inline-flex items-center gap-0.5 text-xs font-medium tabular-nums",
         config.className
       )}
       aria-label={`Tren ${config.label}: ${value}`}

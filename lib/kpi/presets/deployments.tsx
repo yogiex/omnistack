@@ -42,7 +42,7 @@ export const deploymentsKpis: KpiGridConfig<DeploymentsKpiData> = {
     {
       id: "failed",
       label: "Gagal",
-      accent: "rose",
+      accent: "default",
       icon: <XCircle />,
       value: (d) =>
         d.deployments.filter((x) => x.status === "failed").length.toLocaleString(
@@ -55,7 +55,7 @@ export const deploymentsKpis: KpiGridConfig<DeploymentsKpiData> = {
     {
       id: "building",
       label: "Sedang Build",
-      accent: "blue",
+      accent: "default",
       icon: <Clock />,
       value: (d) =>
         d.deployments.filter((x) => x.status === "building").length.toLocaleString(

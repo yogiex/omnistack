@@ -41,7 +41,7 @@ export const projectsKpis: KpiGridConfig<ProjectsKpiData> = {
     {
       id: "building",
       label: "Building",
-      accent: "amber",
+      accent: "default",
       icon: <LoaderCircle />,
       value: (d) => d.building,
       trendLabel: "sedang dideploy",
@@ -52,7 +52,7 @@ export const projectsKpis: KpiGridConfig<ProjectsKpiData> = {
     {
       id: "failed",
       label: "Failed",
-      accent: "rose",
+      accent: "default",
       icon: <CircleX />,
       value: (d) => d.failed,
       trendLabel: (d) => pct(d.failed, d.total),
