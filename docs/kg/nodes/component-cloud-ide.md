@@ -19,6 +19,7 @@ status bar, command palette, dan deploy dialog. Semua client component, data dar
 
 ### dependsOn →
 - [[lib-mock-ide-data]]
+- [[lib-utils]] — `cn()` di seluruh komponen Cloud IDE
 
 ## Gotchas
 

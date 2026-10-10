@@ -35,7 +35,7 @@ import {
   ProjectFormSheet,
   EMPTY_PROJECT_FORM,
   type ProjectForm,
-} from "./project-form-sheet"
+} from "./_components/project-form-sheet"
 
 export function ProjectList() {
   const { user, isLoading: isAuthLoading } = useAuth()
@@ -126,8 +126,15 @@ export function ProjectList() {
         name: form.name.trim(),
         description: form.description.trim(),
         userId: user.id,
+        source: form.source,
       })
-      showNotice(`Proyek ${p.name} dibuat dengan status Live.`)
+      const originLabel =
+        p.source?.kind === "git"
+          ? ` dari ${p.source.provider ?? "git"}`
+          : p.source?.kind === "upload"
+            ? " dari upload arsip"
+            : ""
+      showNotice(`Proyek ${p.name} dibuat${originLabel}.`)
     }
 
     setFormOpen(false)

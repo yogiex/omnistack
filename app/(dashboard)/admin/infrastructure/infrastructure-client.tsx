@@ -24,6 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import {
   Sheet,
   SheetContent,
@@ -234,54 +235,32 @@ export function InfrastructureClient() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Nodes</CardTitle>
-            <Server className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{nodes.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {nodes.filter((n) => n.status === "active").length} aktif
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clusters</CardTitle>
-            <HardDrive className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{clusters.length}</div>
-            <p className="text-xs text-muted-foreground">Semua sehat</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Services</CardTitle>
-            <Webhook className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{SERVICES.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {SERVICES.filter((s) => s.status === "healthy").length}/{SERVICES.length} healthy
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Databases</CardTitle>
-            <Database className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dbs.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {dbs.filter((d) => d.status === "running").length} berjalan
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <StatGrid cols={4}>
+        <StatCard
+          title="Total Nodes"
+          value={nodes.length}
+          hint={`${nodes.filter((n) => n.status === "active").length} aktif`}
+          icon={<Server />}
+        />
+        <StatCard
+          title="Clusters"
+          value={clusters.length}
+          hint="Semua sehat"
+          icon={<HardDrive />}
+        />
+        <StatCard
+          title="Services"
+          value={SERVICES.length}
+          hint={`${SERVICES.filter((s) => s.status === "healthy").length}/${SERVICES.length} healthy`}
+          icon={<Webhook />}
+        />
+        <StatCard
+          title="Databases"
+          value={dbs.length}
+          hint={`${dbs.filter((d) => d.status === "running").length} berjalan`}
+          icon={<Database />}
+        />
+      </StatGrid>
 
       <div className="grid gap-4 lg:grid-cols-5">
         <Card className="lg:col-span-3">

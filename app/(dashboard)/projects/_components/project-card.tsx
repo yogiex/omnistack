@@ -5,7 +5,9 @@ import {
   Activity,
   Archive,
   Eye,
+  FileArchive,
   FileText,
+  GitBranch,
   Play,
   Rocket,
   RotateCcw,
@@ -25,6 +27,7 @@ import { ProjectStatusBadge } from "@/components/project-status-badge"
 import { ProjectActionsMenu } from "./project-actions-menu"
 import { MOCK_COST_BREAKDOWN } from "@/lib/mock-finops"
 import { getProjectStackList, type MockProject } from "@/lib/mock-data"
+import { getSourceLabel } from "@/lib/source-utils"
 import { cn } from "@/lib/utils"
 
 export interface ManagedProject extends MockProject {
@@ -124,6 +127,17 @@ export function ProjectCard({
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3 pb-3">
+        {project.source && (
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            {project.source.kind === "git" ? (
+              <GitBranch className="h-3 w-3 shrink-0" aria-hidden="true" />
+            ) : (
+              <FileArchive className="h-3 w-3 shrink-0" aria-hidden="true" />
+            )}
+            <span className="truncate">{getSourceLabel(project.source)}</span>
+          </p>
+        )}
+
         {stack.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {stack.map((tech) => (

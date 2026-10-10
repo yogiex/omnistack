@@ -12,6 +12,15 @@ Project memakai shadcn/ui dengan primitive Base UI (bukan Radix UI). Semua pola 
 
 ## Relations
 
+### dependsOn →
+- [[lib-utils]] — `cn()` + `buttonVariants()` untuk styling trigger
+
+### usedBy ←
+- [[component-ai-reviewer-results]] — Tabs/Select Base UI
+
+### governedBy ←
+- [[concept-color-tokens]] — komponen Base UI tetap mematuhi token semantik
+
 ### classifies →
 - [[component-app-sidebar]]
 - [[component-top-nav]]

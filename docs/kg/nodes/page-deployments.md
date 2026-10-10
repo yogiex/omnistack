@@ -27,11 +27,10 @@ Halaman deployment lengkap dengan stats cards, active deployments live progress,
 - [[component-deployment-dialogs]]
 
 ### dependsOn →
+- [[page-dashboard-shell]] — fragment: halaman di dalam shell dashboard
 - [[lib-mock-data]]
 - [[lib-auth-context]]
-
-### usedBy ←
-- [[page-dashboard-shell]]
+- [[lib-utils]] — `cn()` di komponen _components
 
 ## Gotchas
 

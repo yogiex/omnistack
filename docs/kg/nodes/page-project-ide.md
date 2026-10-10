@@ -21,6 +21,10 @@ backend/BYOC nyata. Belum ada Monaco/xterm/WebSocket (hanya rendering tiruan).
 ### dependsOn →
 - [[lib-mock-ide-data]]
 - [[lib-auth-context]]
+- [[lib-utils]] — `cn()` di komponen Cloud IDE
+
+### guardedBy ←
+- [[component-route-guard]] — melindungi layout `(ide)`
 
 ## Gotchas
 

@@ -12,6 +12,7 @@ import {
   Database,
   DollarSign,
   ExternalLink,
+  FileArchive,
   FolderGit2,
   LayoutList,
   MemoryStick,
@@ -42,6 +43,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ProjectStatusBadge } from "@/components/project-status-badge"
 import { DeploymentStatusBadge } from "@/components/deployment-status-badge"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import { useAuth } from "@/lib/auth-context"
 import {
   MOCK_PROJECTS,
@@ -304,37 +306,25 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
             </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pemilik</CardTitle>
-            <User className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm font-medium">{owner?.name ?? "Unknown"}</p>
-            <p className="text-xs text-muted-foreground">
-              {owner?.email ?? ""}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dibuat</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm font-medium">{project.createdAtLabel}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Deploy</CardTitle>
-            <Rocket className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{project.deployments}</p>
-            <p className="text-xs text-muted-foreground">deployment</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Pemilik"
+          value={owner?.name ?? "Unknown"}
+          hint={owner?.email ?? ""}
+          icon={<User />}
+          valueClassName="text-base font-medium"
+        />
+        <StatCard
+          title="Dibuat"
+          value={project.createdAtLabel}
+          icon={<Calendar />}
+          valueClassName="text-base font-medium"
+        />
+        <StatCard
+          title="Total Deploy"
+          value={project.deployments}
+          hint="deployment"
+          icon={<Rocket />}
+        />
       </div>
 
       {/* Tabs utama */}
@@ -348,25 +338,19 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
 
         {/* ==================== TAB OVERVIEW ==================== */}
         <TabsContent value="overview" className="mt-4 flex flex-col gap-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatGrid cols={4}>
             {METRICS.map((metric) => (
-              <Card key={metric.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {metric.title}
-                  </CardTitle>
-                  <metric.icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{metric.value}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {metric.note}
-                  </p>
-                  <Sparkline data={metric.data} />
-                </CardContent>
-              </Card>
+              <StatCard
+                key={metric.title}
+                title={metric.title}
+                value={metric.value}
+                hint={metric.note}
+                icon={<metric.icon />}
+              >
+                <Sparkline data={metric.data} />
+              </StatCard>
             ))}
-          </div>
+          </StatGrid>
 
           <Card>
             <CardHeader>
@@ -417,6 +401,45 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
               </div>
             </CardContent>
           </Card>
+
+          {project.source && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  {project.source.kind === "git" ? (
+                    <FolderGit2 className="h-5 w-5" />
+                  ) : (
+                    <FileArchive className="h-5 w-5" />
+                  )}
+                  Sumber Kode
+                </CardTitle>
+                <CardDescription>
+                  Dari mana kode proyek ini berasal
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">
+                      {project.source.kind === "git"
+                        ? `${project.source.provider ?? "git"} · branch ${project.source.branch ?? "main"}`
+                        : "Upload arsip"}
+                    </p>
+                    <p className="truncate font-mono text-sm">
+                      {project.source.repoUrl ??
+                        project.source.fileName ??
+                        "—"}
+                    </p>
+                  </div>
+                  {project.source.analyzedAtLabel && (
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      Dianalisis {project.source.analyzedAtLabel}
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* ==================== TAB DEPLOYMENTS ==================== */}
@@ -550,25 +573,20 @@ export function ProjectDetailClient({ projectId }: ProjectDetailClientProps) {
         {/* ==================== TAB FINOPS ==================== */}
         <TabsContent value="finops" className="mt-4 flex flex-col gap-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Estimasi Biaya Bulanan
-                </CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
+            <StatCard
+              title="Estimasi Biaya Bulanan"
+              value={
+                <>
                   ${monthlyCost.toFixed(2)}
                   <span className="text-sm font-normal text-muted-foreground">
+                    {" "}
                     /mo
                   </span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {project.deployments} deployment · Agustus 2026 (mock)
-                </p>
-              </CardContent>
-            </Card>
+                </>
+              }
+              hint={`${project.deployments} deployment · Agustus 2026 (mock)`}
+              icon={<DollarSign />}
+            />
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium">
