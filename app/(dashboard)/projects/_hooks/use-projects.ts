@@ -5,8 +5,10 @@ import { useCallback, useMemo, useState } from "react"
 import {
   getMockProjectsByUser,
   MOCK_USERS,
+  type ProjectSource,
   type Role,
 } from "@/lib/mock-data"
+import { slugify } from "@/lib/source-utils"
 import type { ManagedProject } from "../_components/project-card"
 
 interface UseProjectsArgs {
@@ -18,6 +20,7 @@ export interface CreateProjectInput {
   name: string
   description: string
   userId: string
+  source?: ProjectSource
 }
 
 /**
@@ -62,14 +65,22 @@ export function useProjects({ userId, role }: UseProjectsArgs) {
   )
 
   const create = useCallback((input: CreateProjectInput): ManagedProject => {
+    const { source } = input
+    const isImported = source?.kind === "git" || source?.kind === "upload"
     const project: ManagedProject = {
       id: newLocalId(),
       name: input.name,
       description: input.description,
-      status: "active",
+      // Sumber terimpor memulai siklus build; selebihnya langsung Live.
+      status: isImported ? "deploying" : "active",
       userId: input.userId,
       createdAtLabel: "Baru saja",
       deployments: 0,
+      stack: source?.detectedStack,
+      source,
+      url: isImported ? `${slugify(input.name)}.omnistack.dev` : undefined,
+      lastDeployLabel: isImported ? "baru saja" : undefined,
+      progress: isImported ? 5 : undefined,
     }
     setProjects((prev) => [project, ...prev])
     return project

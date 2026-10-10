@@ -36,6 +36,37 @@ export interface MockProjectStack {
   database?: string[]
 }
 
+/** Asal-usul kode proyek: dibuat manual, di-upload, atau dari repo Git. */
+export type ProjectSourceKind = "manual" | "upload" | "git"
+
+/** Provider Git yang dikenali. `generic` = URL git di luar allowlist brand. */
+export type ProjectSourceProvider = "github" | "gitlab" | "generic"
+
+/**
+ * Metadata sumber proyek.
+ *
+ * Belum ada backend — nilai `detectedStack`/`analyzedAtLabel` diisi oleh
+ * `analyzeSource()` di `lib/source-utils.ts` (mock deterministik). Saat
+ * backend siap, ganti pemanggilnya dengan `POST /api/import/analyze`.
+ */
+export interface ProjectSource {
+  kind: ProjectSourceKind
+  /** Upload: nama file arsip (mis. `app.zip`). */
+  fileName?: string
+  /** Upload: ukuran file dalam byte. */
+  fileSizeBytes?: number
+  /** Git: provider yang terdeteksi dari host URL. */
+  provider?: ProjectSourceProvider
+  /** Git: URL repo (https, sudah lolos allowlist host). */
+  repoUrl?: string
+  /** Git: branch target deploy. */
+  branch?: string
+  /** Hasil deteksi stack (mock). */
+  detectedStack?: MockProjectStack
+  /** Label waktu analisis, mis. "baru saja" (hindari Date agar deterministik). */
+  analyzedAtLabel?: string
+}
+
 export interface MockProject {
   id: string
   name: string
@@ -49,6 +80,8 @@ export interface MockProject {
   lastDeployLabel?: string
   progress?: number
   errorMessage?: string
+  /** Metadata sumber kode (manual/upload/git). Lihat `ProjectSource`. */
+  source?: ProjectSource
 }
 
 export type DeploymentStatus = "success" | "building" | "failed" | "queued"
@@ -171,6 +204,18 @@ export const MOCK_PROJECTS: MockProject[] = [
     },
     url: "shop.app.omnistack.dev",
     lastDeployLabel: "2 jam lalu",
+    source: {
+      kind: "git",
+      provider: "github",
+      repoUrl: "https://github.com/omnistack-labs/ecommerce-platform",
+      branch: "main",
+      detectedStack: {
+        frontend: ["Next.js", "React"],
+        backend: ["Node.js"],
+        database: ["PostgreSQL", "Redis"],
+      },
+      analyzedAtLabel: "3 bulan lalu",
+    },
   },
   {
     id: "proj-002",
@@ -202,6 +247,16 @@ export const MOCK_PROJECTS: MockProject[] = [
     },
     url: "portfolio.omnistack.dev",
     lastDeployLabel: "1 hari lalu",
+    source: {
+      kind: "upload",
+      fileName: "portfolio-astro.zip",
+      fileSizeBytes: 4_820_000,
+      detectedStack: {
+        frontend: ["Astro", "Tailwind"],
+        database: ["SQLite"],
+      },
+      analyzedAtLabel: "1 bulan lalu",
+    },
   },
   {
     id: "proj-004",
@@ -246,6 +301,17 @@ export const MOCK_PROJECTS: MockProject[] = [
     },
     url: "api-analytics.omnistack.dev",
     lastDeployLabel: "30 menit lalu",
+    source: {
+      kind: "git",
+      provider: "gitlab",
+      repoUrl: "https://gitlab.com/omnistack/analytics-api",
+      branch: "release/v1",
+      detectedStack: {
+        backend: ["Go", "Chi"],
+        database: ["PostgreSQL", "Redis"],
+      },
+      analyzedAtLabel: "1 minggu lalu",
+    },
   },
 ]
 
