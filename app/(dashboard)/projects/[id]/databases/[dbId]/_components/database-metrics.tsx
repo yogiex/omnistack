@@ -1,15 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { BarChart3, RefreshCw } from "lucide-react"
+import { Activity, BarChart3, Gauge, Network, RefreshCw, Timer } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import {
   Select,
   SelectContent,
@@ -148,98 +143,102 @@ export function DatabaseMetrics({ database }: { database: MockDatabase }) {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="p-5">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Queries per Second (QPS)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Sparkline series={qpsSeries} />
-            <p className="mt-2 text-xs text-muted-foreground">
-              rata-rata: {qpsAvg} qps
-            </p>
-          </CardContent>
-        </Card>
+      <StatGrid cols={4}>
+        <StatCard
+          title="Queries per Second (QPS)"
+          value={qpsAvg}
+          icon={<Activity />}
+          hint="rata-rata qps"
+        >
+          <Sparkline series={qpsSeries} />
+        </StatCard>
 
-        <Card className="p-5">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Koneksi Aktif</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
+        <StatCard
+          title="Koneksi Aktif"
+          value={
+            <>
               {database.resources.connectionsCurrent}
               <span className="text-sm font-normal text-muted-foreground">
                 {" "}
                 / {database.resources.connectionsMax} koneksi
               </span>
-            </p>
-            <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className={cn(
-                  "h-full rounded-full",
-                  connectionsPct < 80 ? "bg-green-500" : "bg-yellow-500"
-                )}
-                style={{ width: `${Math.min(100, connectionsPct)}%` }}
-              />
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Koneksi aktif saat ini
-            </p>
-          </CardContent>
-        </Card>
+            </>
+          }
+          icon={<Network />}
+          hint="Koneksi aktif saat ini"
+        >
+          <div
+            role="progressbar"
+            aria-valuenow={connectionsPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Persentase koneksi terpakai"
+            className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted"
+          >
+            <div
+              className={cn(
+                "h-full rounded-full",
+                connectionsPct < 80
+                  ? "bg-emerald-600 dark:bg-emerald-400"
+                  : "bg-amber-600 dark:bg-amber-400"
+              )}
+              style={{ width: `${Math.min(100, connectionsPct)}%` }}
+            />
+          </div>
+        </StatCard>
 
-        <Card className="p-5">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              Response Time (p95)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Sparkline series={responseSeries} />
-            <p className="mt-2 text-xs text-muted-foreground">
-              rata-rata: {database.metrics.avgResponseTimeMs} ms
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Response Time (p95)"
+          value={
+            <>
+              {database.metrics.avgResponseTimeMs}
+              <span className="text-sm font-normal text-muted-foreground"> ms</span>
+            </>
+          }
+          icon={<Timer />}
+          hint="rata-rata periode ini"
+        >
+          <Sparkline series={responseSeries} />
+        </StatCard>
 
-        <Card className="p-5">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">
-              {isRedis ? "Cache Hit Ratio" : "Uptime"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isRedis ? (
+        <StatCard
+          title={isRedis ? "Cache Hit Ratio" : "Uptime"}
+          value={
+            isRedis ? (
               <>
-                <p className="text-2xl font-bold">{cacheHitRatio}%</p>
-                <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-green-500"
-                    style={{ width: `${Math.min(100, cacheHitRatio)}%` }}
-                  />
-                </div>
+                {cacheHitRatio}
+                <span className="text-sm font-normal text-muted-foreground">%</span>
               </>
             ) : (
               <>
-                <p className="text-2xl font-bold">{database.metrics.uptime}%</p>
-                <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-green-500"
-                    style={{
-                      width: `${Math.min(100, database.metrics.uptime)}%`,
-                    }}
-                  />
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  30 hari terakhir
-                </p>
+                {database.metrics.uptime}
+                <span className="text-sm font-normal text-muted-foreground">%</span>
               </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            )
+          }
+          icon={<Gauge />}
+          hint={isRedis ? "Efisiensi cache" : "30 hari terakhir"}
+        >
+          <div
+            role="progressbar"
+            aria-valuenow={isRedis ? cacheHitRatio : database.metrics.uptime}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={isRedis ? "Persentase cache hit" : "Persentase uptime"}
+            className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted"
+          >
+            <div
+              className="h-full rounded-full bg-emerald-600 dark:bg-emerald-400"
+              style={{
+                width: `${Math.min(
+                  100,
+                  isRedis ? cacheHitRatio : database.metrics.uptime,
+                )}%`,
+              }}
+            />
+          </div>
+        </StatCard>
+      </StatGrid>
 
       <div className="mt-6">
         <h3 className="mb-2 text-base font-semibold">

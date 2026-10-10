@@ -67,7 +67,7 @@ export const monitoringKpis: KpiGridConfig<MonitoringKpiData> = {
     {
       id: "memory",
       label: "Memori Terpakai",
-      accent: "violet",
+      accent: "default",
       icon: <MemoryStick />,
       value: (d) =>
         d.memoryUsedGb === null ? unavailable : `${d.memoryUsedGb.toFixed(1)} GB`,
@@ -87,7 +87,7 @@ export const monitoringKpis: KpiGridConfig<MonitoringKpiData> = {
     {
       id: "error-rate",
       label: "Error Rate",
-      accent: "rose",
+      accent: "default",
       icon: <HeartPulse />,
       value: (d) =>
         d.errorRate === null ? unavailable : `${d.errorRate.toFixed(2)}%`,

@@ -55,7 +55,7 @@ export const gitOpsKpis: KpiGridConfig<GitOpsKpiData> = {
     {
       id: "building-previews",
       label: "Building",
-      accent: "amber",
+      accent: "default",
       icon: <Activity />,
       value: (d) => countBy(d, BUILDING),
       tooltip: "Preview env yang sedang di-deploy. URL belum bisa diakses.",

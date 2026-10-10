@@ -62,7 +62,7 @@ export const finopsKpis: KpiGridConfig<FinOpsKpiData> = {
     {
       id: "active-alerts",
       label: "Alerts Aktif",
-      accent: "rose",
+      accent: "default",
       icon: <BellRing />,
       value: (d) => d.alerts.total.toLocaleString("id-ID"),
       trendLabel: (d) =>
@@ -81,7 +81,7 @@ export const finopsKpis: KpiGridConfig<FinOpsKpiData> = {
     {
       id: "storage-usage",
       label: "Storage Terpakai",
-      accent: "blue",
+      accent: "default",
       icon: <HardDrive />,
       value: (d) => `${d.overview.storageUsedGb.toLocaleString("id-ID")} GB`,
       trend: (d) => (d.overview.storageGrowthGb < 0 ? "down" : "up"),
