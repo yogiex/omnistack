@@ -36,7 +36,15 @@ export function AdminDatabasesClient() {
       <DatabasesHeader />
 
       <StatGrid cols={3}>
-        <StatCard title="Total Database" value={filters.filtered.length} />
+        <StatCard
+          title="Total Database"
+          value={filters.filtered.length}
+          hint={
+            filters.filtered.length === filters.totalCount
+              ? "Seluruh database"
+              : `dari ${filters.totalCount} total`
+          }
+        />
         <StatCard
           title="Total Storage"
           value={`${filters.totalStorageGb.toFixed(1)} GB`}

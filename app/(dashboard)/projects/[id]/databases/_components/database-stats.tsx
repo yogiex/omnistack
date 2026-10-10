@@ -3,7 +3,7 @@
 import { Activity, HardDrive, TrendingUp } from "lucide-react"
 import { SiPostgresql, SiRedis } from "react-icons/si"
 
-import { Card } from "@/components/ui/card"
+import { StatCard, StatGrid } from "@/components/stat-card"
 import type { MockDatabase } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 
@@ -41,81 +41,55 @@ export function DatabaseStats({ databases }: { databases: MockDatabase[] }) {
       : String(totalQueriesPerHour)
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card className="p-6 rounded-xl border bg-card">
-        <div className="flex items-center gap-3">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg"
-            style={{ backgroundColor: "#3367911a", color: "#336791" }}
-          >
-            <SiPostgresql />
-          </div>
-          <p className="text-sm font-medium text-muted-foreground">
-            PostgreSQL Instances
-          </p>
-        </div>
-        <p className="mt-4 text-3xl font-bold">{postgresCount}</p>
-        <p className="mt-2 flex items-center gap-1 text-xs text-green-600">
-          <TrendingUp className="h-3 w-3" />+1 minggu ini
+    <StatGrid cols={4}>
+      <StatCard
+        title="PostgreSQL Instances"
+        value={postgresCount}
+        icon={<SiPostgresql />}
+      >
+        <p className="mt-1 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+          <TrendingUp className="size-3" aria-hidden="true" />
+          +1 minggu ini
         </p>
-      </Card>
+      </StatCard>
 
-      <Card className="p-6 rounded-xl border bg-card">
-        <div className="flex items-center gap-3">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg"
-            style={{ backgroundColor: "#DC382D1a", color: "#DC382D" }}
-          >
-            <SiRedis />
-          </div>
-          <p className="text-sm font-medium text-muted-foreground">
-            Redis Instances
-          </p>
-        </div>
-        <p className="mt-4 text-3xl font-bold">{redisDbs.length}</p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Cache hit: rata-rata {redisCacheAvg.toFixed(0)}%
-        </p>
-      </Card>
+      <StatCard
+        title="Redis Instances"
+        value={redisDbs.length}
+        hint={`Cache hit: rata-rata ${redisCacheAvg.toFixed(0)}%`}
+        icon={<SiRedis />}
+      />
 
-      <Card className="p-6 rounded-xl border bg-card">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-            <HardDrive className="h-5 w-5" />
-          </div>
-          <p className="text-sm font-medium text-muted-foreground">
-            Total Storage Used
-          </p>
-        </div>
-        <p className="mt-4 text-3xl font-bold">
-          {formatStorageLabel(totalUsedGb)}
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          dari {totalLimitGb} GB
-        </p>
-        <div className="mt-3 h-2 rounded-full bg-muted">
+      <StatCard
+        title="Total Storage Used"
+        value={formatStorageLabel(totalUsedGb)}
+        hint={`dari ${totalLimitGb} GB`}
+        icon={<HardDrive />}
+      >
+        <div
+          role="progressbar"
+          aria-valuenow={Math.round(storagePercent)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Persentase storage terpakai"
+          className="mt-3 h-1.5 rounded-full bg-muted"
+        >
           <div
             className={cn(
               "h-full rounded-full",
-              storagePercent < 80 ? "bg-primary" : "bg-red-500",
+              storagePercent < 80 ? "bg-primary" : "bg-destructive",
             )}
             style={{ width: `${Math.min(storagePercent, 100)}%` }}
           />
         </div>
-      </Card>
+      </StatCard>
 
-      <Card className="p-6 rounded-xl border bg-card">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-            <Activity className="h-5 w-5" />
-          </div>
-          <p className="text-sm font-medium text-muted-foreground">
-            Queries/jam
-          </p>
-        </div>
-        <p className="mt-4 text-3xl font-bold tabular-nums">{queriesLabel}</p>
-        <p className="mt-2 text-xs text-green-600">↑ 18%</p>
-      </Card>
-    </div>
+      <StatCard
+        title="Queries/jam"
+        value={queriesLabel}
+        hint="↑ 18%"
+        icon={<Activity />}
+      />
+    </StatGrid>
   )
 }

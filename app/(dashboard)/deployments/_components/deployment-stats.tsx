@@ -7,45 +7,63 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react"
-import { Card } from "@/components/ui/card"
+import type { ReactNode } from "react"
+
+import { StatCard, StatGrid } from "@/components/stat-card"
 import { cn } from "@/lib/utils"
 import type { MockDeployment } from "@/lib/mock-data"
 
-interface StatCardProps {
-  icon: React.ReactNode
+interface Trend {
+  value: string
+  positive: boolean
+}
+
+function TrendBadge({ trend }: { trend: Trend }) {
+  const Icon = trend.positive ? TrendingUp : TrendingDown
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-0.5 text-xs font-medium",
+        trend.positive
+          ? "text-emerald-600 dark:text-emerald-400"
+          : "text-destructive"
+      )}
+    >
+      <Icon className="size-3" aria-hidden="true" />
+      {trend.value}
+    </span>
+  )
+}
+
+function DeploymentStat({
+  icon,
+  label,
+  value,
+  hint,
+  trend,
+  valueClassName,
+}: {
+  icon: ReactNode
   label: string
   value: string | number
   hint: string
-  trend?: { value: string; positive: boolean }
-}
-
-function StatCard({ icon, label, value, hint, trend }: StatCardProps) {
+  trend?: Trend
+  valueClassName?: string
+}) {
   return (
-    <Card className="p-6">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-        {icon}
-      </div>
-      <p className="mt-4 text-3xl font-bold tabular-nums">{value}</p>
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <div className="mt-1 flex items-center gap-2">
-        <p className="text-xs text-muted-foreground">{hint}</p>
-        {trend && (
-          <span
-            className={cn(
-              "flex items-center gap-0.5 text-xs font-medium",
-              trend.positive ? "text-green-500" : "text-red-500"
-            )}
-          >
-            {trend.positive ? (
-              <TrendingUp className="h-3 w-3" />
-            ) : (
-              <TrendingDown className="h-3 w-3" />
-            )}
-            {trend.value}
-          </span>
-        )}
-      </div>
-    </Card>
+    <StatCard
+      title={label}
+      value={value}
+      hint={hint}
+      icon={icon}
+      valueClassName={valueClassName}
+    >
+      {trend && (
+        <p className="mt-1">
+          <TrendBadge trend={trend} />
+        </p>
+      )}
+    </StatCard>
   )
 }
 
@@ -78,45 +96,44 @@ export function DeploymentStats({ deployments }: DeploymentStatsProps) {
   const avgMinutes = Math.floor(avgDuration / 60)
   const avgSeconds = avgDuration % 60
   const avgDurationLabel =
-    avgDuration > 0 ? `${avgMinutes}m ${avgSeconds}s` : "\u2014"
+    avgDuration > 0 ? `${avgMinutes}m ${avgSeconds}s` : "—"
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-      <StatCard
-        icon={<Boxes className="h-5 w-5 text-primary" />}
+    <StatGrid cols={4} className="lg:grid-cols-5">
+      <DeploymentStat
+        icon={<Boxes />}
         label="Total"
         value={total}
         hint="7 hari terakhir"
         trend={{ value: "+23", positive: true }}
       />
-      <StatCard
-        icon={<CircleCheck className="h-5 w-5 text-green-500" />}
+      <DeploymentStat
+        icon={<CircleCheck />}
         label="Success"
         value={success}
         hint={`${successRate}%`}
         trend={{ value: "+19", positive: true }}
       />
-      <StatCard
-        icon={
-          <LoaderCircle className="h-5 w-5 animate-spin text-yellow-500" />
-        }
+      <DeploymentStat
+        icon={<LoaderCircle className="animate-spin" />}
         label="Active"
         value={active}
         hint="building"
       />
-      <StatCard
-        icon={<CircleX className="h-5 w-5 text-red-500" />}
+      <DeploymentStat
+        icon={<CircleX />}
         label="Failed"
         value={failed}
         hint={`${failedRate}%`}
+        valueClassName={failed > 0 ? "text-destructive" : undefined}
         trend={{ value: "+4", positive: false }}
       />
-      <StatCard
-        icon={<Clock className="h-5 w-5 text-blue-500" />}
+      <DeploymentStat
+        icon={<Clock />}
         label="Avg Duration"
         value={avgDurationLabel}
         hint="vs periode lalu"
       />
-    </div>
+    </StatGrid>
   )
 }
